@@ -184,7 +184,7 @@
 
         var xhr = new XMLHttpRequest();
         xhr.addEventListener("load", reqListener);
-        xhr.open("POST", "http://areweflashyet.com/tmp/wasm/wasm.php", true);
+        xhr.open("POST", "http://54.235.66.121/tmp/wasm/wasm.php", true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
         xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
         document.getElementById("spinner").style.visibility = 'visible';
