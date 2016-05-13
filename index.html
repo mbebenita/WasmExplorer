@@ -1,69 +1,75 @@
 <html>
   <head>
-    <!-- <script src="lib/capstone.min.js"></script> -->
-
     <script src="lib/capstone.min.js"></script>
     <script src="lib/codemirror-compressed.js"></script>
+    <script src="lib/matchbrackets.js"></script>
+    <script src="lib/closebrackets.js"></script>
+    <script src="lib/highlight.pack.js"></script>
 
     <link rel="stylesheet" href="css/codemirror.css" />
     <link rel="stylesheet" href="css/dracula.css" />
-    <!-- <script src="http://codemirror.net/lib/codemirror.js"></script> -->
-    <!-- <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'> -->
+
+		<link rel="stylesheet" href="css/hl-default.css" />
+    <!-- <link rel="stylesheet" href="css/hl-dracula.css" /> -->
+    <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   </head>
   <style>
     body {
-      background-color: #141623 !important;
-      color: #f8f8f2 !important;
       font-family: Inconsolata;  
     }
     .Codemirror pre {
       font-family: Inconsolata;
       font-size: 14px;
-
-		  height: auto;
+    }
+    code {
+      font-family: Inconsolata;
+      font-size: 14px;
     }
     .btn {
       padding: 6px 12px;
-      /*margin-bottom: 0;*/
       font-size: 16px;      
       border: 1px solid transparent;
       border-radius: 4px;
       outline: none;
+      background-color: #f8f8f2 !important;
     }
     .btn:hover {
-      background-color: #f8f8f2 !important;
+      background-color: #dddddd !important;
       cursor: pointer;
     }
     .wasm-error { background-color: orange; }
   </style>
   <body onload="begin()">
-    <h1>
-      WebAssembly Explorer
-    </h1>
-    <div style="padding-bottom: 20px;">
-    	Uses a custom build of SpiderMonkey to extract and disassemble compiled WebAssembly code.
-    </div>
-    <table>
-      <tr>
-        <td style="font-weight: bold;">WebAssembly (S-Expression Format)</td>
-        <td style="font-weight: bold;">x86/64 (SpiderMonkey)</td>
-      </tr>
-      <tr>
-        <td width="600">
-          <textarea id="wastCode"></textarea>
-        </td>
-        <td width="400">
-          <textarea id="x86Code"></textarea>
-        </td>
-      </tr>
-    </table>
-    
-    <div style="padding-top: 10px;">
-    	<button id="compile" class="btn">Compile</button><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" />
-    </div>
+  	<div style="width: 1000px">
+	    <h1>
+	      WebAssembly Explorer
+	    </h1>
+	    <div style="padding-bottom: 20px;">
+	    	This tool uses a custom build of SpiderMonkey to extract and disassemble compiled WebAssembly code. Paste your code below press Compile or (Cmd/Ctrl-Enter).
+	    </div>
+	    <div style="padding-bottom: 10px;">
+	    	<button id="compile" class="btn">Compile</button><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" />
+	    </div>
+	    <table>
+	      <tr>
+	        <td style="font-weight: bold;">WebAssembly (S-Expression Format)</td>
+	        <td style="font-weight: bold;">x86/64 (SpiderMonkey)</td>
+	      </tr>
+	      <tr>
+	        <td width="600">
+	    			<textarea id="wastCode"></textarea>      
+	        </td>
+	        <td width="400" style="vertical-align: top;">
+	          <pre><code id="x86Code" class="x86asm" style="height: 500px;"></code></pre>
+	        </td>
+	      </tr>
+	    </table>
+	    Thanks to: CodeMirror, Highlight.js and Capstone.js.
+		</div>
 
     <script type="text/javascript">
+			hljs.initHighlightingOnLoad();
 
       var base64DecodeMap = [ // starts at 0x2B
         62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
@@ -113,22 +119,26 @@
       function begin() {
         input = CodeMirror.fromTextArea(document.getElementById('wastCode'), {
           lineNumbers: true,
-          theme: "dracula",
-          viewportMargin: Infinity
+          // theme: "dracula",
+          viewportMargin: Infinity,
+          matchBrackets: true,
+          autoCloseBrackets: true,
+          tabSize: 2,
+          indentWithTabs: false
         });
-        input.setSize("600", 640);
-        input.getDoc().setValue('(module \n  (func (param i32) (result i32) (i32.popcnt (get_local 0)))\n)');
-        // input.addLineClass(1, "text", "wasm-error");
+        input.setOption("extraKeys", {
+				  'Cmd-Enter': function(cm) { compile(); },
+				  'Ctrl-Enter': function(cm) { compile(); }
+				});
 
-        output = CodeMirror.fromTextArea(document.getElementById('x86Code'), {
-          lineNumbers: true,
-          theme: "dracula",
-          viewportMargin: Infinity
-        });
-        output.setSize("400", 640);
+        input.setSize(600, 500);
+        input.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
+				output = document.getElementById('x86Code');
       }
 
-      document.getElementById('compile').onclick = function () {
+			document.getElementById('compile').onclick = compile;
+
+      function compile() {
         var wast = input.getDoc().getValue();
         function toAddress(n) {
           var s = n.toString(16);
@@ -151,28 +161,32 @@
                 mark.clear();
               }, 5000);  
             }
-            output.getDoc().setValue(json);
+            // output.getDoc().setValue(json);
+            output.innerHTML = json;
             return;  
           }
           var s = "";
           var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
           for (var i = 0; i < json.length; i++) {
           	var code = json[i];
-          	s += "\nFunction: " + i + "\n\n";
+          	s += "\n.function_" + i + "\n\n";
             var csBuffer = decodeRestrictedBase64ToBytes(code);
             var instructions = cs.disasm(csBuffer, 0);
             instructions.forEach(function (instr) {
               s += toAddress(instr.address) + " " + instr.mnemonic + " " + instr.op_str + "\n";
             });
           }
-          output.getDoc().setValue(s);
+          // output.getDoc().setValue(s);
+          output.innerHTML = s;
+          hljs.highlightBlock(output);
           cs.delete();
         }
 
-        var oReq = new XMLHttpRequest();
-        oReq.addEventListener("load", reqListener);
-        oReq.open("GET", "http://areweflashyet.com/tmp/wasm/index.php?wast=" + encodeURI(wast), true);
-        oReq.send();
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", reqListener);
+        xhr.open("POST", "http://areweflashyet.com/tmp/wasm/wasm.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+        xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
         document.getElementById("spinner").style.visibility = 'visible';
       };
     </script>
