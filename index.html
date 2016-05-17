@@ -1,27 +1,35 @@
 <html>
   <head>
-    <script src="lib/capstone.min.js"></script>
     <script src="lib/codemirror-compressed.js"></script>
     <script src="lib/matchbrackets.js"></script>
     <script src="lib/closebrackets.js"></script>
     <script src="lib/highlight.pack.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
     <link rel="stylesheet" href="css/codemirror.css" />
     <link rel="stylesheet" href="css/dracula.css" />
-
 		<link rel="stylesheet" href="css/hl-default.css" />
-    <!-- <link rel="stylesheet" href="css/hl-dracula.css" /> -->
     <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
-
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css">
   </head>
   <style>
     body {
-      font-family: Inconsolata;  
+      font-family: Roboto;
+      font-size: 13px;
+      margin: 0px;
     }
-    .Codemirror pre {
-      font-family: Inconsolata;
+    .CodeMirror {
+      line-height: 1.4em;
       font-size: 14px;
+      font-family: Inconsolata,Monaco,"Andale Mono","Lucida Console","Bitstream Vera Sans Mono","Courier New",Courier,monospace;
+      overflow: hidden;
+      height: 100%;
+      background: 0 0;
     }
+
+    div.CodeMirror span.CodeMirror-matchingbracket {
+      color: #E64A19;
+    }
+
     code {
       font-family: Inconsolata;
       font-size: 14px;
@@ -32,42 +40,91 @@
       border: 1px solid transparent;
       border-radius: 4px;
       outline: none;
-      background-color: #f8f8f2 !important;
+      background-color: #616161 !important;
+      color: #E0E0E0;
     }
     .btn:hover {
-      background-color: #dddddd !important;
+      background-color: #E0E0E0 !important;
+      color: #616161;
       cursor: pointer;
     }
+    
     .wasm-error { background-color: orange; }
+
+    #container {
+      width: 940px;
+      margin-top: 10px;
+    }
+    #toolbarContainer {
+      padding: 10px;
+      background-color: #424242 !important;
+    }
+    #contentContainer {
+      padding: 10px 10px 10px 10px;
+      background-color: #EEEEEE !important;  
+    }
+    #inputContainer {
+      float: left;
+      width: 600px;
+      margin-right: 10px;
+    }
+    #outputContainer {
+      height: 600px;
+      overflow: auto;
+    }
+    #spinnerContainer {
+      padding-top: 6px;
+      float: right;
+    }
+    #footerContainer {
+      clear: both;
+      font-family: Roboto;
+      padding: 10px;
+      background-color: #E0E0E0 !important;
+    }
+    .tab {
+      padding: 10px;
+      /*border: 1px solid transparent;*/
+      border-bottom: 2px #BDBDBD solid; 
+      /*background-color: #E0E0E0;*/
+      font-family: Roboto;
+      font-size: 14px;
+    }
   </style>
   <body onload="begin()">
-  	<div style="width: 1000px">
-	    <h1>
-	      WebAssembly Explorer
-	    </h1>
-	    <div style="padding-bottom: 20px;">
-	    	This tool uses a custom build of SpiderMonkey to extract and disassemble compiled WebAssembly code. Paste your code below and click Compile or press Cmd/Ctrl-Enter.
-	    </div>
-	    <div style="padding-bottom: 10px;">
-	    	<button id="compile" class="btn">Compile</button><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" />
-	    </div>
-	    <table>
-	      <tr>
-	        <td style="font-weight: bold;">WebAssembly (S-Expression Format)</td>
-	        <td style="font-weight: bold;">x86/64 (SpiderMonkey)</td>
-	      </tr>
-	      <tr>
-	        <td width="600">
-	    			<textarea id="wastCode"></textarea>      
-	        </td>
-	        <td width="400" style="vertical-align: top;">
-	          <pre><code id="x86Code" class="x86asm" style="height: 500px;"></code></pre>
-	        </td>
-	      </tr>
-	    </table>
-	    Thanks to: CodeMirror, Highlight.js and Capstone.js.
-		</div>
+    <div style="position: absolute; top: 0px; width: 1000px;">
+      <div style="position: absolute;"><canvas id="banner"></canvas></div>
+      <div style="position: absolute;">
+        <div style='padding: 10px; font-size: 28px;'>
+          WebAssembly Explorer
+        </div>
+        <div id="console" style='padding-left: 10px; margin-top: -5px; font-size: 12px;'>
+        </div>
+      </div>
+    </div>
 
+  	<div style="width: 1000px; margin-top: 128px;">
+      <div id="container">
+        <div id="toolbarContainer">
+          <button id="compile" class="btn">Compile</button>
+          <!-- <button id="share" class="btn">Share</button> -->
+          <button id="beautify" class="btn">Beautify</button>
+          <div id="spinnerContainer"><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
+        </div>
+        <div id="contentContainer">
+          <div id="inputContainer">
+            <div class="tab">WebAssembly (S-Expression Format)</div>
+            <textarea id="wastCode"></textarea>
+          </div>
+          <div id="outputContainer">
+            <div class="tab">x86/64 (SpiderMonkey)</div>
+            
+            <pre><code id="x86Code" class="x86asm"></code></pre>
+          </div>
+        </div>
+        <div id="footerContainer">Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.</div>
+      </div>
+		</div>
     <script type="text/javascript">
 			hljs.initHighlightingOnLoad();
 
@@ -117,8 +174,17 @@
       var input;
       var output;
       function begin() {
+        var pattern = Trianglify({
+          height: 128,
+          width: 940,
+          cell_size: 40
+        });
+
+
+        pattern.canvas(document.getElementById('banner'));
+
         input = CodeMirror.fromTextArea(document.getElementById('wastCode'), {
-          lineNumbers: true,
+          // lineNumbers: true,
           // theme: "dracula",
           viewportMargin: Infinity,
           matchBrackets: true,
@@ -130,13 +196,70 @@
 				  'Cmd-Enter': function(cm) { compile(); },
 				  'Ctrl-Enter': function(cm) { compile(); }
 				});
-
-        input.setSize(600, 500);
+        input.setSize(600, 560);
         input.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
 				output = document.getElementById('x86Code');
       }
 
+
+
 			document.getElementById('compile').onclick = compile;
+      document.getElementById('beautify').onclick = beautify;
+
+      var isBinaryenInstantiated = false;
+
+      function captureOutput(fn) {
+        var old = console.log;
+        var str = [];
+        console.log = function (x) {
+          str.push(x);
+        };
+        fn();
+        console.log = old;
+        return str.join("\n");
+      }
+
+      function beautify() {
+        if (typeof Binaryen === "undefined") {
+          lazyLoad("lib/binaryen.js", go)
+        } else {
+          go();
+        }
+        function go() {
+          if (!isBinaryenInstantiated) {
+            Binaryen = Binaryen();
+            isBinaryenInstantiated = true;
+          }
+          var wast = input.getDoc().getValue();
+          var module = new Binaryen.Module();
+          var parser = new Binaryen.SExpressionParser(wast);
+          var s_module = parser.get_root().getChild(0);
+          var builder = new Binaryen.SExpressionWasmBuilder(module, s_module);
+          
+          wast = captureOutput(function () {
+            Binaryen.WasmPrinter.prototype.printModule(module);
+          });
+          input.getDoc().setValue(wast);
+          var interface_ = new Binaryen.ShellExternalInterface();
+          var instance = new Binaryen.ModuleInstance(module, interface_);
+        }
+      }
+
+      function log(s) {
+        var c = document.getElementById("console");
+        c.innerHTML = c.innerHTML + s + "<br>"; 
+      }
+
+      function lazyLoad(s, cb) {
+        log("Loading " + s);
+        var d = window.document;
+        var b = d.body;
+        var e = d.createElement("script");
+        e.async = true;
+        e.src = s;
+        b.appendChild(e);
+        e.onload = cb;
+      }
 
       function compile() {
         var wast = input.getDoc().getValue();
@@ -147,7 +270,7 @@
           }
           return "0x" + s;
         }
-        function reqListener () {
+        function reqListener() {
         	document.getElementById("spinner").style.visibility = "hidden";
           var json = JSON.parse(this.responseText);
           if (typeof json === "string") {
@@ -161,11 +284,11 @@
                 mark.clear();
               }, 5000);  
             }
-            // output.getDoc().setValue(json);
             output.innerHTML = json;
             return;  
           }
           var s = "";
+
           var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
           for (var i = 0; i < json.length; i++) {
           	var code = json[i];
@@ -176,18 +299,26 @@
               s += toAddress(instr.address) + " " + instr.mnemonic + " " + instr.op_str + "\n";
             });
           }
-          // output.getDoc().setValue(s);
           output.innerHTML = s;
           hljs.highlightBlock(output);
           cs.delete();
         }
 
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", reqListener);
-        xhr.open("POST", "http://54.235.66.121/tmp/wasm/wasm.php", true);
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-        xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
-        document.getElementById("spinner").style.visibility = 'visible';
+        if (typeof capstone === "undefined") {
+          lazyLoad("lib/capstone.min.js", go);
+        } else {
+          go();
+        }
+
+        function go() {
+          var xhr = new XMLHttpRequest();
+          xhr.addEventListener("load", reqListener);
+          xhr.open("POST", "http://54.235.66.121/tmp/wasm/wasm.php", true);
+  				// xhr.open("POST", "http://localhost:8888/wasm.php", true);
+          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+          xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
+          document.getElementById("spinner").style.visibility = 'visible';
+        }
       };
     </script>
   </body>
