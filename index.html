@@ -11,6 +11,10 @@
 		<link rel="stylesheet" href="css/hl-default.css" />
     <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css">
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
   </head>
   <style>
     body {
@@ -31,17 +35,23 @@
       color: #E64A19;
     }
 
+    div.CodeMirror div.CodeMirror-gutters {
+      background-color: transparent;
+      border: 0px;
+    }
+
     code {
       font-family: Inconsolata;
       font-size: 14px;
     }
     .btn {
-      padding: 6px 12px;
-      font-size: 16px;      
+      padding: 4px 8px;
+      font-size: 14px;      
       border: 1px solid transparent;
+      /*border: 1px solid;*/
       border-radius: 4px;
       outline: none;
-      background-color: #616161 !important;
+      background-color: #607D8B !important;
       color: #E0E0E0;
     }
     .btn:hover {
@@ -49,7 +59,10 @@
       color: #616161;
       cursor: pointer;
     }
-    
+    .btn:active {
+      position:relative;
+      top:1px;
+    }
     .wasm-error { background-color: orange; }
 
     #container {
@@ -62,20 +75,43 @@
     }
     #contentContainer {
       display: flex;
-      flex-direction: row;
+      /*flex-direction: row;*/
       padding: 10px 10px 10px 10px;
       background-color: #EEEEEE !important;  
       height: 800px;
     }
-    #inputContainer {
-      padding: 5px;
-      flex: auto;
-      overflow: hidden;
+    .tab {
+      margin: -5px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #E0E0E0;
+      font-family: Roboto;
+      font-size: 14px;
+      height: 56px;
     }
-    #outputContainer {
-      padding: 5px;
-      width: 400px;
-      overflow: auto;
+    .tab .label {
+      margin-bottom: 10px;
+    }
+    .tab .btn {
+      background-color: #E0E0E0;
+    }
+    #cppContainer {
+      /*background-color: orange;*/
+    }
+    #cppContainer .tab {
+      background-color: #D1C4E9;
+    }
+    #wastContainer {
+      /*background-color: blue;*/
+    }
+    #wastContainer .tab {
+      background-color: #BBDEFB;
+    }
+    #x86Container {
+      /*backaground-color: green;*/
+    }
+    #x86Container .tab {
+      background-color: #DCEDC8;
     }
     #spinnerContainer {
       padding-top: 6px;
@@ -87,16 +123,19 @@
       padding: 10px;
       background-color: #E0E0E0 !important;
     }
-    .tab {
-      padding: 10px;
-      /*border: 1px solid transparent;*/
-      border-bottom: 2px #BDBDBD solid; 
-      /*background-color: #E0E0E0;*/
-      font-family: Roboto;
-      font-size: 14px;
+    .editor {
+      flex: 1;
+      overflow: hidden;
+      padding: 5px;
+      min-width: 200px;
     }
-
-
+    .divider {
+      width: 15px;
+      background: red;
+      left: auto !important;
+      background-color: #E9E9E9 !important;
+      cursor: col-resize;
+    }
   </style>
   <body onload="begin()">
     <div style="position: absolute; top: 0px; width: 100%;">
@@ -109,26 +148,30 @@
         </div>
       </div>
     </div>
-
-
   	<div style="width: 100%; margin-top: 128px;">
-
- 
       <div id="container">
         <div id="toolbarContainer">
-          <button id="compile" class="btn">Compile</button>
-          <!-- <button id="share" class="btn">Share</button> -->
-          <button id="beautify" class="btn">Beautify</button>
+          <button id="share" class="btn">Share</button>
           <div id="spinnerContainer"><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
         </div>
         <div id="contentContainer">
-          <div id="inputContainer">
-            <div class="tab">WebAssembly (S-Expression Format)</div>
+          <div class="editor" id="cppContainer">
+            <div class="tab"><div class="label">C/C++ Source</div>
+              <button id="compile" class="btn">Compile</button>
+            </div>
+            <textarea id="cppCode"></textarea>
+          </div>
+          <div class="divider" id="divider-1"></div>
+          <div class="editor" id="wastContainer">
+            <div class="tab"><div class="label">WebAssembly Source</div>
+              <button id="assemble" class="btn">Assemble</button>
+              <button id="beautify" class="btn">Beautify</button>
+            </div>
             <textarea id="wastCode"></textarea>
           </div>
-          <div id="outputContainer">
-            <div class="tab">x86/64 (SpiderMonkey)</div>
-            
+          <div class="divider" id="divider-2"></div>
+          <div class="editor" id="x86Container">
+            <div class="tab"><div class="label">x86/64 (SpiderMonkey)</div></div>
             <pre><code id="x86Code" class="x86asm"></code></pre>
           </div>
         </div>

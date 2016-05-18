@@ -1,7 +1,8 @@
 hljs.initHighlightingOnLoad();
 
 
-var input;
+var cppEditor = null;
+var wastEditor = null;
 var output;
 
 function createBanner() {
@@ -17,40 +18,78 @@ function createBanner() {
   resize();
 }
 
-function createInputEditor() {
-  input = CodeMirror.fromTextArea(document.getElementById('wastCode'), {
+function resizeEditors() {
+  var width;
+  if (cppEditor) {
+    width = document.getElementById('cppContainer').clientWidth - 10;
+    width = Math.round(width / 20) * 20
+    cppEditor.setSize(width, 800);
+  }
+
+  if (wastEditor) {
+    width = document.getElementById('wastContainer').clientWidth - 10;
+    width = Math.round(width / 20) * 20
+    wastEditor.setSize(width, 800);
+  }
+}
+
+function createCppEditor() {
+  cppEditor = CodeMirror.fromTextArea(document.getElementById('cppCode'), {
     viewportMargin: Infinity,
     matchBrackets: true,
     autoCloseBrackets: true,
     tabSize: 2,
-    indentWithTabs: false
+    indentWithTabs: false,
+    lineWrapping: true,
+    lineNumbers: true
   });
-  input.setOption("extraKeys", {
+  cppEditor.setOption("extraKeys", {
     'Cmd-Enter': function(cm) {
       compile();
     },
     'Ctrl-Enter': function(cm) {
       compile();
     }
+  });  
+  resizeEditors();
+  // cppEditor.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
+}
+
+window.addEventListener("resize", resizeEditors);
+
+function createWastEditor() {
+  wastEditor = CodeMirror.fromTextArea(document.getElementById('wastCode'), {
+    viewportMargin: Infinity,
+    matchBrackets: true,
+    autoCloseBrackets: true,
+    tabSize: 2,
+    indentWithTabs: false,
+    lineWrapping: true,
+    lineNumbers: true
   });
-  function resize() {
-    var width = document.getElementById('inputContainer').clientWidth - 10;
-    input.setSize(width, 800);
-  }
-  window.addEventListener("resize", resize);
-  resize();
-  
-  input.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
+  wastEditor.setOption("extraKeys", {
+    'Cmd-Enter': function(cm) {
+      assemble();
+    },
+    'Ctrl-Enter': function(cm) {
+      assemble();
+    }
+  });
+  resizeEditors();
+  wastEditor.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
 }
 
 function begin() {
   createBanner();
-  createInputEditor();
+  createCppEditor();
+  createWastEditor();
     
   output = document.getElementById('x86Code');
 }
 
+document.getElementById('share').onclick = share;
 document.getElementById('compile').onclick = compile;
+document.getElementById('assemble').onclick = assemble;
 document.getElementById('beautify').onclick = beautify;
 
 var isBinaryenInstantiated = false;
@@ -78,7 +117,7 @@ function beautify() {
       Binaryen = Binaryen();
       isBinaryenInstantiated = true;
     }
-    var wast = input.getDoc().getValue();
+    var wast = wastEditor.getDoc().getValue();
     var module = new Binaryen.Module();
     var parser = new Binaryen.SExpressionParser(wast);
     var s_module = parser.get_root().getChild(0);
@@ -87,7 +126,7 @@ function beautify() {
     wast = captureOutput(function() {
       Binaryen.WasmPrinter.prototype.printModule(module);
     });
-    input.getDoc().setValue(wast);
+    wastEditor.getDoc().setValue(wast);
     var interface_ = new Binaryen.ShellExternalInterface();
     var instance = new Binaryen.ModuleInstance(module, interface_);
   }
@@ -109,8 +148,16 @@ function lazyLoad(s, cb) {
   e.onload = cb;
 }
 
+function share() {
+  alert("NYI");
+}
+
 function compile() {
-  var wast = input.getDoc().getValue();
+  alert("NYI");
+}
+
+function assemble() {
+  var wast = wastEditor.getDoc().getValue();
 
   function toAddress(n) {
     var s = n.toString(16);
@@ -129,7 +176,7 @@ function compile() {
         var location = json.substring(parseError.length).split(":");
         var line = Number(location[0]) - 1;
         var column = Number(location[1]) - 1;
-        var mark = input.markText({
+        var mark = wastEditor.markText({
           line: line,
           ch: column
         }, {
@@ -146,7 +193,6 @@ function compile() {
       return;
     }
     var s = "";
-
     var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
     for (var i = 0; i < json.length; i++) {
       var code = json[i];
@@ -172,9 +218,44 @@ function compile() {
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", reqListener);
     xhr.open("POST", "http://54.235.66.121/tmp/wasm/wasm.php", true);
-    // xhr.open("POST", "http://localhost:8888/wasm.php", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
     xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
     document.getElementById("spinner").style.visibility = 'visible';
   }
 };
+
+// Divider Resizing
+var divider2storage = $("#cppContainer").width();
+
+$(".divider").draggable({
+  axis: "x",
+  containment: $("#contentContainer"),
+  drag: function(e, ui) {
+    if (ui.helper[0].id === "divider-1") {
+      $("#x86Container").css("flex", "0 1 " + $("#x86Container").width() + "px"); 
+      $("#wastContainer").css("flex", "1");
+      $("#cppContainer").css("flex", "0 1 " + (ui.offset.left - 20) + "px");
+    } else if (ui.helper[0].id === "divider-2") {
+      $("#cppContainer").css("flex", "0 1 " + $("#cppContainer").width() + "px");
+      $("#x86Container").css("flex", "1");
+      $("#wastContainer").css("flex", "0 1 " + (divider2storage + ui.position.left) + "px");
+    }
+    resizeEditors();
+  },
+  stop: function(e, ui) {
+    if (ui.helper[0].id === "divider-2") {
+      divider2storage = divider2storage + ui.position.left;
+    } else {
+      divider2storage = $("#wastContainer").width();
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
