@@ -8,7 +8,7 @@ var output;
 function createBanner() {
   function resize() {
     var pattern = Trianglify({
-      height: 128,
+      height: 64,
       width: window.innerWidth,
       cell_size: 40
     });
@@ -41,7 +41,8 @@ function createCppEditor() {
     tabSize: 2,
     indentWithTabs: false,
     lineWrapping: true,
-    lineNumbers: true
+    lineNumbers: true,
+    mode: "text/x-c++src"
   });
   cppEditor.setOption("extraKeys", {
     'Cmd-Enter': function(cm) {
@@ -71,7 +72,8 @@ function createWastEditor() {
     tabSize: 2,
     indentWithTabs: false,
     lineWrapping: true,
-    lineNumbers: true
+    lineNumbers: true,
+    mode: "text/x-common-lisp"
   });
   wastEditor.setOption("extraKeys", {
     'Cmd-Enter': function(cm) {
@@ -138,20 +140,20 @@ function beautify() {
   }
 }
 
-function log(s) {
-  var c = document.getElementById("console");
-  c.innerHTML = c.innerHTML + s + "<br>";
-}
-
 function lazyLoad(s, cb) {
-  log("Loading " + s);
+  document.getElementById("spinner").style.visibility = 'visible';
+  document.getElementById("spinnerLabel").innerHTML = "Loading " + s;
   var d = window.document;
   var b = d.body;
   var e = d.createElement("script");
   e.async = true;
   e.src = s;
   b.appendChild(e);
-  e.onload = cb;
+  e.onload = function () {
+    document.getElementById("spinnerLabel").innerHTML = "";
+    document.getElementById("spinner").style.visibility = "hidden";
+    cb.call(this);
+  }
 }
 
 function share() {
@@ -180,7 +182,7 @@ function compile() {
     var wast = this.responseText;
     wastEditor.getDoc().setValue(wast);
     assemble();
-  }, "Compiling C/C++ to Wast ...");
+  }, "Compiling C/C++ to Wast");
 }
 
 function assemble() {
@@ -234,7 +236,7 @@ function assemble() {
       output.innerHTML = s;
       hljs.highlightBlock(output);
       cs.delete();
-    }, "Assembling Wast to x86 ...");
+    }, "Assembling Wast to x86");
   }
 
   function toAddress(n) {

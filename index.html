@@ -2,6 +2,8 @@
   <head>
     <script src="lib/codemirror-compressed.js"></script>
     <script src="lib/matchbrackets.js"></script>
+    <script src="lib/clike.js"></script>
+    <script src="lib/commonlisp.js"></script>
     <script src="lib/closebrackets.js"></script>
     <script src="lib/highlight.pack.js"></script>
     <script src="lib/base64.js"></script>
@@ -145,14 +147,12 @@
     <div style="position: absolute; top: 0px; width: 100%;">
       <div style="position: absolute;"><canvas id="banner"></canvas></div>
       <div style="position: absolute;">
-        <div style='padding: 10px; font-size: 28px;'>
+        <div style='padding: 20px; font-size: 20px; font-weight: bold;'>
           WebAssembly Explorer
-        </div>
-        <div id="console" style='padding-left: 10px; margin-top: -5px; font-size: 12px;'>
         </div>
       </div>
     </div>
-  	<div style="width: 100%; margin-top: 128px;">
+  	<div style="width: 100%; margin-top: 64px;">
       <div id="container">
         <div id="toolbarContainer">
           <button id="share" class="btn">Share</button>
@@ -180,7 +180,7 @@
             <pre><code id="x86Code" class="x86asm"></code></pre>
           </div>
         </div>
-        <div id="footerContainer">Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.</div>
+        <div id="footerContainer">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.</div>
       </div>
 		</div>
     <script src="explorer.js"></script>
