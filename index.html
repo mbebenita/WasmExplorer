@@ -117,6 +117,10 @@
       padding-top: 6px;
       float: right;
     }
+    #spinnerLabel {
+      font-family: Roboto;
+      color: #DCEDC8;
+    }
     #footerContainer {
       clear: both;
       font-family: Roboto;
@@ -152,7 +156,8 @@
       <div id="container">
         <div id="toolbarContainer">
           <button id="share" class="btn">Share</button>
-          <div id="spinnerContainer"><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
+          <div id="spinnerContainer">
+          <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
         </div>
         <div id="contentContainer">
           <div class="editor" id="cppContainer">

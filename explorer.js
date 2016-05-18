@@ -23,13 +23,13 @@ function resizeEditors() {
   if (cppEditor) {
     width = document.getElementById('cppContainer').clientWidth - 10;
     width = Math.round(width / 20) * 20
-    cppEditor.setSize(width, 800);
+    cppEditor.setSize(width, 700);
   }
 
   if (wastEditor) {
     width = document.getElementById('wastContainer').clientWidth - 10;
     width = Math.round(width / 20) * 20
-    wastEditor.setSize(width, 800);
+    wastEditor.setSize(width, 700);
   }
 }
 
@@ -52,7 +52,13 @@ function createCppEditor() {
     }
   });  
   resizeEditors();
-  // cppEditor.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
+  cppEditor.getDoc().setValue(`int testFunction(int* input, int length) {
+  int sum = 0;
+  for (int i = 0; i < length; ++i) {
+    sum += input[i];
+  }
+  return sum;
+}`);
 }
 
 window.addEventListener("resize", resizeEditors);
@@ -152,12 +158,84 @@ function share() {
   alert("NYI");
 }
 
+function sendRequest(command, cb, message) {
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener("load", function () {
+    document.getElementById("spinnerLabel").innerHTML = "";
+    document.getElementById("spinner").style.visibility = "hidden";
+    cb.call(this);
+  });
+  xhr.open("POST", "http://54.235.66.121/tmp/wasm/service.php", true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+  xhr.send(command);
+  if (message) {
+    document.getElementById("spinnerLabel").innerHTML = message;
+  }
+  document.getElementById("spinner").style.visibility = 'visible';
+}
+
 function compile() {
-  alert("NYI");
+  var cpp = cppEditor.getDoc().getValue();
+  sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=cpp2wast", function () {
+    var wast = this.responseText;
+    wastEditor.getDoc().setValue(wast);
+    assemble();
+  }, "Compiling C/C++ to Wast ...");
 }
 
 function assemble() {
   var wast = wastEditor.getDoc().getValue();
+  if (wast.indexOf("module") < 0) {
+    console.log("Doesn't look like a wasm module.");
+    output.innerHTML = "";
+    return;
+  }
+  if (typeof capstone === "undefined") {
+    lazyLoad("lib/capstone.min.js", go);
+  } else {
+    go();
+  }
+  function go() {
+    sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2assembly", function () {
+      var json = JSON.parse(this.responseText);
+      if (typeof json === "string") {
+        var parseError = "wasm text error: parsing wasm text at ";
+        if (json.indexOf(parseError) == 0) {
+          var location = json.substring(parseError.length).split(":");
+          var line = Number(location[0]) - 1;
+          var column = Number(location[1]) - 1;
+          var mark = wastEditor.markText({
+            line: line,
+            ch: column
+          }, {
+            line: line,
+            ch: 1000
+          }, {
+            className: "wasm-error"
+          });
+          setTimeout(function() {
+            mark.clear();
+          }, 5000);
+        }
+        output.innerHTML = json;
+        return;
+      }
+      var s = "";
+      var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+      for (var i = 0; i < json.length; i++) {
+        var code = json[i];
+        s += "\n.function_" + i + "\n\n";
+        var csBuffer = decodeRestrictedBase64ToBytes(code);
+        var instructions = cs.disasm(csBuffer, 0);
+        instructions.forEach(function(instr) {
+          s += toAddress(instr.address) + " " + instr.mnemonic + " " + instr.op_str + "\n";
+        });
+      }
+      output.innerHTML = s;
+      hljs.highlightBlock(output);
+      cs.delete();
+    }, "Assembling Wast to x86 ...");
+  }
 
   function toAddress(n) {
     var s = n.toString(16);
@@ -165,62 +243,6 @@ function assemble() {
       s = "0" + s;
     }
     return "0x" + s;
-  }
-
-  function reqListener() {
-    document.getElementById("spinner").style.visibility = "hidden";
-    var json = JSON.parse(this.responseText);
-    if (typeof json === "string") {
-      var parseError = "wasm text error: parsing wasm text at ";
-      if (json.indexOf(parseError) == 0) {
-        var location = json.substring(parseError.length).split(":");
-        var line = Number(location[0]) - 1;
-        var column = Number(location[1]) - 1;
-        var mark = wastEditor.markText({
-          line: line,
-          ch: column
-        }, {
-          line: line,
-          ch: 1000
-        }, {
-          className: "wasm-error"
-        });
-        setTimeout(function() {
-          mark.clear();
-        }, 5000);
-      }
-      output.innerHTML = json;
-      return;
-    }
-    var s = "";
-    var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
-    for (var i = 0; i < json.length; i++) {
-      var code = json[i];
-      s += "\n.function_" + i + "\n\n";
-      var csBuffer = decodeRestrictedBase64ToBytes(code);
-      var instructions = cs.disasm(csBuffer, 0);
-      instructions.forEach(function(instr) {
-        s += toAddress(instr.address) + " " + instr.mnemonic + " " + instr.op_str + "\n";
-      });
-    }
-    output.innerHTML = s;
-    hljs.highlightBlock(output);
-    cs.delete();
-  }
-
-  if (typeof capstone === "undefined") {
-    lazyLoad("lib/capstone.min.js", go);
-  } else {
-    go();
-  }
-
-  function go() {
-    var xhr = new XMLHttpRequest();
-    xhr.addEventListener("load", reqListener);
-    xhr.open("POST", "http://54.235.66.121/tmp/wasm/wasm.php", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-    xhr.send("wast=" + encodeURIComponent(wast).replace('%20', '+'));
-    document.getElementById("spinner").style.visibility = 'visible';
   }
 };
 
