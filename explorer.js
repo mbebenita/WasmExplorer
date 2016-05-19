@@ -39,6 +39,21 @@ function resizeEditors() {
   }
 }
 
+var gui;
+function createSettings() {
+  var load;
+  var urlParameters = getUrlParameters();
+  if (urlParameters["settings"]) {
+    load = JSON.parse(urlParameters["settings"]);
+  }
+  gui = new dat.GUI({ autoPlace: false, width: 280, load: load });
+  document.getElementById('settings').appendChild(gui.domElement);
+}
+
+var cppOptions = {
+  'Optimization Level': 3
+};
+
 function createCppEditor() {
   cppEditor = CodeMirror.fromTextArea(document.getElementById('cppCode'), {
     viewportMargin: Infinity,
@@ -57,9 +72,13 @@ function createCppEditor() {
     'Ctrl-Enter': function(cm) {
       compile();
     }
-  });  
+  });
+  gui.remember(cppOptions);
   resizeEditors();
-  // cppEditor.getDoc().setValue();
+  var clangSettings = gui.addFolder('Clang / LLVM Settings');
+  clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 });
+  clangSettings.open();
+
 }
 
 window.addEventListener("resize", resizeEditors);
@@ -87,6 +106,7 @@ function createWastEditor() {
 }
 
 function begin() {
+  createSettings();
   createBanner();
   createCppEditor();
   createWastEditor();
@@ -94,6 +114,8 @@ function begin() {
   output = document.getElementById('x86Code');
 }
 
+
+document.getElementById('toggleSettings').onclick = toggleSettings;
 document.getElementById('shareCpp').onclick = share.bind(null, "cpp");
 document.getElementById('shareWast').onclick = share.bind(null, "wast");
 document.getElementById('compileC').onclick = compile.bind(null, "c");
@@ -113,6 +135,18 @@ function captureOutput(fn) {
   fn();
   console.log = old;
   return str.join("\n");
+}
+
+var settingsAreOpen = false;
+function toggleSettings() {
+  if (settingsAreOpen) {
+    $('#contentContainer').css({"margin-left": "0px"});
+    $('#settings').css({"visibility": "hidden"});
+  } else {
+    $('#contentContainer').css({"margin-left": "280px"});
+    $('#settings').css({"visibility": "visible"});
+  }
+  settingsAreOpen = !settingsAreOpen;
 }
 
 function beautify() {
@@ -171,6 +205,7 @@ function share(type) {
   } else {
     url = url + "?wast=" + encodeURIComponent(wastEditor.getDoc().getValue());  
   }
+  url += "&settings=" + encodeURIComponent(JSON.stringify(gui.getSaveObject()))
   $('#shareURL').fadeTo(500,1);
   shortenUrl(url, function (url) {
     $('#shareURL').val(url).select();
@@ -412,6 +447,7 @@ function createExamples() {
 
 function getUrlParameters() {
   var url = window.location.search.substring(1);
+  url = url.replace(/\/$/, ""); // Replace / at the end that gets inserted by browsers.
   var params = {};
   url.split('&').forEach(function (s) {
     var t = s.split('=');

@@ -7,6 +7,7 @@
     <script src="lib/closebrackets.js"></script>
     <script src="lib/highlight.pack.js"></script>
     <script src="lib/base64.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
     <link rel="stylesheet" href="css/codemirror.css" />
     <link rel="stylesheet" href="css/dracula.css" />
@@ -158,6 +159,164 @@
     .divider:hover {
       background-color: #E0E0E0 !important;
     }
+    #settings {
+      position: fixed;
+      z-index: 100;
+      top: 112px;
+      bottom: 0px;
+      background-color: #424242 !important;
+      visibility: hidden;
+    }
+
+    body .dg.main {
+        /*box-shadow: 0 0 8px rgba(0,0,0,0.7);*/
+    }
+
+    @media only screen and (max-width : 1350px) {
+        body.gui-auto-hide .dg.ac {
+            right: -233px;
+        }
+
+        body .dg.ac:hover,
+        body.gui-show .dg.ac {
+            right: 0px;
+        }
+
+        body.gui-auto-hide.gui-transitions .dg.ac {
+            -webkit-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+               -moz-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+                 -o-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+                    transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415);
+
+            -webkit-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+               -moz-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+                 -o-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
+                    transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415);
+            
+            transition-delay: 3s;
+            -webkit-transition-delay: 3s;
+        }
+
+        body.gui-transitions .dg.ac:hover,
+        body.gui-show.gui-transitions .dg.ac {
+            -webkit-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+               -moz-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+                 -o-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+                    transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835);
+
+            -webkit-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+               -moz-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+                 -o-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
+                    transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835);
+
+            transition-delay: 0;
+            -webkit-transition-delay: 0;
+        }
+    }
+
+    body .dg .close-button {
+        border-top: 1px solid #444;
+        border-right: 4px solid #444;
+        display: none !important;
+    }
+/*
+    body .dg.main .close-button {
+        background-color: #444;
+    }
+     
+    body .dg.main .close-button:hover {
+        background-color: #555;
+    }
+*/
+    body .dg.main::-webkit-scrollbar {
+        background: #3d3d3d;
+        width: 9px;
+    }
+
+    body .dg.main::-webkit-scrollbar-thumb {
+        background: transparent;
+        width: 5px;
+        border-left: 5px solid #3d3d3d;
+        border-right: 6px solid rgba(0,0,0,0.2);
+        border-radius: 0;
+    }
+     
+    body .dg {
+        color: #fff;
+        text-shadow: none !important;
+    }
+
+    body .dg li:not(.folder) {
+        background: #3d3d3d;
+        border-bottom: 0px;
+        padding: 0 0 0 12px;
+    }
+     
+    body .dg li.save-row .button {
+        text-shadow: none !important;
+    }
+
+    body .dg li.title {
+        padding-left: 22px;
+        border-bottom: 1px solid #555;
+        background: #444 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 10px 10px no-repeat;
+    }
+
+    body .dg .cr.boolean:hover {
+        background: #3d3d3d;
+    }
+
+    body .dg .cr.function {
+        border-top: 1px solid #444;
+        background: #333;
+        color: #9CCC65;
+        border-bottom: 1px solid #333;
+    }
+
+    body .dg .cr.function:hover {
+        background: #3a3a3a;
+        border-bottom: 1px solid #2fa1d6;
+    }
+
+    body .dg .cr.function:active {
+        border-top: 2px solid #444;
+        border-bottom: 0;
+        background: #2e2e2e;
+    }
+
+    body .dg .c input[type=text]:hover {
+        background: #444;
+    }
+     
+    body .dg .c input[type=text]:focus {
+        background: #444;
+        color: #fff;
+    }
+     
+    body .dg .c .slider {
+        background: #555;
+    }
+
+    body .dg .c .slider:hover {
+        background: #666;
+    }
+
+    body .dg .c .slider-fg {
+        background: #777;
+    }
+
+    body .dg .c .slider:hover .slider-fg {
+        background: #999;
+    }
+
+    body .dg li.folder {
+        border-left: 0;
+    }
+
+    body .dg.a {
+        border-right:4px solid #3d3d3d;
+    }
+
   </style>
   <body onload="begin()">
     <div style="position: absolute; top: 0px; width: 100%;">
@@ -174,6 +333,7 @@
   	<div style="width: 100%; margin-top: 64px;">
       <div id="container">
         <div id="toolbarContainer">
+          <button id="toggleSettings" class="btn">Show / Hide Settings</button>
           <button id="shareCpp" class="btn">Share C/C++ Source</button>
           <button id="shareWast" class="btn">Share WebAssembly Source</button>
           <input id="shareURL" width="400"></input> 
@@ -210,6 +370,9 @@
         </div>
         <div id="footerContainer">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.</div>
       </div>
+      <div id="settings">
+      </div>
+
 		</div>
     <script src="explorer.js"></script>
   </body>
