@@ -51,22 +51,32 @@
       font-size: 12px;
       font-weight: bold;
       border: 1px solid transparent;
-      /*border: 1px solid;*/
       border-radius: 4px;
       outline: none;
-      background-color: #607D8B !important;
+      background-color: #757575 !important;
       color: #FFFFFF;
       height: 28px;
     }
     .btn:hover {
-      background-color: #90A4AE !important;
+      background-color: #9E9E9E !important;
       color: #FFFFFF;
       cursor: pointer;
     }
     .btn option {
       padding: 4px 8px;
     }
-
+    #shareURL {
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      outline: none;
+      background-color: #FAFAFA !important;
+      color: #000000;
+      height: 28px;
+      width: 400px;
+      opacity: 0;
+    }
     .wasm-error { background-color: orange; }
 
     #container {
@@ -82,7 +92,7 @@
       /*flex-direction: row;*/
       padding: 10px 10px 10px 10px;
       background-color: #EEEEEE !important;  
-      height: 800px;
+      height: 900px;
     }
     .tab {
       margin: -5px;
@@ -157,7 +167,9 @@
   	<div style="width: 100%; margin-top: 64px;">
       <div id="container">
         <div id="toolbarContainer">
-          <button id="share" class="btn">Share</button>
+          <button id="shareCpp" class="btn">Share C/C++ Source</button>
+          <button id="shareWast" class="btn">Share WebAssembly Source</button>
+          <input id="shareURL" width="400"></input> 
           <div id="spinnerContainer">
           <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
         </div>

@@ -29,13 +29,13 @@ function resizeEditors() {
   if (cppEditor) {
     width = document.getElementById('cppContainer').clientWidth - 10;
     width = Math.round(width / 20) * 20
-    cppEditor.setSize(width, 700);
+    cppEditor.setSize(width, 800);
   }
 
   if (wastEditor) {
     width = document.getElementById('wastContainer').clientWidth - 10;
     width = Math.round(width / 20) * 20
-    wastEditor.setSize(width, 700);
+    wastEditor.setSize(width, 800);
   }
 }
 
@@ -95,7 +95,8 @@ function begin() {
   output = document.getElementById('x86Code');
 }
 
-document.getElementById('share').onclick = share;
+document.getElementById('shareCpp').onclick = share.bind(null, "cpp");
+document.getElementById('shareWast').onclick = share.bind(null, "wast");
 document.getElementById('compile').onclick = compile;
 document.getElementById('assemble').onclick = assemble;
 document.getElementById('beautify').onclick = beautify;
@@ -156,8 +157,17 @@ function lazyLoad(s, cb) {
   }
 }
 
-function share() {
-  alert("NYI");
+function share(type) {
+  var url = location.protocol + '//' + location.host + location.pathname;
+  if (type == "cpp") {
+    url = url + "?cpp=" + encodeURIComponent(cppEditor.getDoc().getValue());  
+  } else {
+    url = url + "?wast=" + encodeURIComponent(wastEditor.getDoc().getValue());  
+  }
+  $('#shareURL').fadeTo(500,1);
+  shortenUrl(url, function (url) {
+    $('#shareURL').val(url).select();
+  });
 }
 
 function sendRequest(command, cb, message) {
@@ -307,6 +317,8 @@ var cppExamples = {
 }`
 }
 
+// Do stuff if we have URL params.
+
 function createExamples() {
   var el = document.getElementById("cppExamples");
   for (var k in cppExamples) {
@@ -318,5 +330,53 @@ function createExamples() {
   el.addEventListener("change", function () {
     cppEditor.getDoc().setValue(cppExamples[this.value]);
     compile();
+  });
+
+  var urlParameters = getUrlParameters();
+  if (urlParameters["cpp"]) {
+    cppEditor.getDoc().setValue(urlParameters["cpp"]);
+    compile();
+  } else if (urlParameters["wast"]) {
+    wastEditor.getDoc().setValue(urlParameters["wast"]);
+    assemble();
+  }
+}
+
+function getUrlParameters() {
+  var url = window.location.search.substring(1);
+  var params = {};
+  url.split('&').forEach(function (s) {
+    var t = s.split('=');
+    params[t[0]] = decodeURIComponent(t[1]);
+  });
+  return params;
+};
+
+// URL Shortening
+
+function googleJSClientLoaded() {
+  gapi.client.setApiKey("AIzaSyDF8nSRXwQKWZct5Tr5wotbLF3O8SCvjZU");
+  gapi.client.load('urlshortener', 'v1', function () {
+    shortenUrl(googleJSClientLoaded.url, googleJSClientLoaded.done);
+  });
+}
+
+function shortenUrl(url, done) {
+  if (!window.gapi || !gapi.client) {
+    googleJSClientLoaded.url = url;
+    googleJSClientLoaded.done = done;
+    $(document.body).append('<script src="https://apis.google.com/js/client.js?onload=googleJSClientLoaded">');
+    return;
+  }
+  var request = gapi.client.urlshortener.url.insert({
+    resource: {
+        longUrl: url
+    }
+  });
+  request.then(function (resp) {
+    var id = resp.result.id;
+    done(id);
+  }, function () {
+    done(url);
   });
 }
