@@ -84,7 +84,6 @@ function createWastEditor() {
     }
   });
   resizeEditors();
-  wastEditor.getDoc().setValue('(module \n  (func $foo(param i32) (result i32) (i32.popcnt (get_local 0)))\n  (func $bar(param i32) (result i32) (call $foo (get_local 0)))\n)');
 }
 
 function begin() {
@@ -329,6 +328,9 @@ void dtor(A *a) {
 }
 void call_member_function(A *a) {
   a->virtual_member_function();
+}`,
+  "popcnt": `int main(int a) {
+  return __builtin_popcount(a);
 }`
 }
 
@@ -354,6 +356,9 @@ function createExamples() {
   } else if (urlParameters["wast"]) {
     wastEditor.getDoc().setValue(urlParameters["wast"]);
     assemble();
+  } else {
+    cppEditor.getDoc().setValue(cppExamples["popcnt"]);
+    compile();
   }
 }
 
