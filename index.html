@@ -48,23 +48,25 @@
     }
     .btn {
       padding: 4px 8px;
-      font-size: 14px;      
+      font-size: 12px;
+      font-weight: bold;
       border: 1px solid transparent;
       /*border: 1px solid;*/
       border-radius: 4px;
       outline: none;
       background-color: #607D8B !important;
-      color: #E0E0E0;
+      color: #FFFFFF;
+      height: 28px;
     }
     .btn:hover {
-      background-color: #E0E0E0 !important;
-      color: #616161;
+      background-color: #90A4AE !important;
+      color: #FFFFFF;
       cursor: pointer;
     }
-    .btn:active {
-      position:relative;
-      top:1px;
+    .btn option {
+      padding: 4px 8px;
     }
+
     .wasm-error { background-color: orange; }
 
     #container {
@@ -163,6 +165,11 @@
           <div class="editor" id="cppContainer">
             <div class="tab"><div class="label">C/C++ Source</div>
               <button id="compile" class="btn">Compile</button>
+              <span>
+                <select id="cppExamples" class="btn">
+                  <option value="" selected="selected">Select Example</option>
+                </select>
+              </span>
             </div>
             <textarea id="cppCode"></textarea>
           </div>

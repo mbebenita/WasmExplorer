@@ -1,9 +1,8 @@
 hljs.initHighlightingOnLoad();
 
-
+var output;
 var cppEditor = null;
 var wastEditor = null;
-var output;
 
 function createBanner() {
   function resize() {
@@ -14,7 +13,14 @@ function createBanner() {
     });
     pattern.canvas(document.getElementById('banner'));  
   }
-  window.addEventListener("resize", resize);
+  var width = $(window).width();
+  $(window).resize(function(){
+     if($(this).width() != width){
+        width = $(this).width();
+        console.log(width);
+        resize();
+     }
+  });
   resize();
 }
 
@@ -53,13 +59,7 @@ function createCppEditor() {
     }
   });  
   resizeEditors();
-  cppEditor.getDoc().setValue(`int testFunction(int* input, int length) {
-  int sum = 0;
-  for (int i = 0; i < length; ++i) {
-    sum += input[i];
-  }
-  return sum;
-}`);
+  // cppEditor.getDoc().setValue();
 }
 
 window.addEventListener("resize", resizeEditors);
@@ -91,7 +91,7 @@ function begin() {
   createBanner();
   createCppEditor();
   createWastEditor();
-    
+  createExamples();
   output = document.getElementById('x86Code');
 }
 
@@ -275,11 +275,48 @@ $(".divider").draggable({
   }
 });
 
+var cppExamples = {
+  "Q_rsqrt": `float Q_rsqrt(float number) {
+  long i;
+  float x2, y;
+  const float threehalfs = 1.5F;
 
+  x2 = number * 0.5F;
+  y  = number;
+  i  = *(long *) &y;
+  i  = 0x5f3759df - (i >> 1);
+  y  = *(float *) &i;
+  y  = y * (threehalfs - (x2 * y * y));
+  y  = y * (threehalfs - (x2 * y * y));
 
+  return y;
+}`,
+  "testFunction": `int testFunction(int* input, int length) {
+  int sum = 0;
+  for (int i = 0; i < length; ++i) {
+    sum += input[i];
+  }
+  return sum;
+}`,
+  "fact": `double fact(int i) {
+  long long n = 1;
+  for (;i > 0; i--) {
+    n *= i;
+  }
+  return (double)n;
+}`
+}
 
-
-
-
-
-
+function createExamples() {
+  var el = document.getElementById("cppExamples");
+  for (var k in cppExamples) {
+    var option = document.createElement("option");
+    option.text = k;
+    option.value = k;
+    el.add(option);
+  }
+  el.addEventListener("change", function () {
+    cppEditor.getDoc().setValue(cppExamples[this.value]);
+    compile();
+  });
+}
