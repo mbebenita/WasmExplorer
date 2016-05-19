@@ -165,6 +165,9 @@
         </div>
       </div>
     </div>
+    <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
+      <a id="downloadLink" href="" download="test.wasm"></a>
+    </div>
   	<div style="width: 100%; margin-top: 64px;">
       <div id="container">
         <div id="toolbarContainer">
@@ -177,7 +180,8 @@
         <div id="contentContainer">
           <div class="editor" id="cppContainer">
             <div class="tab"><div class="label">C/C++ Source</div>
-              <button id="compile" class="btn">Compile</button>
+              <button id="compile" class="btn">Compile C++</button>
+              <button id="compileC" class="btn">Compile C</button>
               <span>
                 <select id="cppExamples" class="btn">
                   <option value="" selected="selected">Select Example</option>
@@ -191,6 +195,7 @@
             <div class="tab"><div class="label">WebAssembly Source</div>
               <button id="assemble" class="btn">Assemble</button>
               <button id="beautify" class="btn">Beautify</button>
+              <button id="download" class="btn">Download .wasm</button>
             </div>
             <textarea id="wastCode"></textarea>
           </div>

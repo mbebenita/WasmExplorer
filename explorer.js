@@ -96,9 +96,11 @@ function begin() {
 
 document.getElementById('shareCpp').onclick = share.bind(null, "cpp");
 document.getElementById('shareWast').onclick = share.bind(null, "wast");
-document.getElementById('compile').onclick = compile;
+document.getElementById('compileC').onclick = compile.bind(null, "c");
+document.getElementById('compile').onclick = compile.bind(null, "cpp");
 document.getElementById('assemble').onclick = assemble;
 document.getElementById('beautify').onclick = beautify;
+document.getElementById('download').onclick = download;
 
 var isBinaryenInstantiated = false;
 
@@ -137,6 +139,12 @@ function beautify() {
     wastEditor.getDoc().setValue(wast);
     var interface_ = new Binaryen.ShellExternalInterface();
     var instance = new Binaryen.ModuleInstance(module, interface_);
+  }
+}
+
+function download() {
+  if (document.getElementById('downloadLink').href != document.location) {
+    document.getElementById("downloadLink").click();
   }
 }
 
@@ -185,13 +193,30 @@ function sendRequest(command, cb, message) {
   document.getElementById("spinner").style.visibility = 'visible';
 }
 
-function compile() {
+function compile(language) {
+  var action = language === "c" ? "c2wast" : "cpp2wast";
   var cpp = cppEditor.getDoc().getValue();
-  sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=cpp2wast", function () {
+  sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action, function () {
     var wast = this.responseText;
     wastEditor.getDoc().setValue(wast);
     assemble();
   }, "Compiling C/C++ to Wast");
+}
+
+function buildDownload() {
+  document.getElementById('downloadLink').href = '';
+  var wast = wastEditor.getDoc().getValue();
+  if (!/^\s*\(module\b/.test(wast)) {
+    return; // Sanity check
+  }
+  sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2wasm", function () {
+    var wasm = this.responseText;
+    if (wasm.indexOf("WASM binary data") < 0) {
+      console.log('Error during WASM compilation: ' + wasm);
+      return;
+    }
+    document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
+  }, "Compiling Wast to Wasm");
 }
 
 function assemble() {
@@ -199,6 +224,7 @@ function assemble() {
   if (wast.indexOf("module") < 0) {
     console.log("Doesn't look like a wasm module.");
     output.innerHTML = "";
+    document.getElementById('downloadLink').href = '';
     return;
   }
   if (typeof capstone === "undefined") {
@@ -245,6 +271,8 @@ function assemble() {
       output.innerHTML = s;
       hljs.highlightBlock(output);
       cs.delete();
+
+      buildDownload();
     }, "Assembling Wast to x86");
   }
 
