@@ -259,14 +259,16 @@ function assemble() {
       }
       var s = "";
       var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
-      for (var i = 0; i < json.length; i++) {
-        var code = json[i];
-        s += "\n.function_" + i + "\n\n";
-        var csBuffer = decodeRestrictedBase64ToBytes(code);
-        var instructions = cs.disasm(csBuffer, 0);
+      for (var i = 0; i < json.regions.length; i++) {
+        var region = json.regions[i];
+        s += region.name + ":\n\n";
+        var csBuffer = decodeRestrictedBase64ToBytes(region.bytes);
+        var instructions = cs.disasm(csBuffer, region.entry);
         instructions.forEach(function(instr) {
-          s += toAddress(instr.address) + " " + instr.mnemonic + " " + instr.op_str + "\n";
+          s += padRight(instr.mnemonic + " " + instr.op_str, 28, " ");
+          s += "; " + toAddress(instr.address) + " " + toBytes(instr.bytes) + "\n";
         });
+        s += "\n";
       }
       output.innerHTML = s;
       hljs.highlightBlock(output);
@@ -276,12 +278,30 @@ function assemble() {
     }, "Assembling Wast to x86");
   }
 
+  function padRight(s, n, c) {
+    while (s.length < n) {
+      s = s + c;
+    }
+    return s;
+  }
+
+  function padLeft(s, n, c) {
+    while (s.length < n) {
+      s = c + s;
+    }
+    return s;
+  }
+
   function toAddress(n) {
     var s = n.toString(16);
     while (s.length < 6) {
       s = "0" + s;
     }
     return "0x" + s;
+  }
+
+  function toBytes(a) {
+    return a.map(function (x) { return padLeft(Number(x).toString(16), 2, "0"); }).join(" ");
   }
 };
 
