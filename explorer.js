@@ -184,7 +184,7 @@ function sendRequest(command, cb, message) {
     document.getElementById("spinner").style.visibility = "hidden";
     cb.call(this);
   });
-  xhr.open("POST", "//54.235.66.121/tmp/wasm/service.php", true);
+  xhr.open("POST", "//areweflashyet.com/tmp/wasm/service.php", true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
   xhr.send(command);
   if (message) {
