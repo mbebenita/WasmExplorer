@@ -228,7 +228,7 @@ function assemble() {
     return;
   }
   if (typeof capstone === "undefined") {
-    lazyLoad("lib/capstone.min.js", go);
+    lazyLoad("lib/capstone.x86.min.js", go);
   } else {
     go();
   }
