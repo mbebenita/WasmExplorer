@@ -200,8 +200,30 @@ function sendRequest(command, cb, message) {
 function compile(language) {
   var action = language === "c" ? "c2wast" : "cpp2wast";
   var cpp = cppEditor.getValue();
+  cppEditor.getSession().clearAnnotations();
   sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action, function () {
     var wast = this.responseText;
+
+    // Parse and annotate errors if compilation fails.
+    if (wast.indexOf("(module") !== 0) {
+      var re = /^.*?:(\d+?):(\d+?):(.*)$/gm; 
+      var m;
+      while ((m = re.exec(wast)) !== null) {
+        if (m.index === re.lastIndex) {
+            re.lastIndex++;
+        }
+        var line = parseInt(m[1]) - 1;
+        var column = parseInt(m[2]) - 1;
+        var message = m[3];
+        cppEditor.getSession().setAnnotations([{
+          row: line,
+          column: column,
+          text: message,
+          type: message.indexOf("error") >= 0 ? "error" : "warning" // also warning and information
+        }]);
+      }
+    }
+    
     wastEditor.setValue(wast, 1);
     assemble();
   }, "Compiling C/C++ to Wast");
@@ -237,6 +259,7 @@ function assemble() {
     go();
   }
   function go() {
+    wastEditor.getSession().clearAnnotations();
     sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2assembly", function () {
       var json = JSON.parse(this.responseText);
       if (typeof json === "string") {
@@ -245,17 +268,18 @@ function assemble() {
           var location = json.substring(parseError.length).split(":");
           var line = Number(location[0]) - 1;
           var column = Number(location[1]) - 1;
-          var mark = wastEditor.markText({
-            line: line,
-            ch: column
-          }, {
-            line: line,
-            ch: 1000
-          }, {
-            className: "wasm-error"
-          });
+          var Range = ace.require('ace/range').Range;
+          var mark = wastEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
+
+          wastEditor.getSession().setAnnotations([{
+            row: line,
+            column: column,
+            text: json,
+            type: "error" // also warning and information
+          }]);
+
           setTimeout(function() {
-            mark.clear();
+            wastEditor.session.removeMarker(mark);
           }, 5000);
         }
         output.innerHTML = json;
