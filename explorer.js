@@ -24,6 +24,12 @@ function createBanner() {
 }
 
 var gui;
+var generalSettings = { "Auto Compile": false };
+function onChangeSettings() {
+  if (generalSettings["Auto Compile"]) {
+    compile();
+  }
+} 
 function createSettings() {
   var load;
   var urlParameters = getUrlParameters();
@@ -31,6 +37,8 @@ function createSettings() {
     load = JSON.parse(urlParameters["settings"]);
   }
   gui = new dat.GUI({ autoPlace: false, width: 280, load: load });
+
+  gui.add(generalSettings, "Auto Compile");
   document.getElementById('settingsContainer').appendChild(gui.domElement);
 }
 
@@ -57,6 +65,7 @@ function setDefaultEditorSettings(editor) {
   editor.getSession().setUseSoftTabs(true);
   editor.getSession().setTabSize(2);
 }
+
 function createCppEditor() {
   cppEditor = ace.edit("cppCodeContainer");
   cppEditor.getSession().setMode("ace/mode/c_cpp");
@@ -71,13 +80,18 @@ function createCppEditor() {
   });
 
   gui.remember(cppOptions);
+
+
   var clangSettings = gui.addFolder('Clang / LLVM Settings');
-  clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 , "s": "s"});
+  var controller = clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 , "s": "s"});
+  controller.onChange(onChangeSettings);
 
   llvmTransformPasses.forEach(x => {
-    clangSettings.add(cppOptions, x.name);
+    controller = clangSettings.add(cppOptions, x.name);
+    controller.onChange(onChangeSettings);
   })
   clangSettings.open();
+
 }
 
 function createWastEditor() {
@@ -441,6 +455,21 @@ double foo(double d) {
 
 double maybe_min(double d, double e) {
   return d < e ? d : e;
+}
+`, "fast-math-2": `// compile with/without -ffast-math
+
+double pow(double x, double y);
+     
+double call_pow(double x) {
+  return pow(x, 8);
+}
+ 
+double do_pow(double x) {
+  return x*x*x*x*x*x*x*x;
+}
+ 
+double factor(double a, double b, double c) {
+  return (a * c) + (b * c);
 }
 `
 }
