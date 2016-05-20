@@ -45,6 +45,8 @@ function createSettings() {
 var llvmTransformPasses = [
   { name: "fast-math", option: "-ffast-math"},
   { name: "no-inline", option: "-fno-inline"},
+  { name: "no-rtti", option: "-fno-rtti"},
+  { name: "no-exceptions", option: "-fno-exceptions"},
   { name: "std=c++14", option: "-std=c++14"},
   { name: "std=c++1z", option: "-std=c++1z"},
   { name: "std=c11", option: "-std=c11"},
@@ -455,7 +457,6 @@ double foo(double d) {
 double maybe_min(double d, double e) {
   return d < e ? d : e;
 }
-`, "fast-math-2": `// compile with/without -ffast-math
 
 double pow(double x, double y);
      
