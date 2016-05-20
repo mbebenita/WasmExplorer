@@ -34,9 +34,17 @@ function createSettings() {
   document.getElementById('settingsContainer').appendChild(gui.domElement);
 }
 
+var llvmTransformPasses = [
+  // { name: "Simple constant propagation", option: "-constprop"}
+];
+
 var cppOptions = {
   'Optimization Level': 3
 };
+
+llvmTransformPasses.forEach(x => {
+  cppOptions[x.name] = true;
+})
 
 function setDefaultEditorSettings(editor) {
   editor.setTheme("ace/theme/github");
@@ -59,6 +67,10 @@ function createCppEditor() {
   gui.remember(cppOptions);
   var clangSettings = gui.addFolder('Clang / LLVM Settings');
   clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 });
+
+  llvmTransformPasses.forEach(x => {
+    clangSettings.add(cppOptions, x.name);
+  })
   clangSettings.open();
 }
 
@@ -199,9 +211,17 @@ function sendRequest(command, cb, message) {
 
 function compile(language) {
   var action = language === "c" ? "c2wast" : "cpp2wast";
+  var options = ["-O" + cppOptions['Optimization Level']];
+
+  llvmTransformPasses.forEach(x => {
+    if (cppOptions[x.name]) {
+      options.push(x.option);
+    }
+  });
+  
   var cpp = cppEditor.getValue();
   cppEditor.getSession().clearAnnotations();
-  sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action, function () {
+  sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action + "&options=" + encodeURIComponent(options.join(" ")), function () {
     var wast = this.responseText;
 
     // Parse and annotate errors if compilation fails.
@@ -405,7 +425,8 @@ void call_member_function(A *a) {
   a->virtual_member_function();
 }`,
   "popcnt": `int main(int a) {
-  return __builtin_popcount(a);
+  return __builtin_popcount(a) + 
+         __builtin_popcount(a);
 }`
 }
 
