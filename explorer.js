@@ -17,7 +17,6 @@ function createBanner() {
   $(window).resize(function(){
      if($(this).width() != width){
         width = $(this).width();
-        console.log(width);
         resize();
      }
   });
@@ -47,7 +46,7 @@ function createSettings() {
     load = JSON.parse(urlParameters["settings"]);
   }
   gui = new dat.GUI({ autoPlace: false, width: 280, load: load });
-  document.getElementById('settings').appendChild(gui.domElement);
+  document.getElementById('settingsContainer').appendChild(gui.domElement);
 }
 
 var cppOptions = {
@@ -141,10 +140,10 @@ var settingsAreOpen = false;
 function toggleSettings() {
   if (settingsAreOpen) {
     $('#contentContainer').css({"margin-left": "0px"});
-    $('#settings').css({"visibility": "hidden"});
+    $('#settingsContainer').css({"visibility": "hidden"});
   } else {
     $('#contentContainer').css({"margin-left": "280px"});
-    $('#settings').css({"visibility": "visible"});
+    $('#settingsContainer').css({"visibility": "visible"});
   }
   settingsAreOpen = !settingsAreOpen;
 }
