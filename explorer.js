@@ -43,13 +43,12 @@ function createSettings() {
 }
 
 var llvmTransformPasses = [
-  { name: "unroll-loops", option: "-funroll-loops"},
-  { name: "unroll-all-loops", option: "-funroll-all-loops"},
-  { name: "reroll-loops", option: "-freroll-loops"},
   { name: "fast-math", option: "-ffast-math"},
-  { name: "devirtualize-speculatively", option: "-fdevirtualize-speculatively"},
-  { name: "whole-program", option: "-fwhole-program"},
-  { name: "unsafe-loop-optimizations", option: "-funsafe-loop-optimizations"},
+  { name: "no-inline", option: "-fno-inline"},
+  { name: "std=c++14", option: "-std=c++14"},
+  { name: "std=c++1z", option: "-std=c++1z"},
+  { name: "std=c11", option: "-std=c11"},
+  { name: "std=c1x", option: "-std=c1x"}
 ];
 
 var cppOptions = {
