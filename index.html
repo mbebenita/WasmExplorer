@@ -1,36 +1,108 @@
 <html>
   <head>
-    <script src="lib/codemirror-compressed.js"></script>
-    <script src="lib/matchbrackets.js"></script>
-    <script src="lib/clike.js"></script>
-    <script src="lib/commonlisp.js"></script>
-    <script src="lib/closebrackets.js"></script>
+    <!-- <script src="lib/codemirror-compressed.js"></script> -->
+    <!-- <script src="lib/matchbrackets.js"></script> -->
+    <!-- <script src="lib/clike.js"></script> -->
+    <!-- <script src="lib/commonlisp.js"></script> -->
+    <!-- <script src="lib/closebrackets.js"></script> -->
+
     <script src="lib/highlight.pack.js"></script>
     <script src="lib/base64.js"></script>
     <script src="lib/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
-    <link rel="stylesheet" href="css/codemirror.css" />
+    
+    <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- <link rel="stylesheet" href="css/codemirror.css" />
     <link rel="stylesheet" href="css/dracula.css" />
-		<link rel="stylesheet" href="css/hl-default.css" />
+		<link rel="stylesheet" href="css/hl-default.css" /> -->
+
+
     <link href='//fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css">
-
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-
   </head>
   <style>
+
     body {
       font-family: Roboto;
-      font-size: 13px;
+      font-size: 14px;
       margin: 0px;
     }
+    #headerContainer {
+      height: 64px;
+      width: 100%;
+      background-color: red;
+    }
+    #toolbarContainer {
+      height: 32px;
+      background-color: #424242 !important;
+    }
+    #toolbarContainer .btn {
+      margin-top: 4px;
+    }
+    #bodyContainer {
+      position: absolute;
+      top: 96px;
+      bottom: 40px;
+      width: 100%;
+      background-color: green;
+    }
+    #contentContainer {
+      display: flex;
+      background-color: #EEEEEE !important;  
+      bottom: 40px;*/
+      width: 100%;
+      height: 100%;
+    }
+    #footerContainer {
+      position: absolute;
+      bottom: 0px;
+      height: 40px;
+      width: 100%;
+      background-color: #E0E0E0 !important;
+    }
+
+    #cppContainer {
+      /*position: relative;*/
+    }
+    #cppContainer .tab {
+      background-color: #D1C4E9;
+    }
+    #cppCodeContainer {
+      width: 100%;
+      height: 100%;
+    }
+    #wastContainer {
+    }
+    #wastContainer .tab {
+      background-color: #BBDEFB;
+    }
+    #wastCodeContainer {
+      width: 100%;
+      height: 100%;
+    }
+    #x86Container {
+      
+    }
+    #x86Container .tab {
+      background-color: #DCEDC8;
+    }
+    #x86CodeContainer {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===================================== */
+
     .CodeMirror {
       line-height: 1.4em;
       font-size: 14px;
       font-family: Inconsolata,Monaco,"Andale Mono","Lucida Console","Bitstream Vera Sans Mono","Courier New",Courier,monospace;
-      overflow: hidden;
+      /*overflow: hidden;*/
       background: 0 0;
+      /*height: 100%;*/
     }
 
     div.CodeMirror span.CodeMirror-matchingbracket {
@@ -46,6 +118,8 @@
       font-family: Inconsolata;
       font-size: 14px;
     }
+
+
     .btn {
       /*padding: 5px;*/
       font-size: 11px;
@@ -55,8 +129,9 @@
       outline: none;
       background-color: #757575 !important;
       color: #FFFFFF;
-      height: 28px;
+      height: 24px;
       margin: 2px;
+      m
     }
     .btn:hover {
       background-color: #9E9E9E !important;
@@ -79,29 +154,17 @@
       opacity: 0;
     }
     .wasm-error { background-color: orange; }
+
+    
+
     #container {
       width: 100%;
       margin-top: 10px;
     }
-    #toolbarContainer {
-      padding: 5px;
-      background-color: #424242 !important;
-    }
-    #contentContainer {
-      display: flex;
-      /*padding: 5px;*/
-      background-color: #EEEEEE !important;  
-      top: 108px;
-      bottom: 40px;
-      width: 100%;
-    }
-    #footerContainer {
-      bottom: 0px;
-      font-family: Roboto;
-      background-color: #E0E0E0 !important;
-      height: 40px;
-      width: 100%;
-    }
+
+    
+    
+
     #settingsContainer {
       background-color: #424242 !important;
       visibility: hidden;
@@ -130,25 +193,7 @@
     .tab .btn {
       background-color: #E0E0E0;
     }
-    #cppContainer {
-      /*background-color: orange;*/
-    }
-    #cppContainer .tab {
-      background-color: #D1C4E9;
-    }
-    #wastContainer {
-      /*background-color: blue;*/
-    }
-    #wastContainer .tab {
-      background-color: #BBDEFB;
-    }
-    #x86Container {
-      /*backaground-color: green;*/
-      overflow: auto;
-    }
-    #x86Container .tab {
-      background-color: #DCEDC8;
-    }
+    
     #spinnerContainer {
       padding-top: 6px;
       float: right;
@@ -219,15 +264,7 @@
         border-right: 4px solid #444;
         display: none !important;
     }
-/*
-    body .dg.main .close-button {
-        background-color: #444;
-    }
-     
-    body .dg.main .close-button:hover {
-        background-color: #555;
-    }
-*/
+
     body .dg.main::-webkit-scrollbar {
         background: #3d3d3d;
         width: 9px;
@@ -319,60 +356,64 @@
 
   </style>
   <body onload="begin()">
-    <div style="position: absolute; top: 0px; width: 100%;">
-      <div style="position: absolute;"><canvas id="banner"></canvas></div>
-      <div style="position: absolute;">
-        <div style='padding: 20px; font-size: 20px; font-weight: bold;'>
-          WebAssembly Explorer
+    <div id="headerContainer">
+      <div style="position: relative; width: 100%;">
+        <div style="position: absolute;"><canvas width="0" height="0" id="banner"></canvas></div>
+        <div style="position: absolute;">
+          <div style='padding: 20px; font-size: 20px; font-weight: bold;'>
+            WebAssembly Explorer
+          </div>
         </div>
       </div>
     </div>
+    <div id="toolbarContainer">
+      <button id="toggleSettings" class="btn">Show / Hide Settings</button>
+      <input id="shareURL" width="200"></input> 
+      <div id="spinnerContainer">
+      <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
+    </div>
+    <div id="bodyContainer">
+      <div id="contentContainer">
+        <div id="settingsContainer">
+        </div>
+        <div class="editor" id="cppContainer">
+          <div class="tab">
+            <div class="label">C/C++ Source</div>
+            <button id="compile" class="btn">Compile C++</button><button id="compileC" class="btn">Compile C</button>
+            <select id="cppExamples" class="btn"><option value="" selected="selected">Example</option></select><button id="shareCpp" class="btn">Share</button>
+          </div>
+          <div id="cppCodeContainer">
+            test
+            <!-- <textarea id="cppCode"></textarea> -->
+          </div>
+        </div>
+        <div class="divider" id="divider-1"></div>
+        <div class="editor" id="wastContainer">
+          <div class="tab"><div class="label">WebAssembly Source</div>
+            <button id="assemble" class="btn">Assemble</button><button id="beautify" class="btn">Beautify</button><button id="download" class="btn">Download .wasm</button><button id="shareWast" class="btn">Share</button>
+          </div>
+          <div id="wastCodeContainer">
+            <!-- <textarea id="wastCode"></textarea> -->
+          </div>
+        </div>
+        <div class="divider" id="divider-2"></div>
+        <div class="editor" id="x86Container">
+          <div class="tab"><div class="label">x86/64 (SpiderMonkey)</div></div>
+          <div id="x86CodeContainer">
+            <pre><code id="x86Code"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="footerContainer">
+      <div style="padding: 10px;">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
+        </div>
+    </div>
+
     <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
       <a id="downloadLink" href="" download="test.wasm"></a>
     </div>
-  	<div style="margin-top: 64px;">
-      <div id="container">
-        <div id="toolbarContainer">
-          <button id="toggleSettings" class="btn">Show / Hide Settings</button><button id="shareCpp" class="btn">Share C/C++ Source</button><button id="shareWast" class="btn">Share WebAssembly Source</button>
-          <input id="shareURL" width="200"></input> 
-          <div id="spinnerContainer">
-          <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
-        </div>
-        <div>
-          <div id="contentContainer">
-            <div id="settingsContainer">
-            </div>
-            <div class="editor" id="cppContainer">
-              <div class="tab"><div class="label">C/C++ Source</div>
-                <button id="compile" class="btn">Compile C++</button><button id="compileC" class="btn">Compile C</button>
-                <span>
-                  <select id="cppExamples" class="btn">
-                    <option value="" selected="selected">Select Example</option>
-                  </select>
-                </span>
-              </div>
-              <textarea id="cppCode"></textarea>
-            </div>
-            <div class="divider" id="divider-1"></div>
-            <div class="editor" id="wastContainer">
-              <div class="tab"><div class="label">WebAssembly Source</div>
-                <button id="assemble" class="btn">Assemble</button><button id="beautify" class="btn">Beautify</button><button id="download" class="btn">Download .wasm</button>
-              </div>
-              <textarea id="wastCode"></textarea>
-            </div>
-            <div class="divider" id="divider-2"></div>
-            <div class="editor" id="x86Container">
-              <div class="tab"><div class="label">x86/64 (SpiderMonkey)</div></div>
-              <pre><code id="x86Code"></code></pre>
-            </div>
-          </div>
-        </div>
-        <div id="footerContainer">
-        <div style="padding: 10px;">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
-        </div>
-        </div>
-      </div>
-		</div>
+
     <script src="explorer.js"></script>
   </body>
 </html>

@@ -23,26 +23,6 @@ function createBanner() {
   resize();
 }
 
-function resizeEditors() {
-  var width;
-  var height;
-  if (cppEditor) {
-    width = document.getElementById('cppContainer').clientWidth - 10;
-    width = Math.round(width / 20) * 20;
-    // height = document.getElementById('cppContainer').clientHeight - 60;
-    // height = Math.round(height / 20) * 20;
-    cppEditor.setSize(width, 800);
-  }
-
-  if (wastEditor) {
-    width = document.getElementById('wastContainer').clientWidth - 10;
-    width = Math.round(width / 20) * 20;
-    // height = document.getElementById('wastContainer').clientHeight - 60;
-    // height = Math.round(height / 20) * 20;
-    wastEditor.setSize(width, 800);
-  }
-}
-
 var gui;
 function createSettings() {
   var load;
@@ -58,55 +38,42 @@ var cppOptions = {
   'Optimization Level': 3
 };
 
+function setDefaultEditorSettings(editor) {
+  editor.setTheme("ace/theme/github");
+  editor.getSession().setUseSoftTabs(true);
+  editor.getSession().setTabSize(2);
+}
 function createCppEditor() {
-  cppEditor = CodeMirror.fromTextArea(document.getElementById('cppCode'), {
-    viewportMargin: Infinity,
-    matchBrackets: true,
-    autoCloseBrackets: true,
-    tabSize: 2,
-    indentWithTabs: false,
-    lineWrapping: true,
-    lineNumbers: true,
-    mode: "text/x-c++src"
-  });
-  cppEditor.setOption("extraKeys", {
-    'Cmd-Enter': function(cm) {
+  cppEditor = ace.edit("cppCodeContainer");
+  cppEditor.getSession().setMode("ace/mode/c_cpp");
+  setDefaultEditorSettings(cppEditor);
+  cppEditor.commands.addCommand({
+    name: 'assembleCommand',
+    bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
+    exec: function(editor) {
       compile();
     },
-    'Ctrl-Enter': function(cm) {
-      compile();
-    }
+    readOnly: true // false if this command should not apply in readOnly mode
   });
+
   gui.remember(cppOptions);
-  resizeEditors();
   var clangSettings = gui.addFolder('Clang / LLVM Settings');
   clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 });
   clangSettings.open();
-
 }
 
-window.addEventListener("resize", resizeEditors);
-
 function createWastEditor() {
-  wastEditor = CodeMirror.fromTextArea(document.getElementById('wastCode'), {
-    viewportMargin: Infinity,
-    matchBrackets: true,
-    autoCloseBrackets: true,
-    tabSize: 2,
-    indentWithTabs: false,
-    lineWrapping: true,
-    lineNumbers: true,
-    mode: "text/x-common-lisp"
-  });
-  wastEditor.setOption("extraKeys", {
-    'Cmd-Enter': function(cm) {
+  wastEditor = ace.edit("wastCodeContainer");
+  wastEditor.getSession().setMode("ace/mode/lisp");
+  setDefaultEditorSettings(wastEditor);
+  wastEditor.commands.addCommand({
+    name: 'assembleCommand',
+    bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
+    exec: function(editor) {
       assemble();
     },
-    'Ctrl-Enter': function(cm) {
-      assemble();
-    }
+    readOnly: true // false if this command should not apply in readOnly mode
   });
-  resizeEditors();
 }
 
 function begin() {
@@ -163,7 +130,7 @@ function beautify() {
       Binaryen = Binaryen();
       isBinaryenInstantiated = true;
     }
-    var wast = wastEditor.getDoc().getValue();
+    var wast = wastEditor.getValue();
     var module = new Binaryen.Module();
     var parser = new Binaryen.SExpressionParser(wast);
     var s_module = parser.get_root().getChild(0);
@@ -172,7 +139,7 @@ function beautify() {
     wast = captureOutput(function() {
       Binaryen.WasmPrinter.prototype.printModule(module);
     });
-    wastEditor.getDoc().setValue(wast);
+    wastEditor.setValue(wast, 1);
     var interface_ = new Binaryen.ShellExternalInterface();
     var instance = new Binaryen.ModuleInstance(module, interface_);
   }
@@ -203,9 +170,9 @@ function lazyLoad(s, cb) {
 function share(type) {
   var url = location.protocol + '//' + location.host + location.pathname;
   if (type == "cpp") {
-    url = url + "?cpp=" + encodeURIComponent(cppEditor.getDoc().getValue());  
+    url = url + "?cpp=" + encodeURIComponent(cppEditor.getValue());  
   } else {
-    url = url + "?wast=" + encodeURIComponent(wastEditor.getDoc().getValue());  
+    url = url + "?wast=" + encodeURIComponent(wastEditor.getValue());  
   }
   url += "&settings=" + encodeURIComponent(JSON.stringify(gui.getSaveObject()))
   $('#shareURL').fadeTo(500,1);
@@ -232,17 +199,17 @@ function sendRequest(command, cb, message) {
 
 function compile(language) {
   var action = language === "c" ? "c2wast" : "cpp2wast";
-  var cpp = cppEditor.getDoc().getValue();
+  var cpp = cppEditor.getValue();
   sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action, function () {
     var wast = this.responseText;
-    wastEditor.getDoc().setValue(wast);
+    wastEditor.setValue(wast, 1);
     assemble();
   }, "Compiling C/C++ to Wast");
 }
 
 function buildDownload() {
   document.getElementById('downloadLink').href = '';
-  var wast = wastEditor.getDoc().getValue();
+  var wast = wastEditor.getValue();
   if (!/^\s*\(module\b/.test(wast)) {
     return; // Sanity check
   }
@@ -257,7 +224,7 @@ function buildDownload() {
 }
 
 function assemble() {
-  var wast = wastEditor.getDoc().getValue();
+  var wast = wastEditor.getValue();
   if (wast.indexOf("module") < 0) {
     console.log("Doesn't look like a wasm module.");
     output.innerHTML = "";
@@ -358,7 +325,6 @@ $(".divider").draggable({
       $("#x86Container").css("flex", "1");
       $("#wastContainer").css("flex", "0 1 " + (divider2storage + ui.position.left) + "px");
     }
-    resizeEditors();
   },
   stop: function(e, ui) {
     if (ui.helper[0].id === "divider-2") {
@@ -430,19 +396,19 @@ function createExamples() {
     el.add(option);
   }
   el.addEventListener("change", function () {
-    cppEditor.getDoc().setValue(cppExamples[this.value]);
+    cppEditor.setValue(cppExamples[this.value], 1);
     compile();
   });
 
   var urlParameters = getUrlParameters();
   if (urlParameters["cpp"]) {
-    cppEditor.getDoc().setValue(urlParameters["cpp"]);
+    cppEditor.setValue(urlParameters["cpp"], 1);
     compile();
   } else if (urlParameters["wast"]) {
-    wastEditor.getDoc().setValue(urlParameters["wast"]);
+    wastEditor.setValue(urlParameters["wast"], 1);
     assemble();
   } else {
-    cppEditor.getDoc().setValue(cppExamples["popcnt"]);
+    cppEditor.setValue(cppExamples["popcnt"], 1);
     compile();
   }
 }
