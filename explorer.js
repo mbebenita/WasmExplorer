@@ -35,15 +35,21 @@ function createSettings() {
 }
 
 var llvmTransformPasses = [
-  // { name: "Simple constant propagation", option: "-constprop"}
+  { name: "unroll-loops", option: "-funroll-loops"},
+  { name: "unroll-all-loops", option: "-funroll-all-loops"},
+  { name: "reroll-loops", option: "-freroll-loops"},
+  { name: "fast-math", option: "-ffast-math"},
+  { name: "devirtualize-speculatively", option: "-fdevirtualize-speculatively"},
+  { name: "whole-program", option: "-fwhole-program"},
+  { name: "unsafe-loop-optimizations", option: "-funsafe-loop-optimizations"},
 ];
 
 var cppOptions = {
-  'Optimization Level': 3
+  'Optimization Level': "s"
 };
 
 llvmTransformPasses.forEach(x => {
-  cppOptions[x.name] = true;
+  cppOptions[x.name] = false;
 })
 
 function setDefaultEditorSettings(editor) {
@@ -66,7 +72,7 @@ function createCppEditor() {
 
   gui.remember(cppOptions);
   var clangSettings = gui.addFolder('Clang / LLVM Settings');
-  clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 });
+  clangSettings.add(cppOptions, 'Optimization Level', { "0": 0, "1": 1, "2": 2, "3": 3 , "s": "s"});
 
   llvmTransformPasses.forEach(x => {
     clangSettings.add(cppOptions, x.name);
@@ -218,7 +224,7 @@ function compile(language) {
       options.push(x.option);
     }
   });
-  
+
   var cpp = cppEditor.getValue();
   cppEditor.getSession().clearAnnotations();
   sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action + "&options=" + encodeURIComponent(options.join(" ")), function () {
