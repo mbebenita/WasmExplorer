@@ -25,15 +25,20 @@ function createBanner() {
 
 function resizeEditors() {
   var width;
+  var height;
   if (cppEditor) {
     width = document.getElementById('cppContainer').clientWidth - 10;
-    width = Math.round(width / 20) * 20
+    width = Math.round(width / 20) * 20;
+    // height = document.getElementById('cppContainer').clientHeight - 60;
+    // height = Math.round(height / 20) * 20;
     cppEditor.setSize(width, 800);
   }
 
   if (wastEditor) {
     width = document.getElementById('wastContainer').clientWidth - 10;
-    width = Math.round(width / 20) * 20
+    width = Math.round(width / 20) * 20;
+    // height = document.getElementById('wastContainer').clientHeight - 60;
+    // height = Math.round(height / 20) * 20;
     wastEditor.setSize(width, 800);
   }
 }
@@ -139,11 +144,9 @@ function captureOutput(fn) {
 var settingsAreOpen = false;
 function toggleSettings() {
   if (settingsAreOpen) {
-    $('#contentContainer').css({"margin-left": "0px"});
-    $('#settingsContainer').css({"visibility": "hidden"});
+    $('#settingsContainer').css({"display": "none", "visibility": "hidden"});
   } else {
-    $('#contentContainer').css({"margin-left": "280px"});
-    $('#settingsContainer').css({"visibility": "visible"});
+    $('#settingsContainer').css({"display": "block", "visibility": "visible"});
   }
   settingsAreOpen = !settingsAreOpen;
 }

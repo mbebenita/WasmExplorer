@@ -30,7 +30,6 @@
       font-size: 14px;
       font-family: Inconsolata,Monaco,"Andale Mono","Lucida Console","Bitstream Vera Sans Mono","Courier New",Courier,monospace;
       overflow: hidden;
-      height: 100%;
       background: 0 0;
     }
 
@@ -58,7 +57,6 @@
       color: #FFFFFF;
       height: 28px;
       margin: 2px;
-      /*margin-bottom: 2px;*/
     }
     .btn:hover {
       background-color: #9E9E9E !important;
@@ -91,19 +89,25 @@
     }
     #contentContainer {
       display: flex;
-      padding: 5px;
+      /*padding: 5px;*/
       background-color: #EEEEEE !important;  
-      height: 900px;
-      bottom: 10px;
+      top: 108px;
+      bottom: 40px;
+      width: 100%;
+    }
+    #footerContainer {
+      bottom: 0px;
+      font-family: Roboto;
+      background-color: #E0E0E0 !important;
+      height: 40px;
+      width: 100%;
     }
     #settingsContainer {
-      position: absolute;
-      z-index: 100;
-      top: 106px;
-      height: 910px;
       background-color: #424242 !important;
       visibility: hidden;
-      display: block;
+      display: none;
+      margin-top: 0px;
+      margin-left: -5px;
     }
     .divider {
       width: 5px;
@@ -119,7 +123,6 @@
       background-color: #E0E0E0;
       font-family: Roboto;
       font-size: 14px;
-      /*height: 56px;*/
     }
     .tab .label {
       margin-bottom: 10px;
@@ -153,13 +156,6 @@
     #spinnerLabel {
       font-family: Roboto;
       color: #DCEDC8;
-    }
-    #footerContainer {
-      bottom: 0px;
-      clear: both;
-      font-family: Roboto;
-      padding: 10px;
-      background-color: #E0E0E0 !important;
     }
     .editor {
       flex: 1;
@@ -334,7 +330,7 @@
     <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
       <a id="downloadLink" href="" download="test.wasm"></a>
     </div>
-  	<div style="width: 100%; margin-top: 64px;">
+  	<div style="margin-top: 64px;">
       <div id="container">
         <div id="toolbarContainer">
           <button id="toggleSettings" class="btn">Show / Hide Settings</button><button id="shareCpp" class="btn">Share C/C++ Source</button><button id="shareWast" class="btn">Share WebAssembly Source</button>
@@ -343,9 +339,9 @@
           <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
         </div>
         <div>
-          <div id="settingsContainer">
-          </div>
           <div id="contentContainer">
+            <div id="settingsContainer">
+            </div>
             <div class="editor" id="cppContainer">
               <div class="tab"><div class="label">C/C++ Source</div>
                 <button id="compile" class="btn">Compile C++</button><button id="compileC" class="btn">Compile C</button>
@@ -371,7 +367,10 @@
             </div>
           </div>
         </div>
-        <div id="footerContainer">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.</div>
+        <div id="footerContainer">
+        <div style="padding: 10px;">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with CodeMirror, Highlight.js, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
+        </div>
+        </div>
       </div>
 		</div>
     <script src="explorer.js"></script>
