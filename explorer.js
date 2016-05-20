@@ -319,7 +319,7 @@ function assemble() {
         var csBuffer = decodeRestrictedBase64ToBytes(region.bytes);
         var instructions = cs.disasm(csBuffer, region.entry);
         instructions.forEach(function(instr) {
-          s += padRight(instr.mnemonic + " " + instr.op_str, 28, " ");
+          s += padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
           s += "; " + toAddress(instr.address) + " " + toBytes(instr.bytes) + "\n";
         });
         s += "\n";
@@ -433,7 +433,16 @@ void call_member_function(A *a) {
   "popcnt": `int main(int a) {
   return __builtin_popcount(a) + 
          __builtin_popcount(a);
-}`
+}`,"fast-math": `// compile with/without -ffast-math
+
+double foo(double d) {
+  return d / 3.0;
+}
+
+double maybe_min(double d, double e) {
+  return d < e ? d : e;
+}
+`
 }
 
 // Do stuff if we have URL params.
