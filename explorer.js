@@ -1,8 +1,7 @@
-hljs.initHighlightingOnLoad();
-
 var output;
 var cppEditor = null;
 var wastEditor = null;
+var x86Editor = null;
 
 function createBanner() {
   function resize() {
@@ -109,11 +108,18 @@ function createWastEditor() {
   });
 }
 
+function createX86Editor() {
+  x86Editor = ace.edit("x86CodeContainer");
+  x86Editor.getSession().setMode("ace/mode/assembly_x86");
+  setDefaultEditorSettings(x86Editor);
+}
+
 function begin() {
   createSettings();
   createBanner();
   createCppEditor();
   createWastEditor();
+  createX86Editor();
   createExamples();
   output = document.getElementById('x86Code');
 }
@@ -289,8 +295,7 @@ function buildDownload() {
 function assemble() {
   var wast = wastEditor.getValue();
   if (wast.indexOf("module") < 0) {
-    console.log("Doesn't look like a wasm module.");
-    output.innerHTML = "";
+    x86Editor.getSession().setValue("; Doesn't look like a wasm module.", 1);
     document.getElementById('downloadLink').href = '';
     return;
   }
@@ -323,7 +328,7 @@ function assemble() {
             wastEditor.session.removeMarker(mark);
           }, 5000);
         }
-        output.innerHTML = json;
+        x86Editor.getSession().setValue("; " + json, 1);
         return;
       }
       var s = "";
@@ -339,8 +344,7 @@ function assemble() {
         });
         s += "\n";
       }
-      output.innerHTML = s;
-      hljs.highlightBlock(output);
+      x86Editor.getSession().setValue(s, 1);
       cs.delete();
 
       buildDownload();
