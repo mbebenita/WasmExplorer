@@ -64,6 +64,11 @@ function setDefaultEditorSettings(editor) {
   editor.setTheme("ace/theme/github");
   editor.getSession().setUseSoftTabs(true);
   editor.getSession().setTabSize(2);
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+  });
 }
 
 function createCppEditor() {
@@ -96,7 +101,6 @@ function createCppEditor() {
 
 function createWastEditor() {
   wastEditor = ace.edit("wastCodeContainer");
-  wastEditor.getSession().setMode("ace/mode/lisp");
   setDefaultEditorSettings(wastEditor);
   wastEditor.commands.addCommand({
     name: 'assembleCommand',
@@ -117,9 +121,12 @@ function createX86Editor() {
 function begin() {
   createSettings();
   createBanner();
+
+  ace.require("ace/ext/language_tools");
   createCppEditor();
   createWastEditor();
   createX86Editor();
+
   createExamples();
   output = document.getElementById('x86Code');
 }
