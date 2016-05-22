@@ -9,6 +9,7 @@
   
   <script src="lib/base64.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
+  <script src="https://togetherjs.com/togetherjs-min.js"></script>
 </head>
 
 <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
@@ -79,14 +80,17 @@
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.changeCompilerOption()">
             No Exceptions
-          </md-checkbox>
-          <md-button ng-click="vm.share($event)" class="md-raised" ng-click="vm.share($event)">
-          Create Sharing Link</md-button>
+          </md-checkbox><br>
+
+          
+          <md-button ng-click="vm.collaborate($event)" class="md-raised" style="margin-left: -3px; width: 100%">Collaborate</md-button><br>
+
+          <md-button ng-click="vm.share($event)" class="md-raised" style="margin-left: -3px; width: 100%">Create a Persistant Link</md-button>
           <md-input-container class="md-block">
             <label>Sharing Link</label>
             <input name="clientName" ng-model="vm.sharingLink">
           </md-input-container>
-
+          
         </form>
       </md-content>
     </md-sidenav>

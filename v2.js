@@ -191,6 +191,9 @@ p.compile = function compile() {
     self.assemble();
   }, "Compiling C/C++ to .wast");
 };
+p.collaborate = function collaborate() {
+  TogetherJS(this);
+};
 p.share = function share() {
   var self = this;
   var url = location.protocol + '//' + location.host + location.pathname;
