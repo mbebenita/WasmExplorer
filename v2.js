@@ -289,8 +289,20 @@ p.assemble = function assemble() {
         s += region.name + ":\n\n";
         var csBuffer = decodeRestrictedBase64ToBytes(region.bytes);
         var instructions = cs.disasm(csBuffer, region.entry);
+        var jumpInstructions = ["jmp", "ja", "jae", "jb", "jbe", "jc", "je", "jg", "jge", "jl", "jle", "jna", "jnae", "jnb", "jnbe", "jnc", "jne", "jng", "jnge", "jnl", "jnle", "jno", "jnp", "jns", "jnz", "jo", "jp", "jpe", "jpo", "js", "jz"];
+        var basicBlocks = {};
         instructions.forEach(function(instr) {
-          s += padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
+          if (jumpInstructions.indexOf(instr.mnemonic) >= 0) {
+            basicBlocks[parseInt(instr.op_str)] = true;
+          }
+        });
+        var bb = 1;
+        instructions.forEach(function(instr) {
+          if (basicBlocks[instr.address]) {
+            s += "" + bb++ + ":";
+            s += "\n";
+          }
+          s += " " +padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
           s += "; " + toAddress(instr.address) + " " + toBytes(instr.bytes) + "\n";
         });
         s += "\n";
