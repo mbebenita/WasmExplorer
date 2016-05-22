@@ -34,9 +34,41 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.noInline = false;
   this.noRTTI = false;
   this.noExceptions = false;
+
+  this.sharingLink = "";
+
+  this.checkUrlParameters();
 }
 
 var p = WasmExplorerAppCtrl.prototype;
+
+function getUrlParameters() {
+  var url = window.location.search.substring(1);
+  url = url.replace(/\/$/, ""); // Replace / at the end that gets inserted by browsers.
+  var params = {};
+  url.split('&').forEach(function (s) {
+    var t = s.split('=');
+    params[t[0]] = decodeURIComponent(t[1]);
+  });
+  return params;
+};
+
+p.checkUrlParameters = function checkUrlParameters() {
+  var parameters = getUrlParameters();
+  if (parameters["state"]) {
+    var state = JSON.parse(parameters["state"]);
+    this.sourceEditor.setValue(state.source, -1);
+    this.wastEditor.setValue(state.wast, -1);
+
+    this.selectedExample = state.options.selectedExample;
+    this.selectedDialect = state.options.selectedDialect;
+    this.selectedOptimizationLevel = state.options.selectedOptimizationLevel;
+    this.fastMath = state.options.fastMath;
+    this.noInline = state.options.noInline;
+    this.noRTTI = state.options.noRTTI;
+    this.noExceptions = state.options.noExceptions;
+  }
+};
 
 p.changeDialect = function changeDialect() {
   this.change();
@@ -131,12 +163,35 @@ p.compile = function compile() {
     self.assemble();
   }, "Compiling C/C++ to Wast");
 };
+p.share = function share() {
+  var self = this;
+  var url = location.protocol + '//' + location.host + location.pathname;
+  var state = {
+    source: self.sourceEditor.getValue(),
+    wast: self.wastEditor.getValue(),
+    options: {
+      selectedExample: self.selectedExample,
+      selectedDialect: self.selectedDialect,
+      selectedOptimizationLevel: self.selectedOptimizationLevel,
+      fastMath: self.fastMath,
+      noInline: self.noInline,
+      noRTTI: self.noRTTI,
+      noExceptions: self.noExceptions
+    }
+  };
+  url += "?state=" + encodeURIComponent(JSON.stringify(state));
+  shortenUrl(url, function (url) {
+    self.sharingLink = url;
+    self._scope.$apply();
+    // $('#shareURL').val(url).select();
+  });
+};
 p.assemble = function assemble() {
   var self = this;
   var wast = self.wastEditor.getValue();
   if (wast.indexOf("module") < 0) {
     self.assemblyEditor.getSession().setValue("; Doesn't look like a wasm module.", 1);
-    // document.getElementById('downloadLink').href = '';
+    document.getElementById('downloadLink').href = '';
     return;
   }
   if (typeof capstone === "undefined") {
@@ -183,8 +238,7 @@ p.assemble = function assemble() {
       }
       self.assemblyEditor.getSession().setValue(s, 1);
       cs.delete();
-
-      // buildDownload();
+      self.buildDownload();
     }, "Assembling Wast to x86");
 
     function padRight(s, n, c) {
@@ -214,6 +268,26 @@ p.assemble = function assemble() {
     }
   }
 }
+p.buildDownload = function() {
+  document.getElementById('downloadLink').href = '';
+  var wast = this.wastEditor.getValue();
+  if (!/^\s*\(module\b/.test(wast)) {
+    return; // Sanity check
+  }
+  this.sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2wasm", function () {
+    var wasm = this.responseText;
+    if (wasm.indexOf("WASM binary data") < 0) {
+      console.log('Error during WASM compilation: ' + wasm);
+      return;
+    }
+    document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
+  }, "Compiling Wast to Wasm");
+}
+p.download = function() {
+  if (document.getElementById('downloadLink').href != document.location) {
+    document.getElementById("downloadLink").click();
+  }
+};
 p.showProgress = function () {
   this.progressMpde = "indeterminate";
 };
@@ -271,21 +345,11 @@ p.createBanner = function() {
     var pattern = Trianglify({
       height: 70,
       width: window.innerWidth,
-      cell_size: 40
+      cell_size: 40 + Math.random() * 30
     });
     pattern.canvas(document.getElementById('banner'));  
   }
   resize();
-
-  // var width = $(window).width();
-  // $(window).resize(function(){
-  //    if($(this).width() != width){
-  //       width = $(this).width();
-  //       resize();
-  //    }
-  // });
-  // resize();
-
   window.addEventListener("resize", resizeThrottler, false);
   var resizeTimeout;
   function resizeThrottler() {
@@ -296,7 +360,6 @@ p.createBanner = function() {
       }, 66);
     }
   }
-
   var oldWidth = window.innerWidth;
   function actualResizeHandler() {
     if (oldWidth !== window.innerWidth) {
@@ -304,7 +367,6 @@ p.createBanner = function() {
     }
     oldWidth = window.innerWidth;
   }
-
 };
 
 p.createSourceEditor = function() {
@@ -344,6 +406,38 @@ p.createAssemblyEditor = function() {
   setDefaultEditorSettings(this.assemblyEditor);
 }
 
+// URL Shortening
+
+function googleJSClientLoaded() {
+  gapi.client.setApiKey("AIzaSyDF8nSRXwQKWZct5Tr5wotbLF3O8SCvjZU");
+  gapi.client.load('urlshortener', 'v1', function () {
+    shortenUrl(googleJSClientLoaded.url, googleJSClientLoaded.done);
+  });
+}
+
+function shortenUrl(url, done) {
+  if (!window.gapi || !gapi.client) {
+    googleJSClientLoaded.url = url;
+    googleJSClientLoaded.done = done;
+    // document.body.append('<script src="//apis.google.com/js/client.js?onload=googleJSClientLoaded">');
+    var script   = document.createElement("script");
+    script.type  = "text/javascript";
+    script.src   = "//apis.google.com/js/client.js?onload=googleJSClientLoaded";
+    document.body.appendChild(script);
+    return;
+  }
+  var request = gapi.client.urlshortener.url.insert({
+    resource: {
+        longUrl: url
+    }
+  });
+  request.then(function (resp) {
+    var id = resp.result.id;
+    done(id);
+  }, function () {
+    done(url);
+  });
+}
 
 
 
@@ -890,32 +984,4 @@ function getUrlParameters() {
   return params;
 };
 
-// URL Shortening
-
-function googleJSClientLoaded() {
-  gapi.client.setApiKey("AIzaSyDF8nSRXwQKWZct5Tr5wotbLF3O8SCvjZU");
-  gapi.client.load('urlshortener', 'v1', function () {
-    shortenUrl(googleJSClientLoaded.url, googleJSClientLoaded.done);
-  });
-}
-
-function shortenUrl(url, done) {
-  if (!window.gapi || !gapi.client) {
-    googleJSClientLoaded.url = url;
-    googleJSClientLoaded.done = done;
-    $(document.body).append('<script src="//apis.google.com/js/client.js?onload=googleJSClientLoaded">');
-    return;
-  }
-  var request = gapi.client.urlshortener.url.insert({
-    resource: {
-        longUrl: url
-    }
-  });
-  request.then(function (resp) {
-    var id = resp.result.id;
-    done(id);
-  }, function () {
-    done(url);
-  });
-}
 */

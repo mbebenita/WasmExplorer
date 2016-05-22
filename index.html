@@ -1,402 +1,165 @@
-<html>
-  <head>
-    <script src="lib/base64.js"></script>
-    <script src="lib/dat.gui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
-    <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
+<html lang="en" >
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Angular Material style sheet -->
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
 
-    <link href='//fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-  </head>
-  <style>
+  <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
+  
+  <script src="lib/base64.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
+</head>
 
-    body {
-      font-family: Roboto;
-      font-size: 14px;
-      margin: 0px;
-    }
-    #headerContainer {
-      height: 64px;
-      width: 100%;
-      background-color: red;
-    }
-    #toolbarContainer {
-      height: 32px;
-      background-color: #424242 !important;
-    }
-    #toolbarContainer .btn {
-      margin-top: 4px;
-    }
-    #bodyContainer {
-      position: absolute;
-      top: 96px;
-      bottom: 40px;
-      width: 100%;
-      background-color: green;
-    }
-    #contentContainer {
-      display: flex;
-      background-color: #EEEEEE !important;  
-      bottom: 40px;*/
-      width: 100%;
-      height: 100%;
-    }
-    #footerContainer {
-      position: absolute;
-      bottom: 0px;
-      height: 40px;
-      width: 100%;
-      background-color: #E0E0E0 !important;
-    }
+<body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
+  <md-progress-linear  md-mode="{{vm.progressMpde}}"></md-progress-linear>
+  <div>
+    <div class="md-toolbar-tools" style="position: relative;">
+      <div style="position: absolute; left: 0px;">
+        <canvas width="0" height="0" id="banner">
+      </div>
+      <div style="position: absolute; left: 10px;">
+        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide show-md>
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+        <span style="font-weight: bold;">WebAssembly Explorer</span>
+      </div>
+    </div>
+  </div>
+  <div layout="row" flex>
+    <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px;">
+      <md-toolbar style="background-color: #000000">
+        <div class="md-toolbar-tools">
+          <h2>
+            <span>Options</span>
+          </h2>
+        </div>  
+      </md-toolbar>
+      <md-content layout-padding>
+        <form name="userForm">
+          <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile">
+          <md-tooltip md-direction="top">
+            Automatically compiles when an option is changed
+          </md-tooltip>
+            Auto Compile
+          </md-switch>
+          <label>Examples</label>
+          <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()" ng-change="vm.changeExample()">
+            <md-optgroup label="Examples">
+              <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
+            </md-optgroup>
+          </md-select>
 
-    #cppContainer {
-      /*position: relative;*/
-    }
-    #cppContainer .tab {
-      background-color: #D1C4E9;
-    }
-    #cppCodeContainer {
-      width: 100%;
-      height: 100%;
-    }
-    #wastContainer {
-    }
-    #wastContainer .tab {
-      background-color: #BBDEFB;
-    }
-    #wastCodeContainer {
-      width: 100%;
-      height: 100%;
-    }
-    #x86Container {
-      
-    }
-    #x86Container .tab {
-      background-color: #DCEDC8;
-    }
-    #x86CodeContainer {
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-    }
+          <label>Language</label>
+          <md-select ng-model="vm.selectedDialect" md-selected-text="vm.getSelectedDialectText()" ng-change="vm.changeDialect()">
+            <md-optgroup label="Languages">
+              <md-option ng-value="item" ng-repeat="item in vm.dialects">{{item}}</md-option>
+            </md-optgroup>
+          </md-select>
 
-    .marked {
-      background: orange;
-      position: absolute;
-    }
+          <label>Optimization Level</label>
+          <md-select ng-model="vm.selectedOptimizationLevel" md-selected-text="vm.getSelectedOptimizationLevelText()" ng-change="vm.changeOptimizationLevel()">
+            <md-optgroup label="Optimization Level">
+              <md-option ng-value="item" ng-repeat="item in vm.optimizationLevels">{{item}}</md-option>
+            </md-optgroup>
+          </md-select>
+          <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-change="vm.changeCompilerOption()">
+            Fast Math
+          </md-checkbox><br>
+          <md-checkbox ng-model="vm.noInline" aria-label="No Inline" ng-change="vm.changeCompilerOption()">
+            No Inline
+          </md-checkbox><br>
+          <md-checkbox ng-model="vm.noRTTI" aria-label="No RTTI" ng-change="vm.changeCompilerOption()">
+            No RTTI
+          </md-checkbox><br>
+          <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.changeCompilerOption()">
+            No Exceptions
+          </md-checkbox>
+          
+        
+          <md-button ng-click="vm.share($event)" class="md-raised" ng-click="vm.share($event)">
+          Create Sharing Link</md-button>
+          <md-input-container class="md-block">
+            <label>Sharing Link</label>
+            <input name="clientName" ng-model="vm.sharingLink">
+          </md-input-container>
 
-    /* ===================================== */
-
-
-    code {
-      font-family: Inconsolata;
-      font-size: 14px;
-    }
-
-
-    .btn {
-      /*padding: 5px;*/
-      font-size: 11px;
-      font-weight: bold;
-      border: 0px solid transparent;
-      border-radius: 4px;
-      outline: none;
-      background-color: #757575 !important;
-      color: #FFFFFF;
-      height: 24px;
-      margin: 2px;
-      m
-    }
-    .btn:hover {
-      background-color: #9E9E9E !important;
-      color: #FFFFFF;
-      cursor: pointer;
-    }
-    .btn option {
-      padding: 4px 8px;
-    }
-    #shareURL {
-      padding: 4px 8px;
-      font-size: 12px;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      outline: none;
-      background-color: #FAFAFA !important;
-      color: #000000;
-      height: 28px;
-      width: 200px;
-      opacity: 0;
-    }
-    .wasm-error { background-color: orange; }
-
+        </form>
+      </md-content>
+    </md-sidenav>
     
+    <div flex layout="column">
+      <md-toolbar style="background-color: #e74c3c">
+        <div class="md-toolbar-tools">
+          {{vm.selectedDialect}}
+          <span flex></span>
+          <md-button ng-click="vm.compile($event)" class="md-raised">
+            <md-tooltip md-direction="top">
+              Compile C/C++ to Wast
+            </md-tooltip>
+          Compile</md-button>
+        </div>
+      </md-toolbar>
+      <div flex id="sourceCodeContainer"></div>
+    </div>
 
-    #container {
-      width: 100%;
-      margin-top: 10px;
-    }
+    <div flex layout="column">
+      <md-toolbar style="background-color: #9b59b6">
+        <div class="md-toolbar-tools">
+          Wast
+          <span flex></span>
+          <md-button ng-click="vm.assemble($event)" class="md-raised">
+            <md-tooltip md-direction="top">
+              Compile/Assemble .wast using SpiderMonkey
+            </md-tooltip>
+            Assemble</md-button>
+          <md-button ng-click="vm.download($event)" class="md-raised">
+            <md-tooltip md-direction="top">
+              Convert .wast to .wasm and download
+            </md-tooltip>
+          Download</md-button>
+        </div>
+      </md-toolbar>
+      <div id="wastCodeContainer" flex></div>
+    </div>
 
+    <div flex flex layout="column">
+      <md-toolbar style="background-color: #2980b9">
+        <div class="md-toolbar-tools">
+          <h2>
+            <span>x86/64</span>
+          </h2>
+        </div>
+      </md-toolbar>
+      <div flex id="assemblyCodeContainer"></div>
+    </div>
+  </div>
+  <md-content layout-padding class="md-caption">
+    ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with Clang/LLVM, AngularJS, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
+  </md-content>
+
+
+  <style type="text/css">
     
-    
-
-    #settingsContainer {
-      background-color: #424242 !important;
-      visibility: hidden;
-      display: none;
-      margin-top: 0px;
-      margin-left: -5px;
-    }
-    .divider {
-      width: 10px;
-      background: red;
-      left: auto !important;
-      background-color: #E9E9E9 !important;
-      cursor: col-resize;
-    }
-    .tab {
-      /*margin: -5px;*/
-      margin-bottom: 10px;
-      padding: 5px;
-      background-color: #E0E0E0;
-      font-family: Roboto;
-      font-size: 14px;
-    }
-    .tab .label {
-      margin-bottom: 10px;
-    }
-    .tab .btn {
-      background-color: #E0E0E0;
-    }
-    
-    #spinnerContainer {
-      padding-top: 6px;
-      float: right;
-    }
-    #spinnerLabel {
-      font-family: Roboto;
-      color: #DCEDC8;
-    }
-    .editor {
-      flex: 1;
-      overflow: hidden;
-      min-width: 200px;
-    }
-    .divider:hover {
-      background-color: #E0E0E0 !important;
-    }
-    
-
-    body .dg.main {
-        /*box-shadow: 0 0 8px rgba(0,0,0,0.7);*/
-    }
-
-    @media only screen and (max-width : 1350px) {
-        body.gui-auto-hide .dg.ac {
-            right: -233px;
-        }
-
-        body .dg.ac:hover,
-        body.gui-show .dg.ac {
-            right: 0px;
-        }
-
-        body.gui-auto-hide.gui-transitions .dg.ac {
-            -webkit-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-               -moz-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-                 -o-transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-                    transition: all 500ms cubic-bezier(0.965, 0.025, 0.735, 0.415);
-
-            -webkit-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-               -moz-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-                 -o-transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415); 
-                    transition-timing-function: cubic-bezier(0.965, 0.025, 0.735, 0.415);
-            
-            transition-delay: 3s;
-            -webkit-transition-delay: 3s;
-        }
-
-        body.gui-transitions .dg.ac:hover,
-        body.gui-show.gui-transitions .dg.ac {
-            -webkit-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-               -moz-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-                 -o-transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-                    transition: all 500ms cubic-bezier(0.095, 0.665, 0.400, 0.835);
-
-            -webkit-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-               -moz-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-                 -o-transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835); 
-                    transition-timing-function: cubic-bezier(0.095, 0.665, 0.400, 0.835);
-
-            transition-delay: 0;
-            -webkit-transition-delay: 0;
-        }
-    }
-
-    body .dg .close-button {
-        border-top: 1px solid #444;
-        border-right: 4px solid #444;
-        display: none !important;
-    }
-
-    body .dg.main::-webkit-scrollbar {
-        background: #3d3d3d;
-        width: 9px;
-    }
-
-    body .dg.main::-webkit-scrollbar-thumb {
-        background: transparent;
-        width: 5px;
-        border-left: 5px solid #3d3d3d;
-        border-right: 6px solid rgba(0,0,0,0.2);
-        border-radius: 0;
-    }
-     
-    body .dg {
-        color: #fff;
-        text-shadow: none !important;
-    }
-
-    body .dg li:not(.folder) {
-        background: #3d3d3d;
-        border-bottom: 0px;
-        padding: 0 0 0 12px;
-    }
-     
-    body .dg li.save-row .button {
-        text-shadow: none !important;
-    }
-
-    body .dg li.title {
-        padding-left: 22px;
-        border-bottom: 1px solid #555;
-        background: #444 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 10px 10px no-repeat;
-    }
-
-    body .dg .cr.boolean:hover {
-        background: #3d3d3d;
-    }
-
-    body .dg .cr.function {
-        border-top: 1px solid #444;
-        background: #333;
-        color: #9CCC65;
-        border-bottom: 1px solid #333;
-    }
-
-    body .dg .cr.function:hover {
-        background: #3a3a3a;
-        border-bottom: 1px solid #2fa1d6;
-    }
-
-    body .dg .cr.function:active {
-        border-top: 2px solid #444;
-        border-bottom: 0;
-        background: #2e2e2e;
-    }
-
-    body .dg .c input[type=text]:hover {
-        background: #444;
-    }
-     
-    body .dg .c input[type=text]:focus {
-        background: #444;
-        color: #fff;
-    }
-     
-    body .dg .c .slider {
-        background: #555;
-    }
-
-    body .dg .c .slider:hover {
-        background: #666;
-    }
-
-    body .dg .c .slider-fg {
-        background: #777;
-    }
-
-    body .dg .c .slider:hover .slider-fg {
-        background: #999;
-    }
-
-    body .dg li.folder {
-        border-left: 0;
-    }
-
-    body .dg.a {
-        border-right:4px solid #3d3d3d;
-    }
-
-    body .dg .property-name {
-        width: 70%;
-    }
-
-    body .dg .c {
-        width: 30%;
-    }
-
   </style>
-  <body onload="begin()">
-    <div id="headerContainer">
-      <div style="position: relative; width: 100%;">
-        <div style="position: absolute;"><canvas width="0" height="0" id="banner"></canvas></div>
-        <div style="position: absolute;">
-          <div style='padding: 20px; font-size: 20px; font-weight: bold;'>
-            WebAssembly Explorer
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="toolbarContainer">
-      <button id="toggleSettings" class="btn">Show / Hide Settings</button>
-      <input id="shareURL" width="200"></input> 
-      <div id="spinnerContainer">
-      <span id="spinnerLabel"></span><img id="spinner" src="img/ripple.svg" style="vertical-align: middle; padding-left: 4px; visibility: hidden;" /></div>
-    </div>
-    <div id="bodyContainer">
-      <div id="contentContainer">
-        <div id="settingsContainer">
-        </div>
-        <div class="editor" id="cppContainer">
-          <div class="tab">
-            <div class="label">C/C++ Source</div>
-            <button id="compile" class="btn">Compile C++</button><button id="compileC" class="btn">Compile C</button>
-            <select id="cppExamples" class="btn"><option value="" selected="selected">Example</option></select><button id="shareCpp" class="btn">Share</button>
-          </div>
-          <div id="cppCodeContainer">
-            
-          </div>
-        </div>
-        <div class="divider" id="divider-1"></div>
-        <div class="editor" id="wastContainer">
-          <div class="tab"><div class="label">WebAssembly Source</div>
-            <button id="assemble" class="btn">Assemble</button><button id="beautify" class="btn">Beautify</button><button id="download" class="btn">Download .wasm</button><button id="shareWast" class="btn">Share</button>
-          </div>
-          <div id="wastCodeContainer">
-            
-          </div>
-        </div>
-        <div class="divider" id="divider-2"></div>
-        <div class="editor" id="x86Container">
-          <div class="tab"><div class="label">x86/64 (SpiderMonkey)</div></div>
-          <div id="x86CodeContainer">
-            
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="footerContainer">
-      <div style="padding: 10px;">ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with Clang/LLVM, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
-        </div>
-    </div>
 
-    <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
-      <a id="downloadLink" href="" download="test.wasm"></a>
-    </div>
+  
+  <!-- Angular Material requires Angular.js Libraries -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
 
-    <script src="explorer.js"></script>
-  </body>
+  <!-- Angular Material Library -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
+  
+
+  <script src="v2.js"></script>
+  <script src="examples.js"></script>
+
+
+  <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
+    <a id="downloadLink" href="" download="test.wasm"></a>
+  </div>
+</body>
 </html>
