@@ -8,22 +8,28 @@
   <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
   
   <script src="lib/base64.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
 </head>
 
 <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
-  <md-toolbar>
-    <div class="md-toolbar-tools">
-      <md-button class="md-icon-button" aria-label="Settings">
-        x
-      </md-button>
-      <h2>
-        <span>WebAssembly Explorer</span>
-      </h2>
+  <div>
+    <div class="md-toolbar-tools" style="position: relative;">
+      <div style="position: absolute; left: 0px;">
+        <canvas width="0" height="0" id="banner">
+      </div>
+      <div style="position: absolute; left: 10px;">
+        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide show-md>
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+        
+        <span style="font-weight: bold;">WebAssembly Explorer</span>
+        
+      </div>
     </div>
-  </md-toolbar>
+  </div>
   <md-progress-linear  md-mode="{{vm.progressMpde}}"></md-progress-linear>
   <div layout="row" flex>
-    <div flex hide show-gt-sm style="max-width: 200px;">
+    <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px;">
       <md-toolbar style="background-color: #000000">
         <div class="md-toolbar-tools">
           <h2>
@@ -74,12 +80,12 @@
 
         </form>
       </md-content>
-    </div>
+    </md-sidenav>
     
     <div flex layout="column">
       <md-toolbar style="background-color: #e74c3c">
         <div class="md-toolbar-tools">
-          C/C++
+          {{vm.selectedDialect}}
           <span flex></span>
           <md-button ng-click="vm.compile($event)" class="md-raised">Compile</md-button>
         </div>
@@ -94,7 +100,6 @@
           <span flex></span>
           <md-button ng-click="vm.assemble($event)" class="md-raised">Assemble</md-button>
           <!-- <md-button>Share</md-button> -->
-
         </div>
       </md-toolbar>
       <div id="wastCodeContainer" flex></div>

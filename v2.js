@@ -3,9 +3,10 @@
  */
 angular.module('WasmExplorerApp', ['ngMaterial']).controller('WasmExplorerAppCtrl', WasmExplorerAppCtrl);
 
-function WasmExplorerAppCtrl($scope, $timeout) {
+function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this._scope = $scope;
   this._timeout = $timeout;
+  this._mdSidenav = $mdSidenav;
   
   this.sourceEditor = null;
   this.wastEditor = null;
@@ -13,6 +14,7 @@ function WasmExplorerAppCtrl($scope, $timeout) {
 
   this.hideProgress();
 
+  this.createBanner();
   this.createSourceEditor();
   this.createWastEditor();
   this.createAssemblyEditor();
@@ -77,6 +79,9 @@ p.change = function change() {
   if (this.autoCompile) {
     this.compile();
   }
+};
+p.toggleMenu = function toggleMenu() {
+  this._mdSidenav("left").toggle();
 };
 p.compile = function compile() {
   var self = this;
@@ -208,65 +213,6 @@ p.assemble = function assemble() {
       return a.map(function (x) { return padLeft(Number(x).toString(16), 2, "0"); }).join(" ");
     }
   }
-
-  // function assemble() {
-  // var wast = wastEditor.getValue();
-  // if (wast.indexOf("module") < 0) {
-  //   x86Editor.getSession().setValue("; Doesn't look like a wasm module.", 1);
-  //   document.getElementById('downloadLink').href = '';
-  //   return;
-  // }
-  // if (typeof capstone === "undefined") {
-  //   lazyLoad("lib/capstone.x86.min.js", go);
-  // } else {
-  //   go();
-  // }
-  // function go() {
-  //   wastEditor.getSession().clearAnnotations();
-  //   sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2assembly", function () {
-  //     var json = JSON.parse(this.responseText);
-  //     if (typeof json === "string") {
-  //       var parseError = "wasm text error: parsing wasm text at ";
-  //       if (json.indexOf(parseError) == 0) {
-  //         var location = json.substring(parseError.length).split(":");
-  //         var line = Number(location[0]) - 1;
-  //         var column = Number(location[1]) - 1;
-  //         var Range = ace.require('ace/range').Range;
-  //         var mark = wastEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
-
-  //         wastEditor.getSession().setAnnotations([{
-  //           row: line,
-  //           column: column,
-  //           text: json,
-  //           type: "error" // also warning and information
-  //         }]);
-
-  //         setTimeout(function() {
-  //           wastEditor.session.removeMarker(mark);
-  //         }, 5000);
-  //       }
-  //       x86Editor.getSession().setValue("; " + json, 1);
-  //       return;
-  //     }
-  //     var s = "";
-  //     var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
-  //     for (var i = 0; i < json.regions.length; i++) {
-  //       var region = json.regions[i];
-  //       s += region.name + ":\n\n";
-  //       var csBuffer = decodeRestrictedBase64ToBytes(region.bytes);
-  //       var instructions = cs.disasm(csBuffer, region.entry);
-  //       instructions.forEach(function(instr) {
-  //         s += padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
-  //         s += "; " + toAddress(instr.address) + " " + toBytes(instr.bytes) + "\n";
-  //       });
-  //       s += "\n";
-  //     }
-  //     x86Editor.getSession().setValue(s, 1);
-  //     cs.delete();
-
-  //     buildDownload();
-  //   }, "Assembling Wast to x86");
-  // }
 }
 p.showProgress = function () {
   this.progressMpde = "indeterminate";
@@ -288,7 +234,7 @@ p.sendRequest = function sendRequest(command, cb, message) {
   self.showProgress(message);
 };
 
-function setDefaultEditorSettings(editor) {
+function setDefaultEditorSettings(editor, options) {
   editor.setTheme("ace/theme/github");
   editor.setFontSize(14);
   editor.getSession().setUseSoftTabs(true);
@@ -296,9 +242,11 @@ function setDefaultEditorSettings(editor) {
   editor.setOptions({
     enableBasicAutocompletion: true,
     enableSnippets: true,
-    enableLiveAutocompletion: true,
-    wrap: true
+    enableLiveAutocompletion: true
   });
+  if (options) {
+    editor.setOptions(options);
+  }
   editor.renderer.setScrollMargin(10, 10);
 }
 
@@ -318,11 +266,52 @@ p.lazyLoad = function(s, cb) {
   }
 }
 
+p.createBanner = function() {
+  function resize() {
+    var pattern = Trianglify({
+      height: 70,
+      width: window.innerWidth,
+      cell_size: 40
+    });
+    pattern.canvas(document.getElementById('banner'));  
+  }
+  resize();
+
+  // var width = $(window).width();
+  // $(window).resize(function(){
+  //    if($(this).width() != width){
+  //       width = $(this).width();
+  //       resize();
+  //    }
+  // });
+  // resize();
+
+  window.addEventListener("resize", resizeThrottler, false);
+  var resizeTimeout;
+  function resizeThrottler() {
+    if (!resizeTimeout) {
+      resizeTimeout = setTimeout(function() {
+        resizeTimeout = null;
+        actualResizeHandler();
+      }, 66);
+    }
+  }
+
+  var oldWidth = window.innerWidth;
+  function actualResizeHandler() {
+    if (oldWidth !== window.innerWidth) {
+      resize();
+    }
+    oldWidth = window.innerWidth;
+  }
+
+};
+
 p.createSourceEditor = function() {
   var self = this;
   this.sourceEditor = ace.edit("sourceCodeContainer");
   this.sourceEditor.getSession().setMode("ace/mode/c_cpp");
-  setDefaultEditorSettings(this.sourceEditor);
+  setDefaultEditorSettings(this.sourceEditor, {wrap: true});
   this.sourceEditor.commands.addCommand({
     name: 'compileCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
@@ -337,7 +326,7 @@ p.createSourceEditor = function() {
 p.createWastEditor = function() {
   var self = this;
   this.wastEditor = ace.edit("wastCodeContainer");
-  setDefaultEditorSettings(this.wastEditor);
+  setDefaultEditorSettings(this.wastEditor, {wrap: true});
   this.wastEditor.commands.addCommand({
     name: 'assembleCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
