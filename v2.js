@@ -49,9 +49,33 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.sharingLink = "";
 
   this.checkUrlParameters();
+  this.mobileVersion();
+}
+
+function getMobileOperatingSystem() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
+    return 'iOS'
+  } else if (userAgent.match(/Android/i)) {
+    return 'Android';
+  } else {
+    return 'unknown';
+  }
 }
 
 var p = WasmExplorerAppCtrl.prototype;
+
+
+p.mobileVersion = function() {
+  var kind = getMobileOperatingSystem();
+  if (kind == "Android" || kind == "iOS") {
+    var s = 3; // Scale
+    var w = screen.width * s;
+    var h = screen.height * s;
+    document.body.style.width = w + "px";
+    document.body.style.height = h + "px";
+  }
+};
 
 function getUrlParameters() {
   var url = window.location.search.substring(1);
