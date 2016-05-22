@@ -14,7 +14,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
 
   this.hideProgress();
 
-  this.createBanner();
+  // this.createBanner(); 
   this.createSourceEditor();
   this.createWastEditor();
   this.createAssemblyEditor();

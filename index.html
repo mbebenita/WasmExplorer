@@ -8,27 +8,25 @@
   <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
   
   <script src="lib/base64.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
 </head>
 
 <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
+  <style type="text/css">
+    
+  </style>
   <md-progress-linear  md-mode="{{vm.progressMpde}}"></md-progress-linear>
   <div>
-    <div class="md-toolbar-tools" style="position: relative;">
-      <div style="position: absolute; left: 0px;">
-        <canvas width="0" height="0" id="banner">
-      </div>
-      <div style="position: absolute; left: 10px;">
-        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide show-md>
-          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
-        </md-button>
-        <span style="font-weight: bold;">WebAssembly Explorer</span>
-      </div>
-    </div>
+    <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
+      <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide show-md>
+        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+      </md-button>
+      <span style="font-weight: bold;">WebAssembly Explorer</span>
+    </md-toolbar>
   </div>
   <div layout="row" flex>
     <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px;">
-      <md-toolbar style="background-color: #000000">
+      <md-toolbar style="background-color: #757575">
         <div class="md-toolbar-tools">
           <h2>
             <span>Options</span>
