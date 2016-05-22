@@ -74,6 +74,11 @@ p.mobileVersion = function() {
     var h = screen.height * s;
     document.body.style.width = w + "px";
     document.body.style.height = h + "px";
+
+    this.sourceEditor.setReadOnly(true);
+    this.wastEditor.setReadOnly(true);
+    this.assemblyEditor.setReadOnly(true);
+    this.consoleEditor.setReadOnly(true);
   }
 };
 
