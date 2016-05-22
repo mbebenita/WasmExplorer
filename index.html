@@ -39,7 +39,7 @@
             Dark Mode
           </md-switch>
 
-          <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile">
+          <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile" ng-change="vm.changeAutoCompile()">
           <md-tooltip md-direction="top">
             Automatically compiles when an option is changed
           </md-tooltip>
@@ -153,11 +153,6 @@
   </div>
   </div>
   
-  <!-- <md-content layout-padding class="md-caption">
-    ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with Clang/LLVM, AngularJS, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
-  </md-content> -->
-
-
   <style type="text/css">
     
   </style>
