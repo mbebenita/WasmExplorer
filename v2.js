@@ -18,7 +18,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.createSourceEditor();
   this.createWastEditor();
   this.createAssemblyEditor();
-
+  this.resizeEditors();
 
   this.autoCompile = true;
   this.examples = Object.getOwnPropertyNames(cppExamples);
@@ -369,6 +369,34 @@ p.createBanner = function() {
   }
 };
 
+p.resizeEditors = function() {
+  window.addEventListener("resize", resizeThrottler, false);
+  var resizeTimeout;
+  function resizeThrottler() {
+    if (!resizeTimeout) {
+      resizeTimeout = setTimeout(function() {
+        resizeTimeout = null;
+        actualResizeHandler();
+      }, 66);
+    }
+  }
+  var oldWidth = window.innerWidth;
+  function actualResizeHandler() {
+    if (oldWidth !== window.innerWidth) {
+      resize();
+    }
+    oldWidth = window.innerWidth;
+  }
+
+  var self = this;
+  function resize() {
+    var show = window.innerWidth > 960;
+    self.sourceEditor.renderer.setShowGutter(show);
+    self.wastEditor.renderer.setShowGutter(show);
+    self.assemblyEditor.renderer.setShowGutter(show);
+  }
+  resize();
+};
 p.createSourceEditor = function() {
   var self = this;
   this.sourceEditor = ace.edit("sourceCodeContainer");

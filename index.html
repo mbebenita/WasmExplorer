@@ -18,7 +18,7 @@
   <md-progress-linear  md-mode="{{vm.progressMpde}}"></md-progress-linear>
   <div>
     <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
-      <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide show-md>
+      <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
         <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
       </md-button>
       <span style="font-weight: bold;">WebAssembly Explorer</span>
@@ -89,7 +89,7 @@
     <div flex layout="column">
       <md-toolbar style="background-color: #e74c3c">
         <div class="md-toolbar-tools">
-          {{vm.selectedDialect}}
+          <span hide show-gt-sm>{{vm.selectedDialect}}</span>
           <span flex></span>
           <md-button ng-click="vm.compile($event)" class="md-raised">
             <md-tooltip md-direction="top">
@@ -104,7 +104,7 @@
     <div flex layout="column">
       <md-toolbar style="background-color: #9b59b6">
         <div class="md-toolbar-tools">
-          Wast
+          <span hide show-gt-sm>Wast</span>
           <span flex></span>
           <md-button ng-click="vm.assemble($event)" class="md-raised">
             <md-tooltip md-direction="top">
@@ -132,9 +132,9 @@
       <div flex id="assemblyCodeContainer"></div>
     </div>
   </div>
-  <md-content layout-padding class="md-caption">
+  <!-- <md-content layout-padding class="md-caption">
     ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with Clang/LLVM, AngularJS, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
-  </md-content>
+  </md-content> -->
 
 
   <style type="text/css">
