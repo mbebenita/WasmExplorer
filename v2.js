@@ -69,16 +69,15 @@ var p = WasmExplorerAppCtrl.prototype;
 p.mobileVersion = function() {
   var kind = getMobileOperatingSystem();
   if (kind == "Android" || kind == "iOS") {
-    var s = 3; // Scale
+    var s = 2; // Scale
     var w = screen.width * s;
     var h = screen.height * s;
     document.body.style.width = w + "px";
     document.body.style.height = h + "px";
 
-    this.sourceEditor.setReadOnly(true);
-    this.wastEditor.setReadOnly(true);
-    this.assemblyEditor.setReadOnly(true);
-    this.consoleEditor.setReadOnly(true);
+    var block = document.getElementById("blockOverlay");
+    block.style.display = "block";
+    block.style.height = (h - 128) + "px";
   }
 };
 
