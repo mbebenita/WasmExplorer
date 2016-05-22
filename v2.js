@@ -26,7 +26,11 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.writeWelcomeMessage();
   this.resizeEditors();
 
+  this.darkMode = false;
+  this.changeTheme();
+
   this.autoCompile = true;
+
   this.examples = Object.getOwnPropertyNames(cppExamples);
   this.selectedExample;
 
@@ -75,7 +79,15 @@ p.checkUrlParameters = function checkUrlParameters() {
     this.noExceptions = state.options.noExceptions;
   }
 };
+p.changeTheme = function changeTheme() {
+  var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
+  this.sourceEditor.setTheme(theme);
+  this.wastEditor.setTheme(theme);
+  this.assemblyEditor.setTheme(theme);
 
+  var consoleTheme = this.darkMode ? "ace/theme/monokai" : "ace/theme/dawn";
+  this.consoleEditor.setTheme(consoleTheme);
+};
 p.changeDialect = function changeDialect() {
   this.change();
 };
@@ -323,10 +335,10 @@ p.sendRequest = function sendRequest(command, cb, message) {
 };
 
 function setDefaultEditorSettings(editor, options) {
-  editor.setTheme("ace/theme/github");
   editor.setFontSize(14);
   editor.getSession().setUseSoftTabs(true);
   editor.getSession().setTabSize(2);
+  editor.setShowPrintMargin(false);
   editor.setOptions({
     enableBasicAutocompletion: true,
     enableSnippets: true,
@@ -457,7 +469,6 @@ p.createConsoleEditor = function() {
     enableSnippets: false,
     enableLiveAutocompletion: false
   });
-  this.consoleEditor.setTheme("ace/theme/monokai");
   // this.consoleEditor.renderer.setShowGutter(false);
 }
 p.appendConsole = function(s) {

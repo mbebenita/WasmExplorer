@@ -35,6 +35,10 @@
       </md-toolbar>
       <md-content layout-padding style="background-color: #F5F5F5;">
         <form name="userForm">
+          <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.changeTheme()">
+            Dark Mode
+          </md-switch>
+
           <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile">
           <md-tooltip md-direction="top">
             Automatically compiles when an option is changed
