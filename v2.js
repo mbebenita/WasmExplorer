@@ -390,7 +390,7 @@ p.resizeEditors = function() {
 
   var self = this;
   function resize() {
-    var show = window.innerWidth > 960;
+    var show = window.innerWidth > 600;
     self.sourceEditor.renderer.setShowGutter(show);
     self.wastEditor.renderer.setShowGutter(show);
     self.assemblyEditor.renderer.setShowGutter(show);
