@@ -11,6 +11,10 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.sourceEditor = null;
   this.wastEditor = null;
   this.assemblyEditor = null;
+  this.consoleEditor = null;
+
+
+  this.consoleVisible = true;
 
   this.hideProgress();
 
@@ -18,6 +22,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.createSourceEditor();
   this.createWastEditor();
   this.createAssemblyEditor();
+  this.createConsoleEditor();
   this.resizeEditors();
 
   this.autoCompile = true;
@@ -115,12 +120,15 @@ p.change = function change() {
 p.toggleMenu = function toggleMenu() {
   this._mdSidenav("left").toggle();
 };
+p.toggleConsole = function toggleConsole() {
+  this.consoleVisible = !this.consoleVisible;
+};
 p.compile = function compile() {
   var self = this;
   var options = [];
   var source = this.sourceEditor.getValue();
   var inputString = encodeURIComponent(source).replace('%20', '+');
-  var actionString = "cpp2wast";
+  var actionString = this.selectedDialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wast" : "c2wast";
 
   // Gather Options
   var options = [
@@ -157,6 +165,8 @@ p.compile = function compile() {
         });
       }
       self.sourceEditor.getSession().setAnnotations(annotations);
+      self.appendConsole(wast);
+      return;
     }
 
     self.wastEditor.setValue(wast, -1);
@@ -190,7 +200,7 @@ p.assemble = function assemble() {
   var self = this;
   var wast = self.wastEditor.getValue();
   if (wast.indexOf("module") < 0) {
-    self.assemblyEditor.getSession().setValue("; Doesn't look like a wasm module.", 1);
+    self.appendConsole("Doesn't look like a wasm module.");
     document.getElementById('downloadLink').href = '';
     return;
   }
@@ -220,7 +230,7 @@ p.assemble = function assemble() {
             type: "error" // also warning and information
           }]);
         }
-        self.assemblyEditor.getSession().setValue("; " + json, -1);
+        self.appendConsole(json);
         return;
       }
       var s = "";
@@ -288,11 +298,14 @@ p.download = function() {
     document.getElementById("downloadLink").click();
   }
 };
-p.showProgress = function () {
-  this.progressMpde = "indeterminate";
+p.showProgress = function (message) {
+  if (message) {
+    this.appendConsole(message);
+  }
+  this.progressMode = "indeterminate";
 };
 p.hideProgress = function () {
-  this.progressMpde = "determinate";
+  this.progressMode = "determinate";
 };
 p.sendRequest = function sendRequest(command, cb, message) {
   var self = this;
@@ -433,6 +446,22 @@ p.createAssemblyEditor = function() {
   this.assemblyEditor.getSession().setMode("ace/mode/assembly_x86");
   setDefaultEditorSettings(this.assemblyEditor);
 }
+
+p.createConsoleEditor = function() {
+  this.consoleEditor = ace.edit("consoleContainer");
+  // this.consoleEditor.getSession().setMode("ace/mode/assembly_x86");
+  setDefaultEditorSettings(this.consoleEditor, {
+    wrap: false, 
+    enableBasicAutocompletion: false,
+    enableSnippets: false,
+    enableLiveAutocompletion: false
+  });
+  this.consoleEditor.setTheme("ace/theme/monokai");
+  // this.consoleEditor.renderer.setShowGutter(false);
+}
+p.appendConsole = function(s) {
+  this.consoleEditor.insert(s + "\n");
+};
 
 // URL Shortening
 

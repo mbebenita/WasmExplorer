@@ -15,7 +15,7 @@
   <style type="text/css">
     
   </style>
-  <md-progress-linear  md-mode="{{vm.progressMpde}}"></md-progress-linear>
+  <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear>
   <div>
     <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
       <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
@@ -62,6 +62,9 @@
             </md-optgroup>
           </md-select>
           <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-change="vm.changeCompilerOption()">
+          <md-tooltip md-direction="top">
+            Lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.
+          </md-tooltip>
             Fast Math
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noInline" aria-label="No Inline" ng-change="vm.changeCompilerOption()">
@@ -73,8 +76,6 @@
           <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.changeCompilerOption()">
             No Exceptions
           </md-checkbox>
-          
-        
           <md-button ng-click="vm.share($event)" class="md-raised" ng-click="vm.share($event)">
           Create Sharing Link</md-button>
           <md-input-container class="md-block">
@@ -86,6 +87,8 @@
       </md-content>
     </md-sidenav>
     
+    <div layout="column" flex>
+    <div flex layout="row">
     <div flex layout="column">
       <md-toolbar style="background-color: #e74c3c">
         <div class="md-toolbar-tools">
@@ -93,7 +96,7 @@
           <span flex></span>
           <md-button ng-click="vm.compile($event)" class="md-raised">
             <md-tooltip md-direction="top">
-              Compile C/C++ to Wast
+              Compile C/C++ to Wast (Ctrl / Cmd + Enter)
             </md-tooltip>
           Compile</md-button>
         </div>
@@ -108,7 +111,7 @@
           <span flex></span>
           <md-button ng-click="vm.assemble($event)" class="md-raised">
             <md-tooltip md-direction="top">
-              Compile/Assemble .wast using SpiderMonkey
+              Compile/Assemble .wast using SpiderMonkey (Ctrl / Cmd + Enter)
             </md-tooltip>
             Assemble</md-button>
           <md-button ng-click="vm.download($event)" class="md-raised">
@@ -132,6 +135,20 @@
       <div flex id="assemblyCodeContainer"></div>
     </div>
   </div>
+  <div layout="column">
+    
+    <!-- <div style="background-color: #424242; min-height: 20px; height: 48px; "> -->
+    <!-- <md-button ng-click="vm.toggleConsole($event)" class="md-raised">
+      Toggle Console
+    </md-button> -->
+      <!-- Console -->
+    <!-- </div> -->
+
+    <div flex="20" id="consoleContainer" ng-show="vm.consoleVisible"></div>
+  </div>
+  </div>
+  </div>
+  
   <!-- <md-content layout-padding class="md-caption">
     ProTip! Use Cmd/Ctr+Enter to compile the active editor view. Built with Clang/LLVM, AngularJS, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
   </md-content> -->
