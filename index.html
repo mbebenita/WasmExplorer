@@ -10,6 +10,9 @@
   <script src="lib/base64.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
   <script src="https://togetherjs.com/togetherjs-min.js"></script>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 </head>
 
 <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
@@ -24,7 +27,7 @@
       </md-button>
       <span style="font-weight: bold;">WebAssembly Explorer</span>
       <span flex></span>
-      <span>v2</span>
+      <span>v2.1</span>
     </md-toolbar>
   </div>
   <div layout="row" flex>
@@ -38,10 +41,6 @@
       </md-toolbar>
       <md-content layout-padding style="background-color: #F5F5F5;">
         <form name="userForm">
-          <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.changeTheme()">
-            Dark Mode
-          </md-switch>
-
           <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile" ng-change="vm.changeAutoCompile()">
           <md-tooltip md-direction="top">
             Automatically compiles when an option is changed
@@ -93,6 +92,13 @@
             <input name="clientName" ng-model="vm.sharingLink">
           </md-input-container>
           
+          <label>Editor Options</label>
+          <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.changeEditor()">
+            Dark Mode
+          </md-switch>
+          <md-switch class="md-primary" md-no-ink aria-label="Show Gutter" ng-model="vm.showGutter" ng-change="vm.changeEditor()">
+            Show Gutter
+          </md-switch>
         </form>
       </md-content>
     </md-sidenav>
@@ -147,14 +153,32 @@
   </div>
   <div layout="column">
     
-    <!-- <div style="background-color: #424242; min-height: 20px; height: 48px; "> -->
-    <!-- <md-button ng-click="vm.toggleConsole($event)" class="md-raised">
-      Toggle Console
-    </md-button> -->
-      <!-- Console -->
-    <!-- </div> -->
 
+    <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 48px;">
+      <!-- <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
+        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+      </md-button> -->
+      <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
+        <i class="material-icons">{{vm.consoleVisible ? "expand_more" : "expand_less"}}</i>
+      </md-button>
+      <span class="md-subhead">
+      Console
+      </span>
+      <span flex></span>
+      <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
+    </md-toolbar>
+
+
+    <!-- <div style="background-color: #424242; min-height: 20px; height: 48px; ">
+    <md-button ng-click="vm.toggleConsole($event)" class="md-raised">
+      Toggle Console
+    </md-button>
+    <span flex></span>
+    <span>{{vm.consoleEditor.session.getLength()}}</span>
+    </div> -->
     <div style="height: 200px" id="consoleContainer" ng-show="vm.consoleVisible"></div>
+
+    <!-- <div style="height: 200px" id="consoleContainer" ng-show="vm.consoleVisible"></div> -->
   </div>
   </div>
   </div>

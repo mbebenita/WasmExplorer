@@ -3,6 +3,31 @@
  */
 angular.module('WasmExplorerApp', ['ngMaterial']).controller('WasmExplorerAppCtrl', WasmExplorerAppCtrl);
 
+function toAddress(n) {
+  var s = n.toString(16);
+  while (s.length < 6) {
+    s = "0" + s;
+  }
+  return "0x" + s;
+}
+
+function match(re, text, group) {
+  var m = text.match(re);
+  if (m) {
+    return m[group];
+  }
+}
+
+var x86JumpInstructions = [
+  "jmp", "ja", "jae", "jb", "jbe", "jc", "je", "jg", "jge", "jl", "jle", "jna", "jnae", 
+  "jnb", "jnbe", "jnc", "jne", "jng", "jnge", "jnl", "jnle", "jno", "jnp", "jns", "jnz", 
+  "jo", "jp", "jpe", "jpo", "js", "jz"
+];
+
+function isBranch(instr) {
+  return x86JumpInstructions.indexOf(instr.mnemonic) >= 0;
+}
+
 function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this._scope = $scope;
   this._timeout = $timeout;
@@ -11,8 +36,9 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.sourceEditor = null;
   this.wastEditor = null;
   this.assemblyEditor = null;
+  this.assemblyEditorMarkers = [];
+  this.assemblyInstructionsByAddress = {};
   this.consoleEditor = null;
-
 
   this.consoleVisible = true;
 
@@ -23,12 +49,22 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.createWastEditor();
   this.createAssemblyEditor();
   this.createConsoleEditor();
-  this.writeWelcomeMessage();
-  this.resizeEditors();
 
+  this.editors = [
+    this.sourceEditor,
+    this.wastEditor,
+    this.assemblyEditor,
+    this.consoleEditor
+  ];
+
+  this.writeWelcomeMessage();
+  this.listenForResizeEvents();
   
+  this.setSessionStorageDefaults();
+
   this.darkMode = sessionStorage.getItem('darkMode') === "true";
-  this.changeTheme();
+  this.showGutter = sessionStorage.getItem('showGutter') === "true";;
+  this.changeEditor();
 
   this.autoCompile = sessionStorage.getItem('autoCompile') === "true";
 
@@ -65,6 +101,11 @@ function getMobileOperatingSystem() {
 
 var p = WasmExplorerAppCtrl.prototype;
 
+p.setSessionStorageDefaults = function() {
+  if (sessionStorage.getItem('showGutter') == null) {
+    sessionStorage.setItem('showGutter', true);
+  }
+};
 
 p.mobileVersion = function() {
   var kind = getMobileOperatingSystem();
@@ -108,8 +149,9 @@ p.checkUrlParameters = function checkUrlParameters() {
     this.noExceptions = state.options.noExceptions;
   }
 };
-p.changeTheme = function changeTheme() {
+p.changeEditor = function changeEditor() {
   sessionStorage.setItem('darkMode', this.darkMode);
+  sessionStorage.setItem('showGutter', this.showGutter);
   var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
   this.sourceEditor.setTheme(theme);
   this.wastEditor.setTheme(theme);
@@ -117,6 +159,10 @@ p.changeTheme = function changeTheme() {
 
   var consoleTheme = this.darkMode ? "ace/theme/monokai" : "ace/theme/dawn";
   this.consoleEditor.setTheme(consoleTheme);
+  var self = this;
+  this.editors.forEach(function (editor) {
+    editor.renderer.setShowGutter(self.showGutter);
+  });
 };
 p.changeAutoCompile = function changeAutoCompile() {
   sessionStorage.setItem('autoCompile', this.autoCompile);
@@ -168,6 +214,10 @@ p.toggleMenu = function toggleMenu() {
 };
 p.toggleConsole = function toggleConsole() {
   this.consoleVisible = !this.consoleVisible;
+  var self = this
+  setTimeout(function () {
+    self.resizeEditors();  
+  }, 200);
 };
 p.compile = function compile() {
   var self = this;
@@ -284,30 +334,43 @@ p.assemble = function assemble() {
       }
       var s = "";
       var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+      var annotations = [];
+
+      self.assemblyInstructionsByAddress = Object.create(null);
       for (var i = 0; i < json.regions.length; i++) {
         var region = json.regions[i];
-        s += region.name + ":\n\n";
+        s += region.name + ":\n";
         var csBuffer = decodeRestrictedBase64ToBytes(region.bytes);
         var instructions = cs.disasm(csBuffer, region.entry);
-        var jumpInstructions = ["jmp", "ja", "jae", "jb", "jbe", "jc", "je", "jg", "jge", "jl", "jle", "jna", "jnae", "jnb", "jnbe", "jnc", "jne", "jng", "jnge", "jnl", "jnle", "jno", "jnp", "jns", "jnz", "jo", "jp", "jpe", "jpo", "js", "jz"];
         var basicBlocks = {};
-        instructions.forEach(function(instr) {
-          if (jumpInstructions.indexOf(instr.mnemonic) >= 0) {
-            basicBlocks[parseInt(instr.op_str)] = true;
+        instructions.forEach(function(instr, i) {
+          self.assemblyInstructionsByAddress[instr.address] = instr;
+          if (isBranch(instr)) {
+            var targetAddress = parseInt(instr.op_str);
+            if (!basicBlocks[targetAddress]) {
+              basicBlocks[targetAddress] = [];
+            }
+            basicBlocks[targetAddress].push(instr.address);
+            if (i + 1 < instructions.length) {
+              basicBlocks[instructions[i + 1].address] = [];
+            }
           }
         });
-        var bb = 1;
         instructions.forEach(function(instr) {
           if (basicBlocks[instr.address]) {
-            s += "" + bb++ + ":";
+            s += " " + padRight(toAddress(instr.address) + ":", 39, " ");
+            if (basicBlocks[instr.address].length > 0) {
+              s += "; " + toAddress(instr.address) + " from: [" + basicBlocks[instr.address].map(toAddress).join(", ") + "]";
+            }
             s += "\n";
           }
-          s += " " +padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
+          s += "  " + padRight(instr.mnemonic + " " + instr.op_str, 38, " ");
           s += "; " + toAddress(instr.address) + " " + toBytes(instr.bytes) + "\n";
         });
         s += "\n";
       }
       self.assemblyEditor.getSession().setValue(s, 1);
+      self.assemblyEditor.getSession().setAnnotations(annotations);
       cs.delete();
       self.buildDownload();
     }, "Compiling .wast to x86");
@@ -324,14 +387,6 @@ p.assemble = function assemble() {
         s = c + s;
       }
       return s;
-    }
-
-    function toAddress(n) {
-      var s = n.toString(16);
-      while (s.length < 6) {
-        s = "0" + s;
-      }
-      return "0x" + s;
     }
 
     function toBytes(a) {
@@ -444,8 +499,19 @@ p.createBanner = function() {
 };
 
 p.resizeEditors = function() {
+  this.editors.forEach(function (editor) {
+    editor.resize();
+  });
+  // var show = this.showGutter || window.innerWidth > 600;
+  // this.sourceEditor.renderer.setShowGutter(show);
+  // this.wastEditor.renderer.setShowGutter(show);
+  // this.assemblyEditor.renderer.setShowGutter(show);
+};
+
+p.listenForResizeEvents = function() {
   window.addEventListener("resize", resizeThrottler, false);
   var resizeTimeout;
+  var self = this;
   function resizeThrottler() {
     if (!resizeTimeout) {
       resizeTimeout = setTimeout(function() {
@@ -457,20 +523,13 @@ p.resizeEditors = function() {
   var oldWidth = window.innerWidth;
   function actualResizeHandler() {
     if (oldWidth !== window.innerWidth) {
-      resize();
+      self.resizeEditors();
     }
     oldWidth = window.innerWidth;
   }
-
-  var self = this;
-  function resize() {
-    var show = window.innerWidth > 600;
-    self.sourceEditor.renderer.setShowGutter(show);
-    self.wastEditor.renderer.setShowGutter(show);
-    self.assemblyEditor.renderer.setShowGutter(show);
-  }
-  resize();
+  self.resizeEditors();
 };
+
 p.createSourceEditor = function() {
   var self = this;
   this.sourceEditor = ace.edit("sourceCodeContainer");
@@ -506,7 +565,77 @@ p.createAssemblyEditor = function() {
   this.assemblyEditor = ace.edit("assemblyCodeContainer");
   this.assemblyEditor.getSession().setMode("ace/mode/assembly_x86");
   setDefaultEditorSettings(this.assemblyEditor);
-}
+
+  var self = this;
+  this.assemblyEditor.getSession().selection.on('changeCursor', function(e) {
+    self.annotateAssemblyEditor();
+  });
+};
+p.clearAssemblyEditorMarkers = function() {
+  var editor = this.assemblyEditor;
+  this.assemblyEditorMarkers.forEach(function (marker) {
+    editor.session.removeMarker(marker);
+  });
+  this.assemblyEditorMarkers.length = 0;
+};
+p.annotateAssemblyEditor = function() {
+  var self = this;
+  var editor = this.assemblyEditor;
+  var line = editor.getSelectionRange().start.row;
+  var text = editor.session.getLine(line);
+
+  editor.session.clearAnnotations();
+  this.clearAssemblyEditorMarkers();
+
+  var address = parseInt(match(/;\s(.*?)\s/, text, 1));
+  if (isNaN(address)) {
+    return;
+  }
+
+  var annotations = [];
+  var Search = ace.require('ace/search').Search;
+  var search = new Search();
+
+  function highlight(needle, message) {
+    search.set({
+      needle: needle,
+      wrap: true
+    });
+    var Range = ace.require('ace/range').Range;
+    search.findAll(editor.session).reduce(function(lines, range) {
+      annotations.push({
+        row: range.start.row,
+        column: 0,
+        text: message,
+        type: "warning"
+      });
+      self.assemblyEditorMarkers.push(editor.session.addMarker(range, 'ace_highlight-marker', 'fullLine'));
+    }, []);
+
+  }
+
+  var sources = match(/from\: \[(.*?)\]/, text, 1);
+  if (sources) {
+    sources = sources.split(",").map(function (x) {
+      return parseInt(x);
+    });
+    sources.forEach(function (source) {
+      highlight("; " + toAddress(source), "Branches to " + toAddress(address));
+    });
+  }
+
+  var instr = self.assemblyInstructionsByAddress[address];
+  if (isBranch(instr)) {
+    var targetAddress = parseInt(instr.op_str);
+    highlight(toAddress(targetAddress) + ":", "Branches from " + toAddress(address));
+  }
+
+  self.assemblyEditor.getSession().setAnnotations(annotations);
+
+  // if (isBranch(instr)) {
+  //           var targetAddress = parseInt(instr.op_str);
+
+};
 
 p.createConsoleEditor = function() {
   this.consoleEditor = ace.edit("consoleContainer");
@@ -517,7 +646,6 @@ p.createConsoleEditor = function() {
     enableSnippets: false,
     enableLiveAutocompletion: false
   });
-  // this.consoleEditor.renderer.setShowGutter(false);
 }
 p.appendConsole = function(s) {
   this.consoleEditor.insert(s + "\n");
