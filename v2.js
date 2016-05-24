@@ -40,20 +40,22 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.assemblyInstructionsByAddress = {};
   this.consoleEditor = null;
 
-  
-
+  this.istructionDescription = null;
+  this.llvmInstructionDescription = null;
   this.hideProgress();
 
-  // this.createBanner(); 
+  
   this.createSourceEditor();
   this.createWastEditor();
   this.createAssemblyEditor();
+  this.createLLVMAssemblyEditor();
   this.createConsoleEditor();
 
   this.editors = [
     this.sourceEditor,
     this.wastEditor,
     this.assemblyEditor,
+    this.llvmAssemblyEditor,
     this.consoleEditor
   ];
 
@@ -62,6 +64,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   
   this.setSessionStorageDefaults();
 
+  this.showLLVM = sessionStorage.getItem('showLLVM') === "true";
   this.showConsole = sessionStorage.getItem('showConsole') === "true";
 
   this.darkMode = sessionStorage.getItem('darkMode') === "true";
@@ -161,6 +164,7 @@ p.changeEditor = function changeEditor() {
   this.sourceEditor.setTheme(theme);
   this.wastEditor.setTheme(theme);
   this.assemblyEditor.setTheme(theme);
+  this.llvmAssemblyEditor.setTheme(theme);
 
   var consoleTheme = this.darkMode ? "ace/theme/monokai" : "ace/theme/dawn";
   this.consoleEditor.setTheme(consoleTheme);
@@ -174,6 +178,9 @@ p.changeAutoCompile = function changeAutoCompile() {
 };
 p.changeDialect = function changeDialect() {
   this.change();
+};
+p.changeTarget = function () {
+  
 };
 p.getSelectedDialectText = function() {
   if (this.selectedDialect !== undefined) {
@@ -217,6 +224,15 @@ p.change = function change() {
 p.toggleMenu = function toggleMenu() {
   this._mdSidenav("left").toggle();
 };
+p.toggleLLVM = function toggleLLVM() {
+  this.showLLVM = !this.showLLVM;
+  sessionStorage.setItem('showLLVM', this.showLLVM);
+  this.changeCompilerOption();
+  var self = this
+  setTimeout(function () {
+    self.resizeEditors();  
+  }, 200);
+};
 p.toggleConsole = function toggleConsole() {
   this.showConsole = !this.showConsole;
   sessionStorage.setItem('showConsole', this.showConsole);
@@ -229,6 +245,9 @@ p.compile = function compile() {
   var self = this;
   var options = [];
   var source = this.sourceEditor.getValue();
+  if (source.trim() == "") {
+    return;
+  }
   var inputString = encodeURIComponent(source).replace('%20', '+');
   var actionString = this.selectedDialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wast" : "c2wast";
 
@@ -273,7 +292,15 @@ p.compile = function compile() {
 
     self.wastEditor.setValue(wast, -1);
     self.assemble();
-  }, "Compiling C/C++ to .wast");
+  }, "Compiling C/C++ to Wast");
+
+  if (this.showLLVM) {
+    var actionString = this.selectedDialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2x86" : "c2x86";
+    self.sendRequest("input=" + inputString + "&action=" + actionString + "&options=" + optionsString, function () {
+      var x86 = this.responseText;
+      self.llvmAssemblyEditor.setValue(x86, -1);
+    }, "Compiling C/C++ to LLVM Assembly");
+  }
 };
 p.collaborate = function collaborate() {
   TogetherJS(this);
@@ -567,11 +594,40 @@ p.createWastEditor = function() {
   });
 }
 
+p.createLLVMAssemblyEditor = function() {
+  this.llvmAssemblyEditor = ace.edit("llvmAssemblyCodeContainer");
+  this.llvmAssemblyEditor.getSession().setMode("ace/mode/assembly_x86");
+  setDefaultEditorSettings(this.llvmAssemblyEditor);
+  this.llvmAssemblyEditor.renderer.setOption('showLineNumbers', false);
+  var self = this;
+  this.llvmAssemblyEditor.getSession().selection.on('changeCursor', function(e) {
+    self.annotateLLVMAssemblyEditor();
+  });
+};
+p.annotateLLVMAssemblyEditor = function() {
+  var self = this;
+  var editor = this.llvmAssemblyEditor;
+  var line = editor.getSelectionRange().start.row;
+  var text = editor.session.getLine(line);
+  
+  // Descriptions
+  this.llvmInstructionDescription = null;
+  var mnemonic = match(/\s*(\w*)/, text, 1);
+  var description = x86Reference[mnemonic.toUpperCase()];
+  if (description) {
+    this.llvmInstructionDescription = {
+      name: mnemonic.toLowerCase(), 
+      path: description.path, 
+      description: description.description
+    };
+  }
+  this._scope.$apply();
+};
 p.createAssemblyEditor = function() {
   this.assemblyEditor = ace.edit("assemblyCodeContainer");
   this.assemblyEditor.getSession().setMode("ace/mode/assembly_x86");
   setDefaultEditorSettings(this.assemblyEditor);
-
+  this.assemblyEditor.renderer.setOption('showLineNumbers', false);
   var self = this;
   this.assemblyEditor.getSession().selection.on('changeCursor', function(e) {
     self.annotateAssemblyEditor();
@@ -595,11 +651,11 @@ p.annotateAssemblyEditor = function() {
   this.clearAssemblyEditorMarkers();
 
   // Descriptions
-  this.x86InstructionDescription = null;
+  this.instructionDescription = null;
   var mnemonic = match(/\s*(\w*)/, text, 1);
   var description = x86Reference[mnemonic.toUpperCase()];
   if (description) {
-    this.x86InstructionDescription = {
+    this.instructionDescription = {
       name: mnemonic.toLowerCase(), 
       path: description.path, 
       description: description.description
@@ -651,10 +707,6 @@ p.annotateAssemblyEditor = function() {
   }
 
   self.assemblyEditor.getSession().setAnnotations(annotations);
-
-  // if (isBranch(instr)) {
-  //           var targetAddress = parseInt(instr.op_str);
-
 };
 
 p.createConsoleEditor = function() {

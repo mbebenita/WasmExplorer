@@ -15,6 +15,8 @@
     <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
       <style type="text/css">
       
+      i { vertical-align: middle !important; }
+
       </style>
       <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear>
       <div>
@@ -24,11 +26,11 @@
         </md-button>
         <span style="font-weight: bold;">WebAssembly Explorer</span>
         <span flex></span>
-        <span>v2.2</span>
+        <span>v2.3</span>
         </md-toolbar>
       </div>
       <div layout="row" flex>
-        <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px; background-color: #F5F5F5;"">
+        <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 240px; background-color: #F5F5F5;"">
         <md-toolbar style="background-color: #757575">
         <div class="md-toolbar-tools">
           <h2>
@@ -44,6 +46,14 @@
           </md-tooltip>
           Auto Compile
           </md-switch>
+
+          <md-switch class="md-primary" md-no-ink aria-label="Show LLVM" ng-model="vm.showLLVM" ng-change="vm.changeCompilerOption()">
+          <md-tooltip md-direction="top">
+          Shoe LLVM x86 assembly generated from C/C++ directly.
+          </md-tooltip>
+          LLVM x86 Assembly
+          </md-switch>
+
           <label>Examples</label>
           <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()" ng-change="vm.changeExample()">
           <md-optgroup label="Examples">
@@ -101,7 +111,7 @@
             <div flex layout="column">
               <md-toolbar style="background-color: #e74c3c">
               <div class="md-toolbar-tools">
-                <span hide show-gt-sm>{{vm.selectedDialect}}</span>
+                <span>{{vm.selectedDialect}}</span>
                 <span flex></span>
                 <md-button ng-click="vm.compile($event)" class="md-raised">
                 <md-tooltip md-direction="top">
@@ -112,10 +122,10 @@
               </md-toolbar>
               <div flex id="sourceCodeContainer"></div>
             </div>
-            <div flex layout="column">
+            <div flex layout="column" ng-show="!vm.showLLVM">
               <md-toolbar style="background-color: #9b59b6">
               <div class="md-toolbar-tools">
-                <span hide show-gt-sm>Wast</span>
+                <span>Wast</span>
                 <span flex></span>
                 <md-button ng-click="vm.assemble($event)" class="md-raised">
                 <md-tooltip md-direction="top">
@@ -134,22 +144,41 @@
             <div flex flex layout="column">
               <md-toolbar style="background-color: #2980b9">
               <div class="md-toolbar-tools">
-                <h2>
-                <span>x86/64 (SpiderMonkey)</span>
-                </h2>
+                <span>Firefox x86 Assembly</span>
+                <span flex></span>
+                <md-button ng-click="vm.toggleLLVM($event)" class="md-icon-button">
+                  <i class="material-icons">{{vm.showLLVM ? "chevron_right" : "chevron_left"}}</i>
+                  <md-tooltip md-direction="top">
+                    Show / Hide LLVM x86 Assembly
+                  </md-tooltip>
+                  </md-button>
               </div>
               </md-toolbar>
               <div flex id="assemblyCodeContainer"></div>
-              <md-content layout-padding style="background-color: #2980b9; height: 48px; color: #FAFAFA;" class="md-body-2">
-              <label>Mnemonic:</label><a href="x86Reference/{{vm.x86InstructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.x86InstructionDescription.name}}</a>
-              <br>
-              <label>Description:</label>{{vm.x86InstructionDescription.description}}
-              </md-content>
+              <div style="background-color: #2980b9; color: #FAFAFA; height: 22x; padding: 6px; font-size: 14px;">
+                <i class="material-icons" style="font-size: 18px;">help</i>
+                <a href="x86Reference/{{vm.instructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.instructionDescription.description}}</a>
+              </div>
+            </div>
+            <div flex flex layout="column" ng-show="vm.showLLVM">
+              <md-toolbar style="background-color: #3E2723">
+              <div class="md-toolbar-tools">
+                <h2>
+                <span>LLVM x86 Assembly</span>
+                </h2>
+              </div>
+              </md-toolbar>
+              <div flex id="llvmAssemblyCodeContainer"></div>
+              <div style="background-color: #3E2723; color: #FAFAFA; height: 22x; padding: 6px; font-size: 14px;">
+                <i class="material-icons" style="font-size: 18px;">help</i>
+                <a href="x86Reference/{{vm.llvmInstructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.llvmInstructionDescription.description}}</a>
+              </div>
             </div>
           </div>
+
           <div layout="column">
             
-            <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 48px;">
+            <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 34px;">
             <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
             <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
             </md-button>

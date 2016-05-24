@@ -46,7 +46,17 @@ void call_member_function(A *a) {
   "popcnt": `int main(int a) {
   return __builtin_popcount(a) + 
          __builtin_popcount(a);
-}`,"fast-math": `// compile with/without -ffast-math
+}
+
+int count(unsigned int x) {
+  int v = 0;
+  while(x != 0) {
+    x &= x - 1;
+    v++;
+  }
+  return v;
+}
+`,"fast-math": `// compile with/without -ffast-math
 
 double foo(double d) {
   return d / 3.0;
