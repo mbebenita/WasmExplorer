@@ -1,195 +1,181 @@
 <html lang="en" >
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Angular Material style sheet -->
-  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
-
-  <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-  <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
-  
-  <script src="lib/base64.js"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
-  <script src="https://togetherjs.com/togetherjs-min.js"></script>
-
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-</head>
-
-<body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
-  <style type="text/css">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
+    <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
     
-  </style>
-  <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear>
-  <div>
-    <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
-      <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
+    <script src="lib/base64.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    </head>
+    <body ng-app="WasmExplorerApp" ng-cloak layout="column" ng-controller="WasmExplorerAppCtrl as vm">
+      <style type="text/css">
+      
+      </style>
+      <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear>
+      <div>
+        <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
+        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
         <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
-      </md-button>
-      <span style="font-weight: bold;">WebAssembly Explorer</span>
-      <span flex></span>
-      <span>v2.1</span>
-    </md-toolbar>
-  </div>
-  <div layout="row" flex>
-    <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px; background-color: #F5F5F5;"">
-      <md-toolbar style="background-color: #757575">
+        </md-button>
+        <span style="font-weight: bold;">WebAssembly Explorer</span>
+        <span flex></span>
+        <span>v2.1</span>
+        </md-toolbar>
+      </div>
+      <div layout="row" flex>
+        <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 300px; background-color: #F5F5F5;"">
+        <md-toolbar style="background-color: #757575">
         <div class="md-toolbar-tools">
           <h2>
-            <span>Options</span>
+          <span>Options</span>
           </h2>
-        </div>  
-      </md-toolbar>
-      <md-content layout-padding style="background-color: #F5F5F5;">
+        </div>
+        </md-toolbar>
+        <md-content layout-padding style="background-color: #F5F5F5;">
         <form name="userForm">
           <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile" ng-change="vm.changeAutoCompile()">
           <md-tooltip md-direction="top">
-            Automatically compiles when an option is changed
+          Automatically compiles when an option is changed
           </md-tooltip>
-            Auto Compile
+          Auto Compile
           </md-switch>
           <label>Examples</label>
           <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()" ng-change="vm.changeExample()">
-            <md-optgroup label="Examples">
-              <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
-            </md-optgroup>
+          <md-optgroup label="Examples">
+          <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
+          </md-optgroup>
           </md-select>
-
           <label>Language</label>
           <md-select ng-model="vm.selectedDialect" md-selected-text="vm.getSelectedDialectText()" ng-change="vm.changeDialect()">
-            <md-optgroup label="Languages">
-              <md-option ng-value="item" ng-repeat="item in vm.dialects">{{item}}</md-option>
-            </md-optgroup>
+          <md-optgroup label="Languages">
+          <md-option ng-value="item" ng-repeat="item in vm.dialects">{{item}}</md-option>
+          </md-optgroup>
           </md-select>
-
           <label>Optimization Level</label>
           <md-select ng-model="vm.selectedOptimizationLevel" md-selected-text="vm.getSelectedOptimizationLevelText()" ng-change="vm.changeOptimizationLevel()">
-            <md-optgroup label="Optimization Level">
-              <md-option ng-value="item" ng-repeat="item in vm.optimizationLevels">{{item}}</md-option>
-            </md-optgroup>
+          <md-optgroup label="Optimization Level">
+          <md-option ng-value="item" ng-repeat="item in vm.optimizationLevels">{{item}}</md-option>
+          </md-optgroup>
           </md-select>
           <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-change="vm.changeCompilerOption()">
           <md-tooltip md-direction="top">
-            Lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.
+          Lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.
           </md-tooltip>
-            Fast Math
+          Fast Math
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noInline" aria-label="No Inline" ng-change="vm.changeCompilerOption()">
-            No Inline
+          No Inline
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noRTTI" aria-label="No RTTI" ng-change="vm.changeCompilerOption()">
-            No RTTI
+          No RTTI
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.changeCompilerOption()">
-            No Exceptions
+          No Exceptions
           </md-checkbox><br>
-
           
           <md-button ng-click="vm.collaborate($event)" class="md-raised" style="margin-left: -3px; width: 100%">Collaborate</md-button><br>
-
           <md-button ng-click="vm.share($event)" class="md-raised" style="margin-left: -3px; width: 100%">Create a Persistant Link</md-button>
           <md-input-container class="md-block">
-            <label>Sharing Link</label>
-            <input name="clientName" ng-model="vm.sharingLink">
+          <label>Sharing Link</label>
+          <input name="clientName" ng-model="vm.sharingLink">
           </md-input-container>
           
           <label>Editor Options</label>
           <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.changeEditor()">
-            Dark Mode
+          Dark Mode
           </md-switch>
           <md-switch class="md-primary" md-no-ink aria-label="Show Gutter" ng-model="vm.showGutter" ng-change="vm.changeEditor()">
-            Show Gutter
+          Show Gutter
           </md-switch>
         </form>
-      </md-content>
-    </md-sidenav>
-    
-    <div layout="column" flex>
-    <div flex layout="row">
-    <div flex layout="column">
-      <md-toolbar style="background-color: #e74c3c">
-        <div class="md-toolbar-tools">
-          <span hide show-gt-sm>{{vm.selectedDialect}}</span>
-          <span flex></span>
-          <md-button ng-click="vm.compile($event)" class="md-raised">
-            <md-tooltip md-direction="top">
-              Compile C/C++ to Wast (Ctrl / Cmd + Enter)
-            </md-tooltip>
-          Compile</md-button>
+        </md-content>
+        </md-sidenav>
+        
+        <div layout="column" flex>
+          <div flex layout="row">
+            <div flex layout="column">
+              <md-toolbar style="background-color: #e74c3c">
+              <div class="md-toolbar-tools">
+                <span hide show-gt-sm>{{vm.selectedDialect}}</span>
+                <span flex></span>
+                <md-button ng-click="vm.compile($event)" class="md-raised">
+                <md-tooltip md-direction="top">
+                Compile C/C++ to Wast (Ctrl / Cmd + Enter)
+                </md-tooltip>
+                Compile</md-button>
+              </div>
+              </md-toolbar>
+              <div flex id="sourceCodeContainer"></div>
+            </div>
+            <div flex layout="column">
+              <md-toolbar style="background-color: #9b59b6">
+              <div class="md-toolbar-tools">
+                <span hide show-gt-sm>Wast</span>
+                <span flex></span>
+                <md-button ng-click="vm.assemble($event)" class="md-raised">
+                <md-tooltip md-direction="top">
+                Compile/Assemble .wast using SpiderMonkey (Ctrl / Cmd + Enter)
+                </md-tooltip>
+                Assemble</md-button>
+                <md-button ng-click="vm.download($event)" class="md-raised">
+                <md-tooltip md-direction="top">
+                Convert .wast to .wasm and download
+                </md-tooltip>
+                Download</md-button>
+              </div>
+              </md-toolbar>
+              <div id="wastCodeContainer" flex></div>
+            </div>
+            <div flex flex layout="column">
+              <md-toolbar style="background-color: #2980b9">
+              <div class="md-toolbar-tools">
+                <h2>
+                <span>x86/64 (SpiderMonkey)</span>
+                </h2>
+              </div>
+              </md-toolbar>
+              <div flex id="assemblyCodeContainer"></div>
+            </div>
+          </div>
+          <div layout="column">
+            
+            <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 48px;">
+            <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
+            <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
+            </md-button>
+            <span class="md-subhead">
+              Console
+            </span>
+            <span flex></span>
+            <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
+            </md-toolbar>
+            <div style="height: 200px" id="consoleContainer" ng-show="vm.showConsole"></div>
+          </div>
         </div>
-      </md-toolbar>
-      <div flex id="sourceCodeContainer"></div>
-    </div>
-
-    <div flex layout="column">
-      <md-toolbar style="background-color: #9b59b6">
-        <div class="md-toolbar-tools">
-          <span hide show-gt-sm>Wast</span>
-          <span flex></span>
-          <md-button ng-click="vm.assemble($event)" class="md-raised">
-            <md-tooltip md-direction="top">
-              Compile/Assemble .wast using SpiderMonkey (Ctrl / Cmd + Enter)
-            </md-tooltip>
-            Assemble</md-button>
-          <md-button ng-click="vm.download($event)" class="md-raised">
-            <md-tooltip md-direction="top">
-              Convert .wast to .wasm and download
-            </md-tooltip>
-          Download</md-button>
-        </div>
-      </md-toolbar>
-      <div id="wastCodeContainer" flex></div>
-    </div>
-
-    <div flex flex layout="column">
-      <md-toolbar style="background-color: #2980b9">
-        <div class="md-toolbar-tools">
-          <h2>
-            <span>x86/64 (SpiderMonkey)</span>
-          </h2>
-        </div>
-      </md-toolbar>
-      <div flex id="assemblyCodeContainer"></div>
-    </div>
-  </div>
-  <div layout="column">
-    
-    <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 48px;">
-      <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
-        <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
-      </md-button>
-      <span class="md-subhead">
-      Console
-      </span>
-      <span flex></span>
-      <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
-    </md-toolbar>
-    <div style="height: 200px" id="consoleContainer" ng-show="vm.showConsole"></div>
-  </div>
-  </div>
-  </div>
-  
-  <style type="text/css">
-    
-  </style>
-
-  
-  <!-- Angular Material requires Angular.js Libraries -->
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
-
-  <!-- Angular Material Library -->
-  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
-  
-
-  <script src="v2.js"></script>
-  <script src="examples.js"></script>
-
-
-  <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
-    <a id="downloadLink" href="" download="test.wasm"></a>
-  </div>
-  <div id="blockOverlay" style="width: 100%; position: absolute; z-index: 50; top: 128; left: 0; background-color: red; opacity: 0; display: none;"></div>
-</body>
-</html>
+      </div>
+      
+      <style type="text/css">
+      
+      </style>
+      
+      <!-- Angular Material requires Angular.js Libraries -->
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
+      <!-- Angular Material Library -->
+      <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
+      
+      <script src="v2.js"></script>
+      <script src="examples.js"></script>
+      <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
+        <a id="downloadLink" href="" download="test.wasm"></a>
+      </div>
+      <div id="blockOverlay" style="width: 100%; position: absolute; z-index: 50; top: 128; left: 0; background-color: red; opacity: 0; display: none;"></div>
+    </body>
+  </html>
