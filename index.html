@@ -153,13 +153,9 @@
   </div>
   <div layout="column">
     
-
     <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 48px;">
-      <!-- <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
-        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
-      </md-button> -->
       <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
-        <i class="material-icons">{{vm.consoleVisible ? "expand_more" : "expand_less"}}</i>
+        <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
       </md-button>
       <span class="md-subhead">
       Console
@@ -167,18 +163,7 @@
       <span flex></span>
       <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
     </md-toolbar>
-
-
-    <!-- <div style="background-color: #424242; min-height: 20px; height: 48px; ">
-    <md-button ng-click="vm.toggleConsole($event)" class="md-raised">
-      Toggle Console
-    </md-button>
-    <span flex></span>
-    <span>{{vm.consoleEditor.session.getLength()}}</span>
-    </div> -->
-    <div style="height: 200px" id="consoleContainer" ng-show="vm.consoleVisible"></div>
-
-    <!-- <div style="height: 200px" id="consoleContainer" ng-show="vm.consoleVisible"></div> -->
+    <div style="height: 200px" id="consoleContainer" ng-show="vm.showConsole"></div>
   </div>
   </div>
   </div>

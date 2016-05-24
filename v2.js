@@ -40,7 +40,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.assemblyInstructionsByAddress = {};
   this.consoleEditor = null;
 
-  this.consoleVisible = true;
+  
 
   this.hideProgress();
 
@@ -61,6 +61,8 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.listenForResizeEvents();
   
   this.setSessionStorageDefaults();
+
+  this.showConsole = sessionStorage.getItem('showConsole') === "true";
 
   this.darkMode = sessionStorage.getItem('darkMode') === "true";
   this.showGutter = sessionStorage.getItem('showGutter') === "true";;
@@ -104,6 +106,9 @@ var p = WasmExplorerAppCtrl.prototype;
 p.setSessionStorageDefaults = function() {
   if (sessionStorage.getItem('showGutter') == null) {
     sessionStorage.setItem('showGutter', true);
+  }
+  if (sessionStorage.getItem('showConsole') == null) {
+    sessionStorage.setItem('showConsole', true);
   }
 };
 
@@ -213,7 +218,8 @@ p.toggleMenu = function toggleMenu() {
   this._mdSidenav("left").toggle();
 };
 p.toggleConsole = function toggleConsole() {
-  this.consoleVisible = !this.consoleVisible;
+  this.showConsole = !this.showConsole;
+  sessionStorage.setItem('showConsole', this.showConsole);
   var self = this
   setTimeout(function () {
     self.resizeEditors();  
