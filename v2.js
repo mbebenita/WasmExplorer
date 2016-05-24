@@ -589,9 +589,23 @@ p.annotateAssemblyEditor = function() {
   var editor = this.assemblyEditor;
   var line = editor.getSelectionRange().start.row;
   var text = editor.session.getLine(line);
+  
 
   editor.session.clearAnnotations();
   this.clearAssemblyEditorMarkers();
+
+  // Descriptions
+  this.x86InstructionDescription = null;
+  var mnemonic = match(/\s*(\w*)/, text, 1);
+  var description = x86Reference[mnemonic.toUpperCase()];
+  if (description) {
+    this.x86InstructionDescription = {
+      name: mnemonic.toLowerCase(), 
+      path: description.path, 
+      description: description.description
+    };
+  }
+  this._scope.$apply();
 
   var address = parseInt(match(/;\s(.*?)\s/, text, 1));
   if (isNaN(address)) {

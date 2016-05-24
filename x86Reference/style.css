@@ -1,0 +1,17 @@
+table { border-collapse: collapse }
+th, td { padding: 4px 10px; border: 1px #bbb solid; vertical-align: top }
+svg { display: block; margin: 0px auto }
+svg + h3 { text-align: center; }
+
+.notes { font-size: 9pt; }
+
+th {
+	font-weight: bold;
+	font-size: 14px;
+}
+body {
+	font-size: 13px;
+	font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
+	background-color: #E0E0E0;
+	/*font-family: Roboto, "Helvetica Neue", sans-serif;*/
+}

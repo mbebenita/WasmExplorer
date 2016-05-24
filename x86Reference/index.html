@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="./style.css" type="text/css" rel="stylesheet">
+<title>x86 Instruction Set Reference</title></head>
+<body>
+<h1>x86 Instruction Set Reference</h1>
+<p>Derived from the Setpember 2014 version of the <em>Intel® 64 and IA-32 Architectures Software Developer’s Manual</em>, volumes 2A and 2B.</p>
+<p>More info at 
+<a href="https://github.com/zneak/x86doc">zneak/x86doc</a></p>
+<p><strong>This reference is not perfect.</strong>It's been mechanically separated into distinct files by a dumb script.It may be enough to replace the official documentation on your weekend reverse engineering project, but in doubt, go get the official and freely available documentation.</p>
+<table>
+<tr>
+<td>
+<a href="./AAA.html">AAA</a></td>
+<td>ASCII Adjust After Addition</td></tr>
+<tr>
+<td>
+<a href="./AAD.html">AAD</a></td>
+<td>ASCII Adjust AX Before Division</td></tr>
+<tr>
+<td>
+<a href="./AAM.html">AAM</a></td>
+<td>ASCII Adjust AX After Multiply</td></tr>
+<tr>
+<td>
+<a href="./AAS.html">AAS</a></td>
+<td>ASCII Adjust AL After Subtraction</td></tr>
+<tr>
+<td>
+<a href="./ADC.html">ADC</a></td>
+<td>Add with Carry</td></tr>
+<tr>
+<td>
+<a href="./ADCX.html">ADCX</a></td>
+<td>Unsigned Integer Addition of Two Operands with Carry Flag</td></tr>
+<tr>
+<td>
+<a href="./ADD.html">ADD</a></td>
+<td>Add</td></tr>
+<tr>
+<td>
+<a href="./ADDPD.html">ADDPD</a></td>
+<td>Add Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ADDPS.html">ADDPS</a></td>
+<td>Add Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ADDSD.html">ADDSD</a></td>
+<td>Add Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ADDSS.html">ADDSS</a></td>
+<td>Add Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ADDSUBPD.html">ADDSUBPD</a></td>
+<td>Packed Double-FP Add/Subtract</td></tr>
+<tr>
+<td>
+<a href="./ADDSUBPS.html">ADDSUBPS</a></td>
+<td>Packed Single-FP Add/Subtract</td></tr>
+<tr>
+<td>
+<a href="./ADOX.html">ADOX</a></td>
+<td>Unsigned Integer Addition of Two Operands with Overflow Flag</td></tr>
+<tr>
+<td>
+<a href="./AESDEC.html">AESDEC</a></td>
+<td>Perform One Round of an AES Decryption Flow</td></tr>
+<tr>
+<td>
+<a href="./AESDECLAST.html">AESDECLAST</a></td>
+<td>Perform Last Round of an AES Decryption Flow</td></tr>
+<tr>
+<td>
+<a href="./AESENC.html">AESENC</a></td>
+<td>Perform One Round of an AES Encryption Flow</td></tr>
+<tr>
+<td>
+<a href="./AESENCLAST.html">AESENCLAST</a></td>
+<td>Perform Last Round of an AES Encryption Flow</td></tr>
+<tr>
+<td>
+<a href="./AESIMC.html">AESIMC</a></td>
+<td>Perform the AES InvMixColumn Transformation</td></tr>
+<tr>
+<td>
+<a href="./AESKEYGENASSIST.html">AESKEYGENASSIST</a></td>
+<td>AES Round Key Generation Assist</td></tr>
+<tr>
+<td>
+<a href="./AND.html">AND</a></td>
+<td>Logical AND</td></tr>
+<tr>
+<td>
+<a href="./ANDN.html">ANDN</a></td>
+<td>Logical AND NOT</td></tr>
+<tr>
+<td>
+<a href="./ANDNPD.html">ANDNPD</a></td>
+<td>Bitwise Logical AND NOT of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ANDNPS.html">ANDNPS</a></td>
+<td>Bitwise Logical AND NOT of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ANDPD.html">ANDPD</a></td>
+<td>Bitwise Logical AND of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ANDPS.html">ANDPS</a></td>
+<td>Bitwise Logical AND of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ARPL.html">ARPL</a></td>
+<td>Adjust RPL Field of Segment Selector</td></tr>
+<tr>
+<td>
+<a href="./BEXTR.html">BEXTR</a></td>
+<td>Bit Field Extract</td></tr>
+<tr>
+<td>
+<a href="./BLENDPD.html">BLENDPD</a></td>
+<td>Blend Packed Double Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./BLENDPS.html">BLENDPS</a></td>
+<td>Blend Packed Single Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./BLENDVPD.html">BLENDVPD</a></td>
+<td>Variable Blend Packed Double Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./BLENDVPS.html">BLENDVPS</a></td>
+<td>Variable Blend Packed Single Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./BLSI.html">BLSI</a></td>
+<td>Extract Lowest Set Isolated Bit</td></tr>
+<tr>
+<td>
+<a href="./BLSMSK.html">BLSMSK</a></td>
+<td>Get Mask Up to Lowest Set Bit</td></tr>
+<tr>
+<td>
+<a href="./BLSR.html">BLSR</a></td>
+<td>Reset Lowest Set Bit</td></tr>
+<tr>
+<td>
+<a href="./BOUND.html">BOUND</a></td>
+<td>Check Array Index Against Bounds</td></tr>
+<tr>
+<td>
+<a href="./BSF.html">BSF</a></td>
+<td>Bit Scan Forward</td></tr>
+<tr>
+<td>
+<a href="./BSR.html">BSR</a></td>
+<td>Bit Scan Reverse</td></tr>
+<tr>
+<td>
+<a href="./BSWAP.html">BSWAP</a></td>
+<td>Byte Swap</td></tr>
+<tr>
+<td>
+<a href="./BT.html">BT</a></td>
+<td>Bit Test</td></tr>
+<tr>
+<td>
+<a href="./BTC.html">BTC</a></td>
+<td>Bit Test and Complement</td></tr>
+<tr>
+<td>
+<a href="./BTR.html">BTR</a></td>
+<td>Bit Test and Reset</td></tr>
+<tr>
+<td>
+<a href="./BTS.html">BTS</a></td>
+<td>Bit Test and Set</td></tr>
+<tr>
+<td>
+<a href="./BZHI.html">BZHI</a></td>
+<td>Zero High Bits Starting with Specified Bit Position</td></tr>
+<tr>
+<td>
+<a href="./CALL.html">CALL</a></td>
+<td>Call Procedure</td></tr>
+<tr>
+<td>
+<a href="./CBW:CWDE:CDQE.html">CBW</a></td>
+<td>Convert Byte to Word/Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./CWD:CDQ:CQO.html">CDQ</a></td>
+<td>Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./CBW:CWDE:CDQE.html">CDQE</a></td>
+<td>Convert Byte to Word/Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./CLAC.html">CLAC</a></td>
+<td>Clear AC Flag in EFLAGS Register</td></tr>
+<tr>
+<td>
+<a href="./CLC.html">CLC</a></td>
+<td>Clear Carry Flag</td></tr>
+<tr>
+<td>
+<a href="./CLD.html">CLD</a></td>
+<td>Clear Direction Flag</td></tr>
+<tr>
+<td>
+<a href="./CLFLUSH.html">CLFLUSH</a></td>
+<td>Flush Cache Line</td></tr>
+<tr>
+<td>
+<a href="./CLI.html">CLI</a></td>
+<td>Clear Interrupt Flag</td></tr>
+<tr>
+<td>
+<a href="./CLTS.html">CLTS</a></td>
+<td>Clear Task-Switched Flag in CR0</td></tr>
+<tr>
+<td>
+<a href="./CMC.html">CMC</a></td>
+<td>Complement Carry Flag</td></tr>
+<tr>
+<td>
+<a href="./CMOVcc.html">CMOVcc</a></td>
+<td>Conditional Move</td></tr>
+<tr>
+<td>
+<a href="./CMP.html">CMP</a></td>
+<td>Compare Two Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPPD.html">CMPPD</a></td>
+<td>Compare Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./CMPPS.html">CMPPS</a></td>
+<td>Compare Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./CMPS:CMPSB:CMPSW:CMPSD:CMPSQ.html">CMPS</a></td>
+<td>Compare String Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPS:CMPSB:CMPSW:CMPSD:CMPSQ.html">CMPSB</a></td>
+<td>Compare String Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPS:CMPSB:CMPSW:CMPSD:CMPSQ.html">CMPSD</a></td>
+<td>Compare String Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPSD.html">CMPSD</a></td>
+<td>Compare Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./CMPS:CMPSB:CMPSW:CMPSD:CMPSQ.html">CMPSQ</a></td>
+<td>Compare String Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPSS.html">CMPSS</a></td>
+<td>Compare Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./CMPS:CMPSB:CMPSW:CMPSD:CMPSQ.html">CMPSW</a></td>
+<td>Compare String Operands</td></tr>
+<tr>
+<td>
+<a href="./CMPXCHG.html">CMPXCHG</a></td>
+<td>Compare and Exchange</td></tr>
+<tr>
+<td>
+<a href="./CMPXCHG8B:CMPXCHG16B.html">CMPXCHG16B</a></td>
+<td>Compare and Exchange Bytes</td></tr>
+<tr>
+<td>
+<a href="./CMPXCHG8B:CMPXCHG16B.html">CMPXCHG8B</a></td>
+<td>Compare and Exchange Bytes</td></tr>
+<tr>
+<td>
+<a href="./COMISD.html">COMISD</a></td>
+<td>Compare Scalar Ordered Double-Precision Floating-Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./COMISS.html">COMISS</a></td>
+<td>Compare Scalar Ordered Single-Precision Floating-Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./CPUID.html">CPUID</a></td>
+<td>CPU Identification</td></tr>
+<tr>
+<td>
+<a href="./CWD:CDQ:CQO.html">CQO</a></td>
+<td>Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./CRC32.html">CRC32</a></td>
+<td>Accumulate CRC32 Value</td></tr>
+<tr>
+<td>
+<a href="./CVTDQ2PD.html">CVTDQ2PD</a></td>
+<td>Convert Packed Dword Integers to Packed Double-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTDQ2PS.html">CVTDQ2PS</a></td>
+<td>Convert Packed Dword Integers to Packed Single-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTPD2DQ.html">CVTPD2DQ</a></td>
+<td>Convert Packed Double-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTPD2PI.html">CVTPD2PI</a></td>
+<td>Convert Packed Double-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTPD2PS.html">CVTPD2PS</a></td>
+<td>Convert Packed Double-Precision FP Values to Packed Single-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTPI2PD.html">CVTPI2PD</a></td>
+<td>Convert Packed Dword Integers to Packed Double-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTPI2PS.html">CVTPI2PS</a></td>
+<td>Convert Packed Dword Integers to Packed Single-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTPS2DQ.html">CVTPS2DQ</a></td>
+<td>Convert Packed Single-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTPS2PD.html">CVTPS2PD</a></td>
+<td>Convert Packed Single-Precision FP Values to Packed Double-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./CVTPS2PI.html">CVTPS2PI</a></td>
+<td>Convert Packed Single-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTSD2SI.html">CVTSD2SI</a></td>
+<td>Convert Scalar Double-Precision FP Value to Integer</td></tr>
+<tr>
+<td>
+<a href="./CVTSD2SS.html">CVTSD2SS</a></td>
+<td>Convert Scalar Double-Precision FP Value to Scalar Single-Precision FP Value</td></tr>
+<tr>
+<td>
+<a href="./CVTSI2SD.html">CVTSI2SD</a></td>
+<td>Convert Dword Integer to Scalar Double-Precision FP Value</td></tr>
+<tr>
+<td>
+<a href="./CVTSI2SS.html">CVTSI2SS</a></td>
+<td>Convert Dword Integer to Scalar Single-Precision FP Value</td></tr>
+<tr>
+<td>
+<a href="./CVTSS2SD.html">CVTSS2SD</a></td>
+<td>Convert Scalar Single-Precision FP Value to Scalar Double-Precision FP Value</td></tr>
+<tr>
+<td>
+<a href="./CVTSS2SI.html">CVTSS2SI</a></td>
+<td>Convert Scalar Single-Precision FP Value to Dword Integer</td></tr>
+<tr>
+<td>
+<a href="./CVTTPD2DQ.html">CVTTPD2DQ</a></td>
+<td>Convert with Truncation Packed Double-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTTPD2PI.html">CVTTPD2PI</a></td>
+<td>Convert with Truncation Packed Double-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTTPS2DQ.html">CVTTPS2DQ</a></td>
+<td>Convert with Truncation Packed Single-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTTPS2PI.html">CVTTPS2PI</a></td>
+<td>Convert with Truncation Packed Single-Precision FP Values to Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./CVTTSD2SI.html">CVTTSD2SI</a></td>
+<td>Convert with Truncation Scalar Double-Precision FP Value to Signed Integer</td></tr>
+<tr>
+<td>
+<a href="./CVTTSS2SI.html">CVTTSS2SI</a></td>
+<td>Convert with Truncation Scalar Single-Precision FP Value to Dword Integer</td></tr>
+<tr>
+<td>
+<a href="./CWD:CDQ:CQO.html">CWD</a></td>
+<td>Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./CBW:CWDE:CDQE.html">CWDE</a></td>
+<td>Convert Byte to Word/Convert Word to Doubleword/Convert Doubleword to Quadword</td></tr>
+<tr>
+<td>
+<a href="./DAA.html">DAA</a></td>
+<td>Decimal Adjust AL after Addition</td></tr>
+<tr>
+<td>
+<a href="./DAS.html">DAS</a></td>
+<td>Decimal Adjust AL after Subtraction</td></tr>
+<tr>
+<td>
+<a href="./DEC.html">DEC</a></td>
+<td>Decrement by 1</td></tr>
+<tr>
+<td>
+<a href="./DIV.html">DIV</a></td>
+<td>Unsigned Divide</td></tr>
+<tr>
+<td>
+<a href="./DIVPD.html">DIVPD</a></td>
+<td>Divide Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./DIVPS.html">DIVPS</a></td>
+<td>Divide Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./DIVSD.html">DIVSD</a></td>
+<td>Divide Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./DIVSS.html">DIVSS</a></td>
+<td>Divide Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./DPPD.html">DPPD</a></td>
+<td>Dot Product of Packed Double Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./DPPS.html">DPPS</a></td>
+<td>Dot Product of Packed Single Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./EMMS.html">EMMS</a></td>
+<td>Empty MMX Technology State</td></tr>
+<tr>
+<td>
+<a href="./ENTER.html">ENTER</a></td>
+<td>Make Stack Frame for Procedure Parameters</td></tr>
+<tr>
+<td>
+<a href="./EXTRACTPS.html">EXTRACTPS</a></td>
+<td>Extract Packed Single Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./F2XM1.html">F2XM1</a></td>
+<td>Compute 2x–1</td></tr>
+<tr>
+<td>
+<a href="./FABS.html">FABS</a></td>
+<td>Absolute Value</td></tr>
+<tr>
+<td>
+<a href="./FADD:FADDP:FIADD.html">FADD</a></td>
+<td>Add</td></tr>
+<tr>
+<td>
+<a href="./FADD:FADDP:FIADD.html">FADDP</a></td>
+<td>Add</td></tr>
+<tr>
+<td>
+<a href="./FBLD.html">FBLD</a></td>
+<td>Load Binary Coded Decimal</td></tr>
+<tr>
+<td>
+<a href="./FBSTP.html">FBSTP</a></td>
+<td>Store BCD Integer and Pop</td></tr>
+<tr>
+<td>
+<a href="./FCHS.html">FCHS</a></td>
+<td>Change Sign</td></tr>
+<tr>
+<td>
+<a href="./FCLEX:FNCLEX.html">FCLEX</a></td>
+<td>Clear Exceptions</td></tr>
+<tr>
+<td>
+<a href="./FCMOVcc.html">FCMOVcc</a></td>
+<td>Floating-Point Conditional Move</td></tr>
+<tr>
+<td>
+<a href="./FCOM:FCOMP:FCOMPP.html">FCOM</a></td>
+<td>Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./FCOMI:FCOMIP: FUCOMI:FUCOMIP.html">FCOMI</a></td>
+<td>Compare Floating Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./FCOMI:FCOMIP: FUCOMI:FUCOMIP.html">FCOMIP</a></td>
+<td>Compare Floating Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./FCOM:FCOMP:FCOMPP.html">FCOMP</a></td>
+<td>Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./FCOM:FCOMP:FCOMPP.html">FCOMPP</a></td>
+<td>Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./FCOS.html">FCOS</a></td>
+<td>Cosine</td></tr>
+<tr>
+<td>
+<a href="./FDECSTP.html">FDECSTP</a></td>
+<td>Decrement Stack-Top Pointer</td></tr>
+<tr>
+<td>
+<a href="./FDIV:FDIVP:FIDIV.html">FDIV</a></td>
+<td>Divide</td></tr>
+<tr>
+<td>
+<a href="./FDIV:FDIVP:FIDIV.html">FDIVP</a></td>
+<td>Divide</td></tr>
+<tr>
+<td>
+<a href="./FDIVR:FDIVRP:FIDIVR.html">FDIVR</a></td>
+<td>Reverse Divide</td></tr>
+<tr>
+<td>
+<a href="./FDIVR:FDIVRP:FIDIVR.html">FDIVRP</a></td>
+<td>Reverse Divide</td></tr>
+<tr>
+<td>
+<a href="./FFREE.html">FFREE</a></td>
+<td>Free Floating-Point Register</td></tr>
+<tr>
+<td>
+<a href="./FADD:FADDP:FIADD.html">FIADD</a></td>
+<td>Add</td></tr>
+<tr>
+<td>
+<a href="./FICOM:FICOMP.html">FICOM</a></td>
+<td>Compare Integer</td></tr>
+<tr>
+<td>
+<a href="./FICOM:FICOMP.html">FICOMP</a></td>
+<td>Compare Integer</td></tr>
+<tr>
+<td>
+<a href="./FDIV:FDIVP:FIDIV.html">FIDIV</a></td>
+<td>Divide</td></tr>
+<tr>
+<td>
+<a href="./FDIVR:FDIVRP:FIDIVR.html">FIDIVR</a></td>
+<td>Reverse Divide</td></tr>
+<tr>
+<td>
+<a href="./FILD.html">FILD</a></td>
+<td>Load Integer</td></tr>
+<tr>
+<td>
+<a href="./FMUL:FMULP:FIMUL.html">FIMUL</a></td>
+<td>Multiply</td></tr>
+<tr>
+<td>
+<a href="./FINCSTP.html">FINCSTP</a></td>
+<td>Increment Stack-Top Pointer</td></tr>
+<tr>
+<td>
+<a href="./FINIT:FNINIT.html">FINIT</a></td>
+<td>Initialize Floating-Point Unit</td></tr>
+<tr>
+<td>
+<a href="./FIST:FISTP.html">FIST</a></td>
+<td>Store Integer</td></tr>
+<tr>
+<td>
+<a href="./FIST:FISTP.html">FISTP</a></td>
+<td>Store Integer</td></tr>
+<tr>
+<td>
+<a href="./FISTTP.html">FISTTP</a></td>
+<td>Store Integer with Truncation</td></tr>
+<tr>
+<td>
+<a href="./FSUB:FSUBP:FISUB.html">FISUB</a></td>
+<td>Subtract</td></tr>
+<tr>
+<td>
+<a href="./FSUBR:FSUBRP:FISUBR.html">FISUBR</a></td>
+<td>Reverse Subtract</td></tr>
+<tr>
+<td>
+<a href="./FLD.html">FLD</a></td>
+<td>Load Floating Point Value</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLD1</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLDCW.html">FLDCW</a></td>
+<td>Load x87 FPU Control Word</td></tr>
+<tr>
+<td>
+<a href="./FLDENV.html">FLDENV</a></td>
+<td>Load x87 FPU Environment</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDL2E</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDL2T</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDLG2</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDLN2</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDPI</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FLD1:FLDL2T:FLDL2E:FLDPI:FLDLG2:FLDLN2:FLDZ.html">FLDZ</a></td>
+<td>Load Constant</td></tr>
+<tr>
+<td>
+<a href="./FMUL:FMULP:FIMUL.html">FMUL</a></td>
+<td>Multiply</td></tr>
+<tr>
+<td>
+<a href="./FMUL:FMULP:FIMUL.html">FMULP</a></td>
+<td>Multiply</td></tr>
+<tr>
+<td>
+<a href="./FCLEX:FNCLEX.html">FNCLEX</a></td>
+<td>Clear Exceptions</td></tr>
+<tr>
+<td>
+<a href="./FINIT:FNINIT.html">FNINIT</a></td>
+<td>Initialize Floating-Point Unit</td></tr>
+<tr>
+<td>
+<a href="./FNOP.html">FNOP</a></td>
+<td>No Operation</td></tr>
+<tr>
+<td>
+<a href="./FSAVE:FNSAVE.html">FNSAVE</a></td>
+<td>Store x87 FPU State</td></tr>
+<tr>
+<td>
+<a href="./FSTCW:FNSTCW.html">FNSTCW</a></td>
+<td>Store x87 FPU Control Word</td></tr>
+<tr>
+<td>
+<a href="./FSTENV:FNSTENV.html">FNSTENV</a></td>
+<td>Store x87 FPU Environment</td></tr>
+<tr>
+<td>
+<a href="./FSTSW:FNSTSW.html">FNSTSW</a></td>
+<td>Store x87 FPU Status Word</td></tr>
+<tr>
+<td>
+<a href="./FPATAN.html">FPATAN</a></td>
+<td>Partial Arctangent</td></tr>
+<tr>
+<td>
+<a href="./FPREM.html">FPREM</a></td>
+<td>Partial Remainder</td></tr>
+<tr>
+<td>
+<a href="./FPREM1.html">FPREM1</a></td>
+<td>Partial Remainder</td></tr>
+<tr>
+<td>
+<a href="./FPTAN.html">FPTAN</a></td>
+<td>Partial Tangent</td></tr>
+<tr>
+<td>
+<a href="./FRNDINT.html">FRNDINT</a></td>
+<td>Round to Integer</td></tr>
+<tr>
+<td>
+<a href="./FRSTOR.html">FRSTOR</a></td>
+<td>Restore x87 FPU State</td></tr>
+<tr>
+<td>
+<a href="./FSAVE:FNSAVE.html">FSAVE</a></td>
+<td>Store x87 FPU State</td></tr>
+<tr>
+<td>
+<a href="./FSCALE.html">FSCALE</a></td>
+<td>Scale</td></tr>
+<tr>
+<td>
+<a href="./FSIN.html">FSIN</a></td>
+<td>Sine</td></tr>
+<tr>
+<td>
+<a href="./FSINCOS.html">FSINCOS</a></td>
+<td>Sine and Cosine</td></tr>
+<tr>
+<td>
+<a href="./FSQRT.html">FSQRT</a></td>
+<td>Square Root</td></tr>
+<tr>
+<td>
+<a href="./FST:FSTP.html">FST</a></td>
+<td>Store Floating Point Value</td></tr>
+<tr>
+<td>
+<a href="./FSTCW:FNSTCW.html">FSTCW</a></td>
+<td>Store x87 FPU Control Word</td></tr>
+<tr>
+<td>
+<a href="./FSTENV:FNSTENV.html">FSTENV</a></td>
+<td>Store x87 FPU Environment</td></tr>
+<tr>
+<td>
+<a href="./FST:FSTP.html">FSTP</a></td>
+<td>Store Floating Point Value</td></tr>
+<tr>
+<td>
+<a href="./FSTSW:FNSTSW.html">FSTSW</a></td>
+<td>Store x87 FPU Status Word</td></tr>
+<tr>
+<td>
+<a href="./FSUB:FSUBP:FISUB.html">FSUB</a></td>
+<td>Subtract</td></tr>
+<tr>
+<td>
+<a href="./FSUB:FSUBP:FISUB.html">FSUBP</a></td>
+<td>Subtract</td></tr>
+<tr>
+<td>
+<a href="./FSUBR:FSUBRP:FISUBR.html">FSUBR</a></td>
+<td>Reverse Subtract</td></tr>
+<tr>
+<td>
+<a href="./FSUBR:FSUBRP:FISUBR.html">FSUBRP</a></td>
+<td>Reverse Subtract</td></tr>
+<tr>
+<td>
+<a href="./FTST.html">FTST</a></td>
+<td>TEST</td></tr>
+<tr>
+<td>
+<a href="./FUCOM:FUCOMP:FUCOMPP.html">FUCOM</a></td>
+<td>Unordered Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./FCOMI:FCOMIP: FUCOMI:FUCOMIP.html">FUCOMI</a></td>
+<td>Compare Floating Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./FCOMI:FCOMIP: FUCOMI:FUCOMIP.html">FUCOMIP</a></td>
+<td>Compare Floating Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./FUCOM:FUCOMP:FUCOMPP.html">FUCOMP</a></td>
+<td>Unordered Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./FUCOM:FUCOMP:FUCOMPP.html">FUCOMPP</a></td>
+<td>Unordered Compare Floating Point Values</td></tr>
+<tr>
+<td>
+<a href="./WAIT:FWAIT.html">FWAIT</a></td>
+<td>Wait</td></tr>
+<tr>
+<td>
+<a href="./FXAM.html">FXAM</a></td>
+<td>Examine ModR/M</td></tr>
+<tr>
+<td>
+<a href="./FXCH.html">FXCH</a></td>
+<td>Exchange Register Contents</td></tr>
+<tr>
+<td>
+<a href="./FXRSTOR.html">FXRSTOR</a></td>
+<td>Restore x87 FPU, MMX, XMM, and MXCSR State</td></tr>
+<tr>
+<td>
+<a href="./FXSAVE.html">FXSAVE</a></td>
+<td>Save x87 FPU, MMX Technology, and SSE State</td></tr>
+<tr>
+<td>
+<a href="./FXTRACT.html">FXTRACT</a></td>
+<td>Extract Exponent and Significand</td></tr>
+<tr>
+<td>
+<a href="./FYL2X.html">FYL2X</a></td>
+<td>Compute y ∗ log2x</td></tr>
+<tr>
+<td>
+<a href="./FYL2XP1.html">FYL2XP1</a></td>
+<td>Compute y ∗ log2(x +1)</td></tr>
+<tr>
+<td>
+<a href="./HADDPD.html">HADDPD</a></td>
+<td>Packed Double-FP Horizontal Add</td></tr>
+<tr>
+<td>
+<a href="./HADDPS.html">HADDPS</a></td>
+<td>Packed Single-FP Horizontal Add</td></tr>
+<tr>
+<td>
+<a href="./HLT.html">HLT</a></td>
+<td>Halt</td></tr>
+<tr>
+<td>
+<a href="./HSUBPD.html">HSUBPD</a></td>
+<td>Packed Double-FP Horizontal Subtract</td></tr>
+<tr>
+<td>
+<a href="./HSUBPS.html">HSUBPS</a></td>
+<td>Packed Single-FP Horizontal Subtract</td></tr>
+<tr>
+<td>
+<a href="./IDIV.html">IDIV</a></td>
+<td>Signed Divide</td></tr>
+<tr>
+<td>
+<a href="./IMUL.html">IMUL</a></td>
+<td>Signed Multiply</td></tr>
+<tr>
+<td>
+<a href="./IN.html">IN</a></td>
+<td>Input from Port</td></tr>
+<tr>
+<td>
+<a href="./INC.html">INC</a></td>
+<td>Increment by 1</td></tr>
+<tr>
+<td>
+<a href="./INS:INSB:INSW:INSD.html">INS</a></td>
+<td>Input from Port to String</td></tr>
+<tr>
+<td>
+<a href="./INS:INSB:INSW:INSD.html">INSB</a></td>
+<td>Input from Port to String</td></tr>
+<tr>
+<td>
+<a href="./INS:INSB:INSW:INSD.html">INSD</a></td>
+<td>Input from Port to String</td></tr>
+<tr>
+<td>
+<a href="./INSERTPS.html">INSERTPS</a></td>
+<td>Insert Packed Single Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./INS:INSB:INSW:INSD.html">INSW</a></td>
+<td>Input from Port to String</td></tr>
+<tr>
+<td>
+<a href="./INT n:INTO:INT 3.html">INT 3</a></td>
+<td>Call to Interrupt Procedure</td></tr>
+<tr>
+<td>
+<a href="./INT n:INTO:INT 3.html">INT n</a></td>
+<td>Call to Interrupt Procedure</td></tr>
+<tr>
+<td>
+<a href="./INT n:INTO:INT 3.html">INTO</a></td>
+<td>Call to Interrupt Procedure</td></tr>
+<tr>
+<td>
+<a href="./INVD.html">INVD</a></td>
+<td>Invalidate Internal Caches</td></tr>
+<tr>
+<td>
+<a href="./INVLPG.html">INVLPG</a></td>
+<td>Invalidate TLB Entries</td></tr>
+<tr>
+<td>
+<a href="./INVPCID.html">INVPCID</a></td>
+<td>Invalidate Process-Context Identifier</td></tr>
+<tr>
+<td>
+<a href="./IRET:IRETD.html">IRET</a></td>
+<td>Interrupt Return</td></tr>
+<tr>
+<td>
+<a href="./IRET:IRETD.html">IRETD</a></td>
+<td>Interrupt Return</td></tr>
+<tr>
+<td>
+<a href="./JMP.html">JMP</a></td>
+<td>Jump</td></tr>
+<tr>
+<td>
+<a href="./Jcc.html">Jcc</a></td>
+<td>Jump if Condition Is Met</td></tr>
+<tr>
+<td>
+<a href="./LAHF.html">LAHF</a></td>
+<td>Load Status Flags into AH Register</td></tr>
+<tr>
+<td>
+<a href="./LAR.html">LAR</a></td>
+<td>Load Access Rights Byte</td></tr>
+<tr>
+<td>
+<a href="./LDDQU.html">LDDQU</a></td>
+<td>Load Unaligned Integer 128 Bits</td></tr>
+<tr>
+<td>
+<a href="./LDMXCSR.html">LDMXCSR</a></td>
+<td>Load MXCSR Register</td></tr>
+<tr>
+<td>
+<a href="./LDS:LES:LFS:LGS:LSS.html">LDS</a></td>
+<td>Load Far Pointer</td></tr>
+<tr>
+<td>
+<a href="./LEA.html">LEA</a></td>
+<td>Load Effective Address</td></tr>
+<tr>
+<td>
+<a href="./LEAVE.html">LEAVE</a></td>
+<td>High Level Procedure Exit</td></tr>
+<tr>
+<td>
+<a href="./LDS:LES:LFS:LGS:LSS.html">LES</a></td>
+<td>Load Far Pointer</td></tr>
+<tr>
+<td>
+<a href="./LFENCE.html">LFENCE</a></td>
+<td>Load Fence</td></tr>
+<tr>
+<td>
+<a href="./LDS:LES:LFS:LGS:LSS.html">LFS</a></td>
+<td>Load Far Pointer</td></tr>
+<tr>
+<td>
+<a href="./LGDT:LIDT.html">LGDT</a></td>
+<td>Load Global/Interrupt Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./LDS:LES:LFS:LGS:LSS.html">LGS</a></td>
+<td>Load Far Pointer</td></tr>
+<tr>
+<td>
+<a href="./LGDT:LIDT.html">LIDT</a></td>
+<td>Load Global/Interrupt Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./LLDT.html">LLDT</a></td>
+<td>Load Local Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./LMSW.html">LMSW</a></td>
+<td>Load Machine Status Word</td></tr>
+<tr>
+<td>
+<a href="./LOCK.html">LOCK</a></td>
+<td>Assert LOCK# Signal Prefix</td></tr>
+<tr>
+<td>
+<a href="./LODS:LODSB:LODSW:LODSD:LODSQ.html">LODS</a></td>
+<td>Load String</td></tr>
+<tr>
+<td>
+<a href="./LODS:LODSB:LODSW:LODSD:LODSQ.html">LODSB</a></td>
+<td>Load String</td></tr>
+<tr>
+<td>
+<a href="./LODS:LODSB:LODSW:LODSD:LODSQ.html">LODSD</a></td>
+<td>Load String</td></tr>
+<tr>
+<td>
+<a href="./LODS:LODSB:LODSW:LODSD:LODSQ.html">LODSQ</a></td>
+<td>Load String</td></tr>
+<tr>
+<td>
+<a href="./LODS:LODSB:LODSW:LODSD:LODSQ.html">LODSW</a></td>
+<td>Load String</td></tr>
+<tr>
+<td>
+<a href="./LOOP:LOOPcc.html">LOOP</a></td>
+<td>Loop According to ECX Counter</td></tr>
+<tr>
+<td>
+<a href="./LOOP:LOOPcc.html">LOOPcc</a></td>
+<td>Loop According to ECX Counter</td></tr>
+<tr>
+<td>
+<a href="./LSL.html">LSL</a></td>
+<td>Load Segment Limit</td></tr>
+<tr>
+<td>
+<a href="./LDS:LES:LFS:LGS:LSS.html">LSS</a></td>
+<td>Load Far Pointer</td></tr>
+<tr>
+<td>
+<a href="./LTR.html">LTR</a></td>
+<td>Load Task Register</td></tr>
+<tr>
+<td>
+<a href="./LZCNT.html">LZCNT</a></td>
+<td>Count the Number of Leading Zero Bits</td></tr>
+<tr>
+<td>
+<a href="./MASKMOVDQU.html">MASKMOVDQU</a></td>
+<td>Store Selected Bytes of Double Quadword</td></tr>
+<tr>
+<td>
+<a href="./MASKMOVQ.html">MASKMOVQ</a></td>
+<td>Store Selected Bytes of Quadword</td></tr>
+<tr>
+<td>
+<a href="./MAXPD.html">MAXPD</a></td>
+<td>Return Maximum Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MAXPS.html">MAXPS</a></td>
+<td>Return Maximum Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MAXSD.html">MAXSD</a></td>
+<td>Return Maximum Scalar Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MAXSS.html">MAXSS</a></td>
+<td>Return Maximum Scalar Single-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MFENCE.html">MFENCE</a></td>
+<td>Memory Fence</td></tr>
+<tr>
+<td>
+<a href="./MINPD.html">MINPD</a></td>
+<td>Return Minimum Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MINPS.html">MINPS</a></td>
+<td>Return Minimum Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MINSD.html">MINSD</a></td>
+<td>Return Minimum Scalar Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MINSS.html">MINSS</a></td>
+<td>Return Minimum Scalar Single-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MONITOR.html">MONITOR</a></td>
+<td>Set Up Monitor Address</td></tr>
+<tr>
+<td>
+<a href="./MOV.html">MOV</a></td>
+<td>Move</td></tr>
+<tr>
+<td>
+<a href="./MOV-1.html">MOV</a></td>
+<td>Move to/from Control Registers</td></tr>
+<tr>
+<td>
+<a href="./MOV-2.html">MOV</a></td>
+<td>Move to/from Debug Registers</td></tr>
+<tr>
+<td>
+<a href="./MOVAPD.html">MOVAPD</a></td>
+<td>Move Aligned Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVAPS.html">MOVAPS</a></td>
+<td>Move Aligned Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVBE.html">MOVBE</a></td>
+<td>Move Data After Swapping Bytes</td></tr>
+<tr>
+<td>
+<a href="./MOVD:MOVQ.html">MOVD</a></td>
+<td>Move Doubleword/Move Quadword</td></tr>
+<tr>
+<td>
+<a href="./MOVDDUP.html">MOVDDUP</a></td>
+<td>Move One Double-FP and Duplicate</td></tr>
+<tr>
+<td>
+<a href="./MOVDQ2Q.html">MOVDQ2Q</a></td>
+<td>Move Quadword from XMM to MMX Technology Register</td></tr>
+<tr>
+<td>
+<a href="./MOVDQA.html">MOVDQA</a></td>
+<td>Move Aligned Double Quadword</td></tr>
+<tr>
+<td>
+<a href="./MOVDQU.html">MOVDQU</a></td>
+<td>Move Unaligned Double Quadword</td></tr>
+<tr>
+<td>
+<a href="./MOVHLPS.html">MOVHLPS</a></td>
+<td>Move Packed Single-Precision Floating-Point Values High to Low</td></tr>
+<tr>
+<td>
+<a href="./MOVHPD.html">MOVHPD</a></td>
+<td>Move High Packed Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MOVHPS.html">MOVHPS</a></td>
+<td>Move High Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVLHPS.html">MOVLHPS</a></td>
+<td>Move Packed Single-Precision Floating-Point Values Low to High</td></tr>
+<tr>
+<td>
+<a href="./MOVLPD.html">MOVLPD</a></td>
+<td>Move Low Packed Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MOVLPS.html">MOVLPS</a></td>
+<td>Move Low Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVMSKPD.html">MOVMSKPD</a></td>
+<td>Extract Packed Double-Precision Floating-Point Sign Mask</td></tr>
+<tr>
+<td>
+<a href="./MOVMSKPS.html">MOVMSKPS</a></td>
+<td>Extract Packed Single-Precision Floating-Point Sign Mask</td></tr>
+<tr>
+<td>
+<a href="./MOVNTDQ.html">MOVNTDQ</a></td>
+<td>Store Double Quadword Using Non-Temporal Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVNTDQA.html">MOVNTDQA</a></td>
+<td>Load Double Quadword Non-Temporal Aligned Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVNTI.html">MOVNTI</a></td>
+<td>Store Doubleword Using Non-Temporal Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVNTPD.html">MOVNTPD</a></td>
+<td>Store Packed Double-Precision Floating-Point Values Using Non-Temporal Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVNTPS.html">MOVNTPS</a></td>
+<td>Store Packed Single-Precision Floating-Point Values Using Non-Temporal Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVNTQ.html">MOVNTQ</a></td>
+<td>Store of Quadword Using Non-Temporal Hint</td></tr>
+<tr>
+<td>
+<a href="./MOVD:MOVQ.html">MOVQ</a></td>
+<td>Move Doubleword/Move Quadword</td></tr>
+<tr>
+<td>
+<a href="./MOVQ.html">MOVQ</a></td>
+<td>Move Quadword</td></tr>
+<tr>
+<td>
+<a href="./MOVQ2DQ.html">MOVQ2DQ</a></td>
+<td>Move Quadword from MMX Technology to XMM Register</td></tr>
+<tr>
+<td>
+<a href="./MOVS:MOVSB:MOVSW:MOVSD:MOVSQ.html">MOVS</a></td>
+<td>Move Data from String to String</td></tr>
+<tr>
+<td>
+<a href="./MOVS:MOVSB:MOVSW:MOVSD:MOVSQ.html">MOVSB</a></td>
+<td>Move Data from String to String</td></tr>
+<tr>
+<td>
+<a href="./MOVS:MOVSB:MOVSW:MOVSD:MOVSQ.html">MOVSD</a></td>
+<td>Move Data from String to String</td></tr>
+<tr>
+<td>
+<a href="./MOVSD.html">MOVSD</a></td>
+<td>Move Scalar Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./MOVSHDUP.html">MOVSHDUP</a></td>
+<td>Move Packed Single-FP High and Duplicate</td></tr>
+<tr>
+<td>
+<a href="./MOVSLDUP.html">MOVSLDUP</a></td>
+<td>Move Packed Single-FP Low and Duplicate</td></tr>
+<tr>
+<td>
+<a href="./MOVS:MOVSB:MOVSW:MOVSD:MOVSQ.html">MOVSQ</a></td>
+<td>Move Data from String to String</td></tr>
+<tr>
+<td>
+<a href="./MOVSS.html">MOVSS</a></td>
+<td>Move Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVS:MOVSB:MOVSW:MOVSD:MOVSQ.html">MOVSW</a></td>
+<td>Move Data from String to String</td></tr>
+<tr>
+<td>
+<a href="./MOVSX:MOVSXD.html">MOVSX</a></td>
+<td>Move with Sign-Extension</td></tr>
+<tr>
+<td>
+<a href="./MOVSX:MOVSXD.html">MOVSXD</a></td>
+<td>Move with Sign-Extension</td></tr>
+<tr>
+<td>
+<a href="./MOVUPD.html">MOVUPD</a></td>
+<td>Move Unaligned Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVUPS.html">MOVUPS</a></td>
+<td>Move Unaligned Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MOVZX.html">MOVZX</a></td>
+<td>Move with Zero-Extend</td></tr>
+<tr>
+<td>
+<a href="./MPSADBW.html">MPSADBW</a></td>
+<td>Compute Multiple Packed Sums of Absolute Difference</td></tr>
+<tr>
+<td>
+<a href="./MUL.html">MUL</a></td>
+<td>Unsigned Multiply</td></tr>
+<tr>
+<td>
+<a href="./MULPD.html">MULPD</a></td>
+<td>Multiply Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MULPS.html">MULPS</a></td>
+<td>Multiply Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MULSD.html">MULSD</a></td>
+<td>Multiply Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MULSS.html">MULSS</a></td>
+<td>Multiply Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./MWAIT.html">MWAIT</a></td>
+<td>Monitor Wait</td></tr>
+<tr>
+<td>
+<a href="./MULX.html">MULX</a></td>
+<td>Unsigned Multiply Without Affecting Flags</td></tr>
+<tr>
+<td>
+<a href="./MWAIT.html">MWAIT</a></td>
+<td>Monitor Wait</td></tr>
+<tr>
+<td>
+<a href="./NEG.html">NEG</a></td>
+<td>Two's Complement Negation</td></tr>
+<tr>
+<td>
+<a href="./NOP.html">NOP</a></td>
+<td>No Operation</td></tr>
+<tr>
+<td>
+<a href="./NOT.html">NOT</a></td>
+<td>One's Complement Negation</td></tr>
+<tr>
+<td>
+<a href="./OR.html">OR</a></td>
+<td>Logical Inclusive OR</td></tr>
+<tr>
+<td>
+<a href="./ORPD.html">ORPD</a></td>
+<td>Bitwise Logical OR of Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ORPS.html">ORPS</a></td>
+<td>Bitwise Logical OR of Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./OUT.html">OUT</a></td>
+<td>Output to Port</td></tr>
+<tr>
+<td>
+<a href="./OUTS:OUTSB:OUTSW:OUTSD.html">OUTS</a></td>
+<td>Output String to Port</td></tr>
+<tr>
+<td>
+<a href="./OUTS:OUTSB:OUTSW:OUTSD.html">OUTSB</a></td>
+<td>Output String to Port</td></tr>
+<tr>
+<td>
+<a href="./OUTS:OUTSB:OUTSW:OUTSD.html">OUTSD</a></td>
+<td>Output String to Port</td></tr>
+<tr>
+<td>
+<a href="./OUTS:OUTSB:OUTSW:OUTSD.html">OUTSW</a></td>
+<td>Output String to Port</td></tr>
+<tr>
+<td>
+<a href="./PABSB:PABSW:PABSD.html">PABSB</a></td>
+<td>Packed Absolute Value</td></tr>
+<tr>
+<td>
+<a href="./PABSB:PABSW:PABSD.html">PABSD</a></td>
+<td>Packed Absolute Value</td></tr>
+<tr>
+<td>
+<a href="./PABSB:PABSW:PABSD.html">PABSW</a></td>
+<td>Packed Absolute Value</td></tr>
+<tr>
+<td>
+<a href="./PACKSSWB:PACKSSDW.html">PACKSSDW</a></td>
+<td>Pack with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PACKSSWB:PACKSSDW.html">PACKSSWB</a></td>
+<td>Pack with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PACKUSDW.html">PACKUSDW</a></td>
+<td>Pack with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PACKUSWB.html">PACKUSWB</a></td>
+<td>Pack with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PADDB:PADDW:PADDD.html">PADDB</a></td>
+<td>Add Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PADDB:PADDW:PADDD.html">PADDD</a></td>
+<td>Add Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PADDQ.html">PADDQ</a></td>
+<td>Add Packed Quadword Integers</td></tr>
+<tr>
+<td>
+<a href="./PADDSB:PADDSW.html">PADDSB</a></td>
+<td>Add Packed Signed Integers with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PADDSB:PADDSW.html">PADDSW</a></td>
+<td>Add Packed Signed Integers with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PADDUSB:PADDUSW.html">PADDUSB</a></td>
+<td>Add Packed Unsigned Integers with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PADDUSB:PADDUSW.html">PADDUSW</a></td>
+<td>Add Packed Unsigned Integers with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PADDB:PADDW:PADDD.html">PADDW</a></td>
+<td>Add Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PALIGNR.html">PALIGNR</a></td>
+<td>Packed Align Right</td></tr>
+<tr>
+<td>
+<a href="./PAND.html">PAND</a></td>
+<td>Logical AND</td></tr>
+<tr>
+<td>
+<a href="./PANDN.html">PANDN</a></td>
+<td>Logical AND NOT</td></tr>
+<tr>
+<td>
+<a href="./PAUSE.html">PAUSE</a></td>
+<td>Spin Loop Hint</td></tr>
+<tr>
+<td>
+<a href="./PAVGB:PAVGW.html">PAVGB</a></td>
+<td>Average Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PAVGB:PAVGW.html">PAVGW</a></td>
+<td>Average Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PBLENDVB.html">PBLENDVB</a></td>
+<td>Variable Blend Packed Bytes</td></tr>
+<tr>
+<td>
+<a href="./PBLENDW.html">PBLENDW</a></td>
+<td>Blend Packed Words</td></tr>
+<tr>
+<td>
+<a href="./PCLMULQDQ.html">PCLMULQDQ</a></td>
+<td>Carry-Less Multiplication Quadword</td></tr>
+<tr>
+<td>
+<a href="./PCMPEQB:PCMPEQW:PCMPEQD.html">PCMPEQB</a></td>
+<td>Compare Packed Data for Equal</td></tr>
+<tr>
+<td>
+<a href="./PCMPEQB:PCMPEQW:PCMPEQD.html">PCMPEQD</a></td>
+<td>Compare Packed Data for Equal</td></tr>
+<tr>
+<td>
+<a href="./PCMPEQQ.html">PCMPEQQ</a></td>
+<td>Compare Packed Qword Data for Equal</td></tr>
+<tr>
+<td>
+<a href="./PCMPEQB:PCMPEQW:PCMPEQD.html">PCMPEQW</a></td>
+<td>Compare Packed Data for Equal</td></tr>
+<tr>
+<td>
+<a href="./PCMPESTRI.html">PCMPESTRI</a></td>
+<td>Packed Compare Explicit Length Strings, Return Index</td></tr>
+<tr>
+<td>
+<a href="./PCMPESTRM.html">PCMPESTRM</a></td>
+<td>Packed Compare Explicit Length Strings, Return Mask</td></tr>
+<tr>
+<td>
+<a href="./PCMPGTB:PCMPGTW:PCMPGTD.html">PCMPGTB</a></td>
+<td>Compare Packed Signed Integers for Greater Than</td></tr>
+<tr>
+<td>
+<a href="./PCMPGTB:PCMPGTW:PCMPGTD.html">PCMPGTD</a></td>
+<td>Compare Packed Signed Integers for Greater Than</td></tr>
+<tr>
+<td>
+<a href="./PCMPGTQ.html">PCMPGTQ</a></td>
+<td>Compare Packed Data for Greater Than</td></tr>
+<tr>
+<td>
+<a href="./PCMPGTB:PCMPGTW:PCMPGTD.html">PCMPGTW</a></td>
+<td>Compare Packed Signed Integers for Greater Than</td></tr>
+<tr>
+<td>
+<a href="./PCMPISTRI.html">PCMPISTRI</a></td>
+<td>Packed Compare Implicit Length Strings, Return Index</td></tr>
+<tr>
+<td>
+<a href="./PCMPISTRM.html">PCMPISTRM</a></td>
+<td>Packed Compare Implicit Length Strings, Return Mask</td></tr>
+<tr>
+<td>
+<a href="./PDEP.html">PDEP</a></td>
+<td>Parallel Bits Deposit</td></tr>
+<tr>
+<td>
+<a href="./PEXT.html">PEXT</a></td>
+<td>Parallel Bits Extract</td></tr>
+<tr>
+<td>
+<a href="./PEXTRB:PEXTRD:PEXTRQ.html">PEXTRB</a></td>
+<td>Extract Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PEXTRB:PEXTRD:PEXTRQ.html">PEXTRD</a></td>
+<td>Extract Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PEXTRB:PEXTRD:PEXTRQ.html">PEXTRQ</a></td>
+<td>Extract Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PEXTRW.html">PEXTRW</a></td>
+<td>Extract Word</td></tr>
+<tr>
+<td>
+<a href="./PHADDW:PHADDD.html">PHADDD</a></td>
+<td>Packed Horizontal Add</td></tr>
+<tr>
+<td>
+<a href="./PHADDSW.html">PHADDSW</a></td>
+<td>Packed Horizontal Add and Saturate</td></tr>
+<tr>
+<td>
+<a href="./PHADDW:PHADDD.html">PHADDW</a></td>
+<td>Packed Horizontal Add</td></tr>
+<tr>
+<td>
+<a href="./PHMINPOSUW.html">PHMINPOSUW</a></td>
+<td>Packed Horizontal Word Minimum</td></tr>
+<tr>
+<td>
+<a href="./PHSUBW:PHSUBD.html">PHSUBD</a></td>
+<td>Packed Horizontal Subtract</td></tr>
+<tr>
+<td>
+<a href="./PHSUBSW.html">PHSUBSW</a></td>
+<td>Packed Horizontal Subtract and Saturate</td></tr>
+<tr>
+<td>
+<a href="./PHSUBW:PHSUBD.html">PHSUBW</a></td>
+<td>Packed Horizontal Subtract</td></tr>
+<tr>
+<td>
+<a href="./PINSRB:PINSRD:PINSRQ.html">PINSRB</a></td>
+<td>Insert Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PINSRB:PINSRD:PINSRQ.html">PINSRD</a></td>
+<td>Insert Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PINSRB:PINSRD:PINSRQ.html">PINSRQ</a></td>
+<td>Insert Byte/Dword/Qword</td></tr>
+<tr>
+<td>
+<a href="./PINSRW.html">PINSRW</a></td>
+<td>Insert Word</td></tr>
+<tr>
+<td>
+<a href="./PMADDUBSW.html">PMADDUBSW</a></td>
+<td>Multiply and Add Packed Signed and Unsigned Bytes</td></tr>
+<tr>
+<td>
+<a href="./PMADDWD.html">PMADDWD</a></td>
+<td>Multiply and Add Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXSB.html">PMAXSB</a></td>
+<td>Maximum of Packed Signed Byte Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXSD.html">PMAXSD</a></td>
+<td>Maximum of Packed Signed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXSW.html">PMAXSW</a></td>
+<td>Maximum of Packed Signed Word Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXUB.html">PMAXUB</a></td>
+<td>Maximum of Packed Unsigned Byte Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXUD.html">PMAXUD</a></td>
+<td>Maximum of Packed Unsigned Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./PMAXUW.html">PMAXUW</a></td>
+<td>Maximum of Packed Word Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINSB.html">PMINSB</a></td>
+<td>Minimum of Packed Signed Byte Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINSD.html">PMINSD</a></td>
+<td>Minimum of Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINSW.html">PMINSW</a></td>
+<td>Minimum of Packed Signed Word Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINUB.html">PMINUB</a></td>
+<td>Minimum of Packed Unsigned Byte Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINUD.html">PMINUD</a></td>
+<td>Minimum of Packed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./PMINUW.html">PMINUW</a></td>
+<td>Minimum of Packed Word Integers</td></tr>
+<tr>
+<td>
+<a href="./PMOVMSKB.html">PMOVMSKB</a></td>
+<td>Move Byte Mask</td></tr>
+<tr>
+<td>
+<a href="./PMOVSX.html">PMOVSX</a></td>
+<td>Packed Move with Sign Extend</td></tr>
+<tr>
+<td>
+<a href="./PMOVZX.html">PMOVZX</a></td>
+<td>Packed Move with Zero Extend</td></tr>
+<tr>
+<td>
+<a href="./PMULDQ.html">PMULDQ</a></td>
+<td>Multiply Packed Signed Dword Integers</td></tr>
+<tr>
+<td>
+<a href="./PMULHRSW.html">PMULHRSW</a></td>
+<td>Packed Multiply High with Round and Scale</td></tr>
+<tr>
+<td>
+<a href="./PMULHUW.html">PMULHUW</a></td>
+<td>Multiply Packed Unsigned Integers and Store High Result</td></tr>
+<tr>
+<td>
+<a href="./PMULHW.html">PMULHW</a></td>
+<td>Multiply Packed Signed Integers and Store High Result</td></tr>
+<tr>
+<td>
+<a href="./PMULLD.html">PMULLD</a></td>
+<td>Multiply Packed Signed Dword Integers and Store Low Result</td></tr>
+<tr>
+<td>
+<a href="./PMULLW.html">PMULLW</a></td>
+<td>Multiply Packed Signed Integers and Store Low Result</td></tr>
+<tr>
+<td>
+<a href="./PMULUDQ.html">PMULUDQ</a></td>
+<td>Multiply Packed Unsigned Doubleword Integers</td></tr>
+<tr>
+<td>
+<a href="./POP.html">POP</a></td>
+<td>Pop a Value from the Stack</td></tr>
+<tr>
+<td>
+<a href="./POPA:POPAD.html">POPA</a></td>
+<td>Pop All General-Purpose Registers</td></tr>
+<tr>
+<td>
+<a href="./POPA:POPAD.html">POPAD</a></td>
+<td>Pop All General-Purpose Registers</td></tr>
+<tr>
+<td>
+<a href="./POPCNT.html">POPCNT</a></td>
+<td>Return the Count of Number of Bits Set to 1</td></tr>
+<tr>
+<td>
+<a href="./POPF:POPFD:POPFQ.html">POPF</a></td>
+<td>Pop Stack into EFLAGS Register</td></tr>
+<tr>
+<td>
+<a href="./POPF:POPFD:POPFQ.html">POPFD</a></td>
+<td>Pop Stack into EFLAGS Register</td></tr>
+<tr>
+<td>
+<a href="./POPF:POPFD:POPFQ.html">POPFQ</a></td>
+<td>Pop Stack into EFLAGS Register</td></tr>
+<tr>
+<td>
+<a href="./POR.html">POR</a></td>
+<td>Bitwise Logical OR</td></tr>
+<tr>
+<td>
+<a href="./PREFETCHW.html">PREFETCHW</a></td>
+<td>Prefetch Data into Caches in Anticipation of a Write</td></tr>
+<tr>
+<td>
+<a href="./PREFETCHWT1.html">PREFETCHWT1</a></td>
+<td>Prefetch Vector Data Into Caches with Intent to Write and T1 Hint</td></tr>
+<tr>
+<td>
+<a href="./PREFETCHh.html">PREFETCHh</a></td>
+<td>Prefetch Data Into Caches</td></tr>
+<tr>
+<td>
+<a href="./PSADBW.html">PSADBW</a></td>
+<td>Compute Sum of Absolute Differences</td></tr>
+<tr>
+<td>
+<a href="./PSHUFB.html">PSHUFB</a></td>
+<td>Packed Shuffle Bytes</td></tr>
+<tr>
+<td>
+<a href="./PSHUFD.html">PSHUFD</a></td>
+<td>Shuffle Packed Doublewords</td></tr>
+<tr>
+<td>
+<a href="./PSHUFHW.html">PSHUFHW</a></td>
+<td>Shuffle Packed High Words</td></tr>
+<tr>
+<td>
+<a href="./PSHUFLW.html">PSHUFLW</a></td>
+<td>Shuffle Packed Low Words</td></tr>
+<tr>
+<td>
+<a href="./PSHUFW.html">PSHUFW</a></td>
+<td>Shuffle Packed Words</td></tr>
+<tr>
+<td>
+<a href="./PSIGNB:PSIGNW:PSIGND.html">PSIGNB</a></td>
+<td>Packed SIGN</td></tr>
+<tr>
+<td>
+<a href="./PSIGNB:PSIGNW:PSIGND.html">PSIGND</a></td>
+<td>Packed SIGN</td></tr>
+<tr>
+<td>
+<a href="./PSIGNB:PSIGNW:PSIGND.html">PSIGNW</a></td>
+<td>Packed SIGN</td></tr>
+<tr>
+<td>
+<a href="./PSLLW:PSLLD:PSLLQ.html">PSLLD</a></td>
+<td>Shift Packed Data Left Logical</td></tr>
+<tr>
+<td>
+<a href="./PSLLDQ.html">PSLLDQ</a></td>
+<td>Shift Double Quadword Left Logical</td></tr>
+<tr>
+<td>
+<a href="./PSLLW:PSLLD:PSLLQ.html">PSLLQ</a></td>
+<td>Shift Packed Data Left Logical</td></tr>
+<tr>
+<td>
+<a href="./PSLLW:PSLLD:PSLLQ.html">PSLLW</a></td>
+<td>Shift Packed Data Left Logical</td></tr>
+<tr>
+<td>
+<a href="./PSRAW:PSRAD.html">PSRAD</a></td>
+<td>Shift Packed Data Right Arithmetic</td></tr>
+<tr>
+<td>
+<a href="./PSRAW:PSRAD.html">PSRAW</a></td>
+<td>Shift Packed Data Right Arithmetic</td></tr>
+<tr>
+<td>
+<a href="./PSRLW:PSRLD:PSRLQ.html">PSRLD</a></td>
+<td>Shift Packed Data Right Logical</td></tr>
+<tr>
+<td>
+<a href="./PSRLDQ.html">PSRLDQ</a></td>
+<td>Shift Double Quadword Right Logical</td></tr>
+<tr>
+<td>
+<a href="./PSRLW:PSRLD:PSRLQ.html">PSRLQ</a></td>
+<td>Shift Packed Data Right Logical</td></tr>
+<tr>
+<td>
+<a href="./PSRLW:PSRLD:PSRLQ.html">PSRLW</a></td>
+<td>Shift Packed Data Right Logical</td></tr>
+<tr>
+<td>
+<a href="./PSUBB:PSUBW:PSUBD.html">PSUBB</a></td>
+<td>Subtract Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PSUBB:PSUBW:PSUBD.html">PSUBD</a></td>
+<td>Subtract Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PSUBQ.html">PSUBQ</a></td>
+<td>Subtract Packed Quadword Integers</td></tr>
+<tr>
+<td>
+<a href="./PSUBSB:PSUBSW.html">PSUBSB</a></td>
+<td>Subtract Packed Signed Integers with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PSUBSB:PSUBSW.html">PSUBSW</a></td>
+<td>Subtract Packed Signed Integers with Signed Saturation</td></tr>
+<tr>
+<td>
+<a href="./PSUBUSB:PSUBUSW.html">PSUBUSB</a></td>
+<td>Subtract Packed Unsigned Integers with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PSUBUSB:PSUBUSW.html">PSUBUSW</a></td>
+<td>Subtract Packed Unsigned Integers with Unsigned Saturation</td></tr>
+<tr>
+<td>
+<a href="./PSUBB:PSUBW:PSUBD.html">PSUBW</a></td>
+<td>Subtract Packed Integers</td></tr>
+<tr>
+<td>
+<a href="./PTEST.html">PTEST</a></td>
+<td>Logical Compare</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKHBW:PUNPCKHWD:PUNPCKHDQ:PUNPCKHQDQ.html">PUNPCKHBW</a></td>
+<td>Unpack High Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKHBW:PUNPCKHWD:PUNPCKHDQ:PUNPCKHQDQ.html">PUNPCKHDQ</a></td>
+<td>Unpack High Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKHBW:PUNPCKHWD:PUNPCKHDQ:PUNPCKHQDQ.html">PUNPCKHQDQ</a></td>
+<td>Unpack High Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKHBW:PUNPCKHWD:PUNPCKHDQ:PUNPCKHQDQ.html">PUNPCKHWD</a></td>
+<td>Unpack High Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKLBW:PUNPCKLWD:PUNPCKLDQ:PUNPCKLQDQ.html">PUNPCKLBW</a></td>
+<td>Unpack Low Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKLBW:PUNPCKLWD:PUNPCKLDQ:PUNPCKLQDQ.html">PUNPCKLDQ</a></td>
+<td>Unpack Low Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKLBW:PUNPCKLWD:PUNPCKLDQ:PUNPCKLQDQ.html">PUNPCKLQDQ</a></td>
+<td>Unpack Low Data</td></tr>
+<tr>
+<td>
+<a href="./PUNPCKLBW:PUNPCKLWD:PUNPCKLDQ:PUNPCKLQDQ.html">PUNPCKLWD</a></td>
+<td>Unpack Low Data</td></tr>
+<tr>
+<td>
+<a href="./PUSH.html">PUSH</a></td>
+<td>Push Word, Doubleword or Quadword Onto the Stack</td></tr>
+<tr>
+<td>
+<a href="./PUSHA:PUSHAD.html">PUSHA</a></td>
+<td>Push All General-Purpose Registers</td></tr>
+<tr>
+<td>
+<a href="./PUSHA:PUSHAD.html">PUSHAD</a></td>
+<td>Push All General-Purpose Registers</td></tr>
+<tr>
+<td>
+<a href="./PUSHF:PUSHFD.html">PUSHF</a></td>
+<td>Push EFLAGS Register onto the Stack</td></tr>
+<tr>
+<td>
+<a href="./PUSHF:PUSHFD.html">PUSHFD</a></td>
+<td>Push EFLAGS Register onto the Stack</td></tr>
+<tr>
+<td>
+<a href="./PXOR.html">PXOR</a></td>
+<td>Logical Exclusive OR</td></tr>
+<tr>
+<td>
+<a href="./RCL:RCR:ROL:ROR.html">RCL</a></td>
+<td>—Rotate</td></tr>
+<tr>
+<td>
+<a href="./RCPPS.html">RCPPS</a></td>
+<td>Compute Reciprocals of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./RCPSS.html">RCPSS</a></td>
+<td>Compute Reciprocal of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./RCL:RCR:ROL:ROR.html">RCR</a></td>
+<td>—Rotate</td></tr>
+<tr>
+<td>
+<a href="./RDFSBASE:RDGSBASE.html">RDFSBASE</a></td>
+<td>Read FS/GS Segment Base</td></tr>
+<tr>
+<td>
+<a href="./RDFSBASE:RDGSBASE.html">RDGSBASE</a></td>
+<td>Read FS/GS Segment Base</td></tr>
+<tr>
+<td>
+<a href="./RDMSR.html">RDMSR</a></td>
+<td>Read from Model Specific Register</td></tr>
+<tr>
+<td>
+<a href="./RDPMC.html">RDPMC</a></td>
+<td>Read Performance-Monitoring Counters</td></tr>
+<tr>
+<td>
+<a href="./RDRAND.html">RDRAND</a></td>
+<td>Read Random Number</td></tr>
+<tr>
+<td>
+<a href="./RDSEED.html">RDSEED</a></td>
+<td>Read Random SEED</td></tr>
+<tr>
+<td>
+<a href="./RDTSC.html">RDTSC</a></td>
+<td>Read Time-Stamp Counter</td></tr>
+<tr>
+<td>
+<a href="./RDTSCP.html">RDTSCP</a></td>
+<td>Read Time-Stamp Counter and Processor ID</td></tr>
+<tr>
+<td>
+<a href="./REP:REPE:REPZ:REPNE:REPNZ.html">REP</a></td>
+<td>Repeat String Operation Prefix</td></tr>
+<tr>
+<td>
+<a href="./REP:REPE:REPZ:REPNE:REPNZ.html">REPE</a></td>
+<td>Repeat String Operation Prefix</td></tr>
+<tr>
+<td>
+<a href="./REP:REPE:REPZ:REPNE:REPNZ.html">REPNE</a></td>
+<td>Repeat String Operation Prefix</td></tr>
+<tr>
+<td>
+<a href="./REP:REPE:REPZ:REPNE:REPNZ.html">REPNZ</a></td>
+<td>Repeat String Operation Prefix</td></tr>
+<tr>
+<td>
+<a href="./REP:REPE:REPZ:REPNE:REPNZ.html">REPZ</a></td>
+<td>Repeat String Operation Prefix</td></tr>
+<tr>
+<td>
+<a href="./RET.html">RET</a></td>
+<td>Return from Procedure</td></tr>
+<tr>
+<td>
+<a href="./RCL:RCR:ROL:ROR.html">ROL</a></td>
+<td>—Rotate</td></tr>
+<tr>
+<td>
+<a href="./RCL:RCR:ROL:ROR.html">ROR</a></td>
+<td>—Rotate</td></tr>
+<tr>
+<td>
+<a href="./RORX.html">RORX</a></td>
+<td>Rotate Right Logical Without Affecting Flags</td></tr>
+<tr>
+<td>
+<a href="./ROUNDPD.html">ROUNDPD</a></td>
+<td>Round Packed Double Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ROUNDPS.html">ROUNDPS</a></td>
+<td>Round Packed Single Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ROUNDSD.html">ROUNDSD</a></td>
+<td>Round Scalar Double Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./ROUNDSS.html">ROUNDSS</a></td>
+<td>Round Scalar Single Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./RSM.html">RSM</a></td>
+<td>Resume from System Management Mode</td></tr>
+<tr>
+<td>
+<a href="./RSQRTPS.html">RSQRTPS</a></td>
+<td>Compute Reciprocals of Square Roots of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./RSQRTSS.html">RSQRTSS</a></td>
+<td>Compute Reciprocal of Square Root of Scalar Single-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./SAHF.html">SAHF</a></td>
+<td>Store AH into Flags</td></tr>
+<tr>
+<td>
+<a href="./SAL:SAR:SHL:SHR.html">SAL</a></td>
+<td>Shift</td></tr>
+<tr>
+<td>
+<a href="./SAL:SAR:SHL:SHR.html">SAR</a></td>
+<td>Shift</td></tr>
+<tr>
+<td>
+<a href="./SARX:SHLX:SHRX.html">SARX</a></td>
+<td>Shift Without Affecting Flags</td></tr>
+<tr>
+<td>
+<a href="./SBB.html">SBB</a></td>
+<td>Integer Subtraction with Borrow</td></tr>
+<tr>
+<td>
+<a href="./SCAS:SCASB:SCASW:SCASD.html">SCAS</a></td>
+<td>Scan String</td></tr>
+<tr>
+<td>
+<a href="./SCAS:SCASB:SCASW:SCASD.html">SCASB</a></td>
+<td>Scan String</td></tr>
+<tr>
+<td>
+<a href="./SCAS:SCASB:SCASW:SCASD.html">SCASD</a></td>
+<td>Scan String</td></tr>
+<tr>
+<td>
+<a href="./SCAS:SCASB:SCASW:SCASD.html">SCASW</a></td>
+<td>Scan String</td></tr>
+<tr>
+<td>
+<a href="./SETcc.html">SETcc</a></td>
+<td>Set Byte on Condition</td></tr>
+<tr>
+<td>
+<a href="./SFENCE.html">SFENCE</a></td>
+<td>Store Fence</td></tr>
+<tr>
+<td>
+<a href="./SGDT.html">SGDT</a></td>
+<td>Store Global Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./SAL:SAR:SHL:SHR.html">SHL</a></td>
+<td>Shift</td></tr>
+<tr>
+<td>
+<a href="./SHLD.html">SHLD</a></td>
+<td>Double Precision Shift Left</td></tr>
+<tr>
+<td>
+<a href="./SARX:SHLX:SHRX.html">SHLX</a></td>
+<td>Shift Without Affecting Flags</td></tr>
+<tr>
+<td>
+<a href="./SAL:SAR:SHL:SHR.html">SHR</a></td>
+<td>Shift</td></tr>
+<tr>
+<td>
+<a href="./SHRD.html">SHRD</a></td>
+<td>Double Precision Shift Right</td></tr>
+<tr>
+<td>
+<a href="./SARX:SHLX:SHRX.html">SHRX</a></td>
+<td>Shift Without Affecting Flags</td></tr>
+<tr>
+<td>
+<a href="./SHUFPD.html">SHUFPD</a></td>
+<td>Shuffle Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SHUFPS.html">SHUFPS</a></td>
+<td>Shuffle Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SIDT.html">SIDT</a></td>
+<td>Store Interrupt Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./SLDT.html">SLDT</a></td>
+<td>Store Local Descriptor Table Register</td></tr>
+<tr>
+<td>
+<a href="./SMSW.html">SMSW</a></td>
+<td>Store Machine Status Word</td></tr>
+<tr>
+<td>
+<a href="./SQRTPD.html">SQRTPD</a></td>
+<td>Compute Square Roots of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SQRTPS.html">SQRTPS</a></td>
+<td>Compute Square Roots of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SQRTSD.html">SQRTSD</a></td>
+<td>Compute Square Root of Scalar Double-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./SQRTSS.html">SQRTSS</a></td>
+<td>Compute Square Root of Scalar Single-Precision Floating-Point Value</td></tr>
+<tr>
+<td>
+<a href="./STAC.html">STAC</a></td>
+<td>Set AC Flag in EFLAGS Register</td></tr>
+<tr>
+<td>
+<a href="./STC.html">STC</a></td>
+<td>Set Carry Flag</td></tr>
+<tr>
+<td>
+<a href="./STD.html">STD</a></td>
+<td>Set Direction Flag</td></tr>
+<tr>
+<td>
+<a href="./STI.html">STI</a></td>
+<td>Set Interrupt Flag</td></tr>
+<tr>
+<td>
+<a href="./STMXCSR.html">STMXCSR</a></td>
+<td>Store MXCSR Register State</td></tr>
+<tr>
+<td>
+<a href="./STOS:STOSB:STOSW:STOSD:STOSQ.html">STOS</a></td>
+<td>Store String</td></tr>
+<tr>
+<td>
+<a href="./STOS:STOSB:STOSW:STOSD:STOSQ.html">STOSB</a></td>
+<td>Store String</td></tr>
+<tr>
+<td>
+<a href="./STOS:STOSB:STOSW:STOSD:STOSQ.html">STOSD</a></td>
+<td>Store String</td></tr>
+<tr>
+<td>
+<a href="./STOS:STOSB:STOSW:STOSD:STOSQ.html">STOSQ</a></td>
+<td>Store String</td></tr>
+<tr>
+<td>
+<a href="./STOS:STOSB:STOSW:STOSD:STOSQ.html">STOSW</a></td>
+<td>Store String</td></tr>
+<tr>
+<td>
+<a href="./STR.html">STR</a></td>
+<td>Store Task Register</td></tr>
+<tr>
+<td>
+<a href="./SUB.html">SUB</a></td>
+<td>Subtract</td></tr>
+<tr>
+<td>
+<a href="./SUBPD.html">SUBPD</a></td>
+<td>Subtract Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SUBPS.html">SUBPS</a></td>
+<td>Subtract Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SUBSD.html">SUBSD</a></td>
+<td>Subtract Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SUBSS.html">SUBSS</a></td>
+<td>Subtract Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./SWAPGS.html">SWAPGS</a></td>
+<td>Swap GS Base Register</td></tr>
+<tr>
+<td>
+<a href="./SYSCALL.html">SYSCALL</a></td>
+<td>Fast System Call</td></tr>
+<tr>
+<td>
+<a href="./SYSENTER.html">SYSENTER</a></td>
+<td>Fast System Call</td></tr>
+<tr>
+<td>
+<a href="./SYSEXIT.html">SYSEXIT</a></td>
+<td>Fast Return from Fast System Call</td></tr>
+<tr>
+<td>
+<a href="./SYSRET.html">SYSRET</a></td>
+<td>Return From Fast System Call</td></tr>
+<tr>
+<td>
+<a href="./TEST.html">TEST</a></td>
+<td>Logical Compare</td></tr>
+<tr>
+<td>
+<a href="./TZCNT.html">TZCNT</a></td>
+<td>Count the Number of Trailing Zero Bits</td></tr>
+<tr>
+<td>
+<a href="./UCOMISD.html">UCOMISD</a></td>
+<td>Unordered Compare Scalar Double-Precision Floating-Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./UCOMISS.html">UCOMISS</a></td>
+<td>Unordered Compare Scalar Single-Precision Floating-Point Values and Set EFLAGS</td></tr>
+<tr>
+<td>
+<a href="./UD2.html">UD2</a></td>
+<td>Undefined Instruction</td></tr>
+<tr>
+<td>
+<a href="./UNPCKHPD.html">UNPCKHPD</a></td>
+<td>Unpack and Interleave High Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./UNPCKHPS.html">UNPCKHPS</a></td>
+<td>Unpack and Interleave High Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./UNPCKLPD.html">UNPCKLPD</a></td>
+<td>Unpack and Interleave Low Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./UNPCKLPS.html">UNPCKLPS</a></td>
+<td>Unpack and Interleave Low Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VBROADCAST.html">VBROADCAST</a></td>
+<td>Broadcast Floating-Point Data</td></tr>
+<tr>
+<td>
+<a href="./VCVTPH2PS.html">VCVTPH2PS</a></td>
+<td>Convert 16-bit FP Values to Single-Precision FP Values</td></tr>
+<tr>
+<td>
+<a href="./VCVTPS2PH.html">VCVTPS2PH</a></td>
+<td>Convert Single-Precision FP value to 16-bit FP value</td></tr>
+<tr>
+<td>
+<a href="./VERR:VERW.html">VERR</a></td>
+<td>Verify a Segment for Reading or Writing</td></tr>
+<tr>
+<td>
+<a href="./VERR:VERW.html">VERW</a></td>
+<td>Verify a Segment for Reading or Writing</td></tr>
+<tr>
+<td>
+<a href="./VEXTRACTF128.html">VEXTRACTF128</a></td>
+<td>Extract Packed Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VEXTRACTI128.html">VEXTRACTI128</a></td>
+<td>Extract packed Integer Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PD:VFMADD213PD:VFMADD231PD.html">VFMADD132PD</a></td>
+<td>Fused Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PS:VFMADD213PS:VFMADD231PS.html">VFMADD132PS</a></td>
+<td>Fused Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SD:VFMADD213SD:VFMADD231SD.html">VFMADD132SD</a></td>
+<td>Fused Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SS:VFMADD213SS:VFMADD231SS.html">VFMADD132SS</a></td>
+<td>Fused Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PD:VFMADD213PD:VFMADD231PD.html">VFMADD213PD</a></td>
+<td>Fused Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PS:VFMADD213PS:VFMADD231PS.html">VFMADD213PS</a></td>
+<td>Fused Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SD:VFMADD213SD:VFMADD231SD.html">VFMADD213SD</a></td>
+<td>Fused Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SS:VFMADD213SS:VFMADD231SS.html">VFMADD213SS</a></td>
+<td>Fused Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PD:VFMADD213PD:VFMADD231PD.html">VFMADD231PD</a></td>
+<td>Fused Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132PS:VFMADD213PS:VFMADD231PS.html">VFMADD231PS</a></td>
+<td>Fused Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SD:VFMADD213SD:VFMADD231SD.html">VFMADD231SD</a></td>
+<td>Fused Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADD132SS:VFMADD213SS:VFMADD231SS.html">VFMADD231SS</a></td>
+<td>Fused Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PD:VFMADDSUB213PD:VFMADDSUB231PD.html">VFMADDSUB132PD</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PS:VFMADDSUB213PS:VFMADDSUB231PS.html">VFMADDSUB132PS</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PD:VFMADDSUB213PD:VFMADDSUB231PD.html">VFMADDSUB213PD</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PS:VFMADDSUB213PS:VFMADDSUB231PS.html">VFMADDSUB213PS</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PD:VFMADDSUB213PD:VFMADDSUB231PD.html">VFMADDSUB231PD</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMADDSUB132PS:VFMADDSUB213PS:VFMADDSUB231PS.html">VFMADDSUB231PS</a></td>
+<td>Fused Multiply-Alternating Add/Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PD:VFMSUB213PD:VFMSUB231PD.html">VFMSUB132PD</a></td>
+<td>Fused Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PS:VFMSUB213PS:VFMSUB231PS.html">VFMSUB132PS</a></td>
+<td>Fused Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SD:VFMSUB213SD:VFMSUB231SD.html">VFMSUB132SD</a></td>
+<td>Fused Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SS:VFMSUB213SS:VFMSUB231SS.html">VFMSUB132SS</a></td>
+<td>Fused Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PD:VFMSUB213PD:VFMSUB231PD.html">VFMSUB213PD</a></td>
+<td>Fused Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PS:VFMSUB213PS:VFMSUB231PS.html">VFMSUB213PS</a></td>
+<td>Fused Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SD:VFMSUB213SD:VFMSUB231SD.html">VFMSUB213SD</a></td>
+<td>Fused Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SS:VFMSUB213SS:VFMSUB231SS.html">VFMSUB213SS</a></td>
+<td>Fused Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PD:VFMSUB213PD:VFMSUB231PD.html">VFMSUB231PD</a></td>
+<td>Fused Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132PS:VFMSUB213PS:VFMSUB231PS.html">VFMSUB231PS</a></td>
+<td>Fused Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SD:VFMSUB213SD:VFMSUB231SD.html">VFMSUB231SD</a></td>
+<td>Fused Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUB132SS:VFMSUB213SS:VFMSUB231SS.html">VFMSUB231SS</a></td>
+<td>Fused Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PD:VFMSUBADD213PD:VFMSUBADD231PD.html">VFMSUBADD132PD</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PS:VFMSUBADD213PS:VFMSUBADD231PS.html">VFMSUBADD132PS</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PD:VFMSUBADD213PD:VFMSUBADD231PD.html">VFMSUBADD213PD</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PS:VFMSUBADD213PS:VFMSUBADD231PS.html">VFMSUBADD213PS</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PD:VFMSUBADD213PD:VFMSUBADD231PD.html">VFMSUBADD231PD</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFMSUBADD132PS:VFMSUBADD213PS:VFMSUBADD231PS.html">VFMSUBADD231PS</a></td>
+<td>Fused Multiply-Alternating Subtract/Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PD:VFNMADD213PD:VFNMADD231PD.html">VFNMADD132PD</a></td>
+<td>Fused Negative Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PS:VFNMADD213PS:VFNMADD231PS.html">VFNMADD132PS</a></td>
+<td>Fused Negative Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SD:VFNMADD213SD:VFNMADD231SD.html">VFNMADD132SD</a></td>
+<td>Fused Negative Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SS:VFNMADD213SS:VFNMADD231SS.html">VFNMADD132SS</a></td>
+<td>Fused Negative Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PD:VFNMADD213PD:VFNMADD231PD.html">VFNMADD213PD</a></td>
+<td>Fused Negative Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PS:VFNMADD213PS:VFNMADD231PS.html">VFNMADD213PS</a></td>
+<td>Fused Negative Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SD:VFNMADD213SD:VFNMADD231SD.html">VFNMADD213SD</a></td>
+<td>Fused Negative Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SS:VFNMADD213SS:VFNMADD231SS.html">VFNMADD213SS</a></td>
+<td>Fused Negative Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PD:VFNMADD213PD:VFNMADD231PD.html">VFNMADD231PD</a></td>
+<td>Fused Negative Multiply-Add of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132PS:VFNMADD213PS:VFNMADD231PS.html">VFNMADD231PS</a></td>
+<td>Fused Negative Multiply-Add of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SD:VFNMADD213SD:VFNMADD231SD.html">VFNMADD231SD</a></td>
+<td>Fused Negative Multiply-Add of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMADD132SS:VFNMADD213SS:VFNMADD231SS.html">VFNMADD231SS</a></td>
+<td>Fused Negative Multiply-Add of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PD:VFNMSUB213PD:VFNMSUB231PD.html">VFNMSUB132PD</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PS:VFNMSUB213PS:VFNMSUB231PS.html">VFNMSUB132PS</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SD:VFNMSUB213SD:VFNMSUB231SD.html">VFNMSUB132SD</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SS:VFNMSUB213SS:VFNMSUB231SS.html">VFNMSUB132SS</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PD:VFNMSUB213PD:VFNMSUB231PD.html">VFNMSUB213PD</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PS:VFNMSUB213PS:VFNMSUB231PS.html">VFNMSUB213PS</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SD:VFNMSUB213SD:VFNMSUB231SD.html">VFNMSUB213SD</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SS:VFNMSUB213SS:VFNMSUB231SS.html">VFNMSUB213SS</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PD:VFNMSUB213PD:VFNMSUB231PD.html">VFNMSUB231PD</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132PS:VFNMSUB213PS:VFNMSUB231PS.html">VFNMSUB231PS</a></td>
+<td>Fused Negative Multiply-Subtract of Packed Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SD:VFNMSUB213SD:VFNMSUB231SD.html">VFNMSUB231SD</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VFNMSUB132SS:VFNMSUB213SS:VFNMSUB231SS.html">VFNMSUB231SS</a></td>
+<td>Fused Negative Multiply-Subtract of Scalar Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VGATHERDPD:VGATHERQPD.html">VGATHERDPD</a></td>
+<td>Gather Packed DP FP Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VGATHERDPS:VGATHERQPS.html">VGATHERDPS</a></td>
+<td>Gather Packed SP FP values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VGATHERDPD:VGATHERQPD.html">VGATHERQPD</a></td>
+<td>Gather Packed DP FP Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VGATHERDPS:VGATHERQPS.html">VGATHERQPS</a></td>
+<td>Gather Packed SP FP values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VINSERTF128.html">VINSERTF128</a></td>
+<td>Insert Packed Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VINSERTI128.html">VINSERTI128</a></td>
+<td>Insert Packed Integer Values</td></tr>
+<tr>
+<td>
+<a href="./VMASKMOV.html">VMASKMOV</a></td>
+<td>Conditional SIMD Packed Loads and Stores</td></tr>
+<tr>
+<td>
+<a href="./VPBLENDD.html">VPBLENDD</a></td>
+<td>Blend Packed Dwords</td></tr>
+<tr>
+<td>
+<a href="./VPBROADCAST.html">VPBROADCAST</a></td>
+<td>Broadcast Integer Data</td></tr>
+<tr>
+<td>
+<a href="./VPERM2F128.html">VPERM2F128</a></td>
+<td>Permute Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VPERM2I128.html">VPERM2I128</a></td>
+<td>Permute Integer Values</td></tr>
+<tr>
+<td>
+<a href="./VPERMD.html">VPERMD</a></td>
+<td>Full Doublewords Element Permutation</td></tr>
+<tr>
+<td>
+<a href="./VPERMILPD.html">VPERMILPD</a></td>
+<td>Permute Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VPERMILPS.html">VPERMILPS</a></td>
+<td>Permute Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./VPERMPD.html">VPERMPD</a></td>
+<td>Permute Double-Precision Floating-Point Elements</td></tr>
+<tr>
+<td>
+<a href="./VPERMPS.html">VPERMPS</a></td>
+<td>Permute Single-Precision Floating-Point Elements</td></tr>
+<tr>
+<td>
+<a href="./VPERMQ.html">VPERMQ</a></td>
+<td>Qwords Element Permutation</td></tr>
+<tr>
+<td>
+<a href="./VPGATHERDD:VPGATHERQD.html">VPGATHERDD</a></td>
+<td>Gather Packed Dword Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VPGATHERDQ:VPGATHERQQ.html">VPGATHERDQ</a></td>
+<td>Gather Packed Qword Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VPGATHERDD:VPGATHERQD.html">VPGATHERQD</a></td>
+<td>Gather Packed Dword Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VPGATHERDQ:VPGATHERQQ.html">VPGATHERQQ</a></td>
+<td>Gather Packed Qword Values Using Signed Dword/Qword Indices</td></tr>
+<tr>
+<td>
+<a href="./VPMASKMOV.html">VPMASKMOV</a></td>
+<td>Conditional SIMD Integer Packed Loads and Stores</td></tr>
+<tr>
+<td>
+<a href="./VPSLLVD:VPSLLVQ.html">VPSLLVD</a></td>
+<td>Variable Bit Shift Left Logical</td></tr>
+<tr>
+<td>
+<a href="./VPSLLVD:VPSLLVQ.html">VPSLLVQ</a></td>
+<td>Variable Bit Shift Left Logical</td></tr>
+<tr>
+<td>
+<a href="./VPSRAVD.html">VPSRAVD</a></td>
+<td>Variable Bit Shift Right Arithmetic</td></tr>
+<tr>
+<td>
+<a href="./VPSRLVD:VPSRLVQ.html">VPSRLVD</a></td>
+<td>Variable Bit Shift Right Logical</td></tr>
+<tr>
+<td>
+<a href="./VPSRLVD:VPSRLVQ.html">VPSRLVQ</a></td>
+<td>Variable Bit Shift Right Logical</td></tr>
+<tr>
+<td>
+<a href="./VTESTPD:VTESTPS.html">VTESTPD</a></td>
+<td>Packed Bit Test</td></tr>
+<tr>
+<td>
+<a href="./VTESTPD:VTESTPS.html">VTESTPS</a></td>
+<td>Packed Bit Test</td></tr>
+<tr>
+<td>
+<a href="./VZEROALL.html">VZEROALL</a></td>
+<td>Zero All YMM Registers</td></tr>
+<tr>
+<td>
+<a href="./VZEROUPPER.html">VZEROUPPER</a></td>
+<td>Zero Upper Bits of YMM Registers</td></tr>
+<tr>
+<td>
+<a href="./WAIT:FWAIT.html">WAIT</a></td>
+<td>Wait</td></tr>
+<tr>
+<td>
+<a href="./WBINVD.html">WBINVD</a></td>
+<td>Write Back and Invalidate Cache</td></tr>
+<tr>
+<td>
+<a href="./WRFSBASE:WRGSBASE.html">WRFSBASE</a></td>
+<td>Write FS/GS Segment Base</td></tr>
+<tr>
+<td>
+<a href="./WRFSBASE:WRGSBASE.html">WRGSBASE</a></td>
+<td>Write FS/GS Segment Base</td></tr>
+<tr>
+<td>
+<a href="./WRMSR.html">WRMSR</a></td>
+<td>Write to Model Specific Register</td></tr>
+<tr>
+<td>
+<a href="./XABORT.html">XABORT</a></td>
+<td>Transactional Abort</td></tr>
+<tr>
+<td>
+<a href="./XACQUIRE:XRELEASE.html">XACQUIRE</a></td>
+<td>Hardware Lock Elision Prefix Hints</td></tr>
+<tr>
+<td>
+<a href="./XADD.html">XADD</a></td>
+<td>Exchange and Add</td></tr>
+<tr>
+<td>
+<a href="./XBEGIN.html">XBEGIN</a></td>
+<td>Transactional Begin</td></tr>
+<tr>
+<td>
+<a href="./XCHG.html">XCHG</a></td>
+<td>Exchange Register/Memory with Register</td></tr>
+<tr>
+<td>
+<a href="./XEND.html">XEND</a></td>
+<td>Transactional End</td></tr>
+<tr>
+<td>
+<a href="./XGETBV.html">XGETBV</a></td>
+<td>Get Value of Extended Control Register</td></tr>
+<tr>
+<td>
+<a href="./XLAT:XLATB.html">XLAT</a></td>
+<td>Table Look-up Translation</td></tr>
+<tr>
+<td>
+<a href="./XLAT:XLATB.html">XLATB</a></td>
+<td>Table Look-up Translation</td></tr>
+<tr>
+<td>
+<a href="./XOR.html">XOR</a></td>
+<td>Logical Exclusive OR</td></tr>
+<tr>
+<td>
+<a href="./XORPD.html">XORPD</a></td>
+<td>Bitwise Logical XOR for Double-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./XORPS.html">XORPS</a></td>
+<td>Bitwise Logical XOR for Single-Precision Floating-Point Values</td></tr>
+<tr>
+<td>
+<a href="./XACQUIRE:XRELEASE.html">XRELEASE</a></td>
+<td>Hardware Lock Elision Prefix Hints</td></tr>
+<tr>
+<td>
+<a href="./XRSTOR.html">XRSTOR</a></td>
+<td>Restore Processor Extended States</td></tr>
+<tr>
+<td>
+<a href="./XRSTORS.html">XRSTORS</a></td>
+<td>Restore Processor Extended States Supervisor</td></tr>
+<tr>
+<td>
+<a href="./XSAVE.html">XSAVE</a></td>
+<td>Save Processor Extended States</td></tr>
+<tr>
+<td>
+<a href="./XSAVEC.html">XSAVEC</a></td>
+<td>Save Processor Extended States with Compaction</td></tr>
+<tr>
+<td>
+<a href="./XSAVEOPT.html">XSAVEOPT</a></td>
+<td>Save Processor Extended States Optimized</td></tr>
+<tr>
+<td>
+<a href="./XSAVES.html">XSAVES</a></td>
+<td>Save Processor Extended States Supervisor</td></tr>
+<tr>
+<td>
+<a href="./XSETBV.html">XSETBV</a></td>
+<td>Set Extended Control Register</td></tr>
+<tr>
+<td>
+<a href="./XTEST.html">XTEST</a></td>
+<td>Test If In Transactional Execution</td></tr></table></body></html>

@@ -7,7 +7,7 @@
     <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
     
     <script src="lib/base64.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.4.0/trianglify.min.js"></script> -->
+    <script src="x86Reference/ref.js"></script>
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
@@ -24,7 +24,7 @@
         </md-button>
         <span style="font-weight: bold;">WebAssembly Explorer</span>
         <span flex></span>
-        <span>v2.1</span>
+        <span>v2.2</span>
         </md-toolbar>
       </div>
       <div layout="row" flex>
@@ -140,6 +140,11 @@
               </div>
               </md-toolbar>
               <div flex id="assemblyCodeContainer"></div>
+              <md-content layout-padding style="background-color: #F5F5F5; height: 48px;" class="md-body-2">
+              <label>Mnemonic:</label><a href="x86Reference/{{vm.x86InstructionDescription.path}}.html" target="x86Reference">{{vm.x86InstructionDescription.name}}</a>
+              <br>
+              <label>Description:</label>{{vm.x86InstructionDescription.description}}
+              </md-content>
             </div>
           </div>
           <div layout="column">
