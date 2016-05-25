@@ -47,7 +47,7 @@
           Auto Compile
           </md-switch>
 
-          <md-switch class="md-primary" md-no-ink aria-label="Show LLVM" ng-model="vm.showLLVM" ng-change="vm.changeCompilerOption()">
+          <md-switch class="md-primary" md-no-ink aria-label="Show LLVM" ng-model="vm.showLLVM" ng-change="vm.changeShowLLVM()">
           <md-tooltip md-direction="top">
           Shoe LLVM x86 assembly generated from C/C++ directly.
           </md-tooltip>
@@ -72,7 +72,7 @@
           <md-option ng-value="item" ng-repeat="item in vm.optimizationLevels">{{item}}</md-option>
           </md-optgroup>
           </md-select>
-          <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-change="vm.changeCompilerOption()">
+          <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-chfage="vm.changeCompilerOption()">
           <md-tooltip md-direction="top">
           Lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.
           </md-tooltip>
@@ -88,6 +88,11 @@
           No Exceptions
           </md-checkbox><br>
           
+          <md-button ng-click="vm.fileBug($event)" class="md-raised" style="margin-left: -3px; width: 100%">File Bugzilla Bug
+          <md-tooltip md-direction="top">
+          File a bug with the highlighted text.
+          </md-tooltip>
+          </md-button><br>
           <md-button ng-click="vm.collaborate($event)" class="md-raised" style="margin-left: -3px; width: 100%">Collaborate</md-button><br>
           <md-button ng-click="vm.share($event)" class="md-raised" style="margin-left: -3px; width: 100%">Create a Persistant Link</md-button>
           <md-input-container class="md-block">

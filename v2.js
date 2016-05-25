@@ -176,6 +176,9 @@ p.changeEditor = function changeEditor() {
 p.changeAutoCompile = function changeAutoCompile() {
   sessionStorage.setItem('autoCompile', this.autoCompile);
 };
+p.changeShowLLVM = function changeAutoCompile() {
+  sessionStorage.setItem('showLLVM', this.showLLVM);
+};
 p.changeDialect = function changeDialect() {
   this.change();
 };
@@ -226,7 +229,7 @@ p.toggleMenu = function toggleMenu() {
 };
 p.toggleLLVM = function toggleLLVM() {
   this.showLLVM = !this.showLLVM;
-  sessionStorage.setItem('showLLVM', this.showLLVM);
+  this.changeShowLLVM();
   this.changeCompilerOption();
   var self = this
   setTimeout(function () {
@@ -305,7 +308,44 @@ p.compile = function compile() {
 p.collaborate = function collaborate() {
   TogetherJS(this);
 };
-p.share = function share() {
+p.fileBug = function () {
+  function getSelectedText(editor) {
+    var text = editor.getSelectedText();
+    if (text) {
+      return text;
+    }
+    return editor.getValue();
+  }
+
+  var self = this;
+  var comment = "";
+  shortenUrl(this.getShareUrl(), function (url) {
+    // comment += "WasmExplorer: " + url + "\n";
+
+    comment += "C/C++:\n";
+    comment += "===============================\n";
+    comment += getSelectedText(self.sourceEditor);
+
+    if (!self.showLLVM) {
+      comment += "\n\nWast:\n";
+      comment += "===============================\n";
+      comment += getSelectedText(self.wastEditor);
+    }
+
+    comment += "\n\nFirefox:\n";
+    comment += "===============================\n";
+    comment += getSelectedText(self.assemblyEditor);
+
+    if (self.showLLVM) {
+      comment += "\n\nLLVM:\n";
+      comment += "===============================\n";
+      comment += getSelectedText(self.llvmAssemblyEditor);
+    }
+
+    window.open("https://bugzilla.mozilla.org/enter_bug.cgi?product=Core&component=JavaScript%20Engine%3A%20JIT&assigned_to=sunfish&short_desc=&comment=" + encodeURIComponent(comment));
+  });  
+};
+p.getShareUrl = function () {
   var self = this;
   var url = location.protocol + '//' + location.host + location.pathname;
   var state = {
@@ -322,7 +362,11 @@ p.share = function share() {
     }
   };
   url += "?state=" + encodeURIComponent(JSON.stringify(state));
-  shortenUrl(url, function (url) {
+  return url;
+};
+p.share = function share() {
+  var self = this;
+  shortenUrl(this.getShareUrl(), function (url) {
     self.sharingLink = url;
     self._scope.$apply();
     // $('#shareURL').val(url).select();
