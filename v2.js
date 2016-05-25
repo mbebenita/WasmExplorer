@@ -342,7 +342,7 @@ p.fileBug = function () {
       comment += getSelectedText(self.llvmAssemblyEditor);
     }
 
-    window.open("https://bugzilla.mozilla.org/enter_bug.cgi?product=Core&component=JavaScript%20Engine%3A%20JIT&assigned_to=sunfish&short_desc=&comment=" + encodeURIComponent(comment));
+    window.open("https://bugzilla.mozilla.org/enter_bug.cgi?product=Core&component=JavaScript%20Engine%3A%20JIT&cc=sunfish@mozilla.com&short_desc=&comment=" + encodeURIComponent(comment));
   });  
 };
 p.getShareUrl = function () {
