@@ -376,7 +376,7 @@ p.fileBug = function () {
   var self = this;
   var comment = "";
   shortenUrl(this.getShareUrl(), function (url) {
-    // comment += "WasmExplorer: " + url + "\n";
+    comment += "WasmExplorer: " + url + "\n";
 
     comment += "C/C++:\n";
     comment += "===============================\n";
