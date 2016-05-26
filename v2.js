@@ -62,36 +62,29 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.writeWelcomeMessage();
   this.listenForResizeEvents();
   
-  this.setSessionStorageDefaults();
+  this.loadOptionDefaults();
+  this.loadOptions();
+  
+  this.loadUrlParameters();
 
-  this.showLLVM = sessionStorage.getItem('showLLVM') === "true";
-  this.showConsole = sessionStorage.getItem('showConsole') === "true";
-
-  this.darkMode = sessionStorage.getItem('darkMode') === "true";
-  this.showGutter = sessionStorage.getItem('showGutter') === "true";;
-  this.changeEditor();
-
-  this.autoCompile = sessionStorage.getItem('autoCompile') === "true";
+  this.optionChanged();
 
   this.examples = Object.getOwnPropertyNames(cppExamples);
   this.selectedExample;
 
   this.dialects = ["C89", "C99", "C++98", "C++11", "C++14", "C++1z"];
-  this.selectedDialect = "C++11";
+  
 
   this.optimizationLevels = ["0", "1", "2", "3", "4", "s"];
-  this.selectedOptimizationLevel = "s";
 
-  this.fastMath = false;
-  this.noInline = false;
-  this.noRTTI = false;
-  this.noExceptions = false;
+  
 
   this.sharingLink = "";
 
-  this.checkUrlParameters();
+
   this.mobileVersion();
 }
+
 
 function getMobileOperatingSystem() {
   var userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -106,13 +99,57 @@ function getMobileOperatingSystem() {
 
 var p = WasmExplorerAppCtrl.prototype;
 
-p.setSessionStorageDefaults = function() {
-  if (sessionStorage.getItem('showGutter') == null) {
-    sessionStorage.setItem('showGutter', true);
+var booleanOptionNames = [
+  'showGutter', 'showConsole', 'showOptions', 'autoCompile', 'showLLVM', 'darkMode',
+  'fastMath', 'noInline', 'noRTTI', 'noExceptions'
+];
+
+var stringOptionNames = [
+  'dialect', 'optimizationLevel'
+];
+
+p.loadOptions = function () {
+  var self = this;
+  booleanOptionNames.forEach(function (name) {
+    self[name] = sessionStorage.getItem(name) === "true";
+  });
+  stringOptionNames.forEach(function (name) {
+    self[name] = sessionStorage.getItem(name);
+  });
+};
+
+p.saveOptions = function () {
+  var self = this;
+  booleanOptionNames.forEach(function (name) {
+    sessionStorage.setItem(name, self[name]);
+  });
+  stringOptionNames.forEach(function (name) {
+    sessionStorage.setItem(name, self[name]);
+  });
+};
+
+p.loadOptionDefaults = function() {
+  // sessionStorage.clear();
+
+  function set(name, value) {
+    if (sessionStorage.getItem(name) == null) {
+      sessionStorage.setItem(name, value);
+    }
   }
-  if (sessionStorage.getItem('showConsole') == null) {
-    sessionStorage.setItem('showConsole', true);
-  }
+  set("showGutter", true);
+  set("showConsole", true);
+  set("showOptions", false);
+  set("autoCompile", true);
+  set("showLLVM", false);
+  set("darkMode", true);
+
+  set("fastMath", false);
+  set("noInline", false);
+  set("noRTTI", false);
+  set("noExceptions", false);
+
+  set("dialect", "C++11");
+  set("optimizationLevel", "s");
 };
 
 p.mobileVersion = function() {
@@ -141,25 +178,27 @@ function getUrlParameters() {
   return params;
 };
 
-p.checkUrlParameters = function checkUrlParameters() {
+p.loadUrlParameters = function () {
   var parameters = getUrlParameters();
   if (parameters["state"]) {
     var state = JSON.parse(parameters["state"]);
-    this.sourceEditor.setValue(state.source, -1);
-    this.wastEditor.setValue(state.wast, -1);
-
-    this.selectedExample = state.options.selectedExample;
-    this.selectedDialect = state.options.selectedDialect;
-    this.selectedOptimizationLevel = state.options.selectedOptimizationLevel;
+    if (state.source) {
+      this.sourceEditor.setValue(state.source, -1);
+    }
+    if (state.wast) {
+      this.wastEditor.setValue(state.wast, -1);
+    }
+    this.dialect = state.options.dialect;
+    this.optimizationLevel = state.options.optimizationLevel;
     this.fastMath = state.options.fastMath;
     this.noInline = state.options.noInline;
     this.noRTTI = state.options.noRTTI;
     this.noExceptions = state.options.noExceptions;
   }
 };
-p.changeEditor = function changeEditor() {
-  sessionStorage.setItem('darkMode', this.darkMode);
-  sessionStorage.setItem('showGutter', this.showGutter);
+p.optionChanged = function (uiOnlyOption) {
+  this.saveOptions();
+
   var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
   this.sourceEditor.setTheme(theme);
   this.wastEditor.setTheme(theme);
@@ -172,33 +211,23 @@ p.changeEditor = function changeEditor() {
   this.editors.forEach(function (editor) {
     editor.renderer.setShowGutter(self.showGutter);
   });
+
+  if (!uiOnlyOption) {
+    this.tryCompile();
+  }
 };
-p.changeAutoCompile = function changeAutoCompile() {
-  sessionStorage.setItem('autoCompile', this.autoCompile);
-};
-p.changeShowLLVM = function changeAutoCompile() {
-  sessionStorage.setItem('showLLVM', this.showLLVM);
-};
-p.changeDialect = function changeDialect() {
-  this.change();
-};
-p.changeTarget = function () {
-  
-};
+
 p.getSelectedDialectText = function() {
-  if (this.selectedDialect !== undefined) {
-    return this.selectedDialect;
+  if (this.dialect !== undefined) {
+    return this.dialect;
   } else {
     return "Dialects";
   }
 };
 
-p.changeOptimizationLevel = function changeOptimizationLevel() {
-  this.change();
-};
 p.getSelectedOptimizationLevelText = function() {
-  if (this.selectedOptimizationLevel !== undefined) {
-    return this.selectedOptimizationLevel;
+  if (this.optimizationLevel !== undefined) {
+    return this.optimizationLevel;
   } else {
     return "Optimization Levels";
   }
@@ -206,8 +235,9 @@ p.getSelectedOptimizationLevelText = function() {
 
 p.changeExample = function changeExample() {
   this.sourceEditor.setValue(cppExamples[this.selectedExample], -1);
-  this.change();
+  this.tryCompile();
 };
+
 p.getSelectedExampleText = function() {
   if (this.selectedExample !== undefined) {
     return this.selectedExample;
@@ -216,21 +246,20 @@ p.getSelectedExampleText = function() {
   }
 };
 
-p.changeCompilerOption = function changeCompilerOption() {
-  this.change();
-};
-p.change = function change() {
+p.tryCompile = function () {
   if (this.autoCompile) {
     this.compile();
   }
 };
-p.toggleMenu = function toggleMenu() {
-  this._mdSidenav("left").toggle();
+
+p.toggleOptions = function toggleOptions() {
+  this.showOptions = !this.showOptions;
+  this.saveOptions();
 };
+
 p.toggleLLVM = function toggleLLVM() {
   this.showLLVM = !this.showLLVM;
-  this.changeShowLLVM();
-  this.changeCompilerOption();
+  this.tryCompile();
   var self = this
   setTimeout(function () {
     self.resizeEditors();  
@@ -244,6 +273,43 @@ p.toggleConsole = function toggleConsole() {
     self.resizeEditors();  
   }, 200);
 };
+p.execute = function execute() {
+  var self = this;
+  var options = [];
+  var source = this.wastEditor.getValue();
+  if (source.trim() == "") {
+    return;
+  }
+
+  source = source.replace(/[\s^]+/g, " ");
+  source = source.replace(/\"/g, "'");
+  source = '"' + source + '"';
+
+  source = source.replace(/\"/g, "'");
+
+  // source.replace(/\"/g, "\\\"");
+  // source = "var wasm = wasmTextToBinary(\"" + source + "\");\n";
+  // source += "var exports = Wasm.instantiateModule(wasm, {}).exports;\n";
+  // source += "putstr(exports.main());\n";
+  
+  // var source = source.split("\n").map(function(s) {
+  //   return "\"" + s + "\\n\"";
+  // }).join("\n");
+  this.wastEditor.setValue(source);
+};
+
+p.gatherOptions = function() {
+  var options = [
+    "-std=" + this.dialect.toLowerCase(),
+    "-O" + this.optimizationLevel
+  ];
+  if (this.fastMath) options.push("-ffast-math");
+  if (this.noInline) options.push("-fno-inline");
+  if (this.noRTTI) options.push("-fno-rtti");
+  if (this.noExceptions) options.push("-fno-exceptions");
+  return options;
+};
+
 p.compile = function compile() {
   var self = this;
   var options = [];
@@ -252,19 +318,9 @@ p.compile = function compile() {
     return;
   }
   var inputString = encodeURIComponent(source).replace('%20', '+');
-  var actionString = this.selectedDialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wast" : "c2wast";
+  var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wast" : "c2wast";
 
-  // Gather Options
-  var options = [
-    "-std=" + this.selectedDialect.toLowerCase(),
-    "-O" + this.selectedOptimizationLevel
-  ];
-  if (this.fastMath) options.push("-ffast-math");
-  if (this.noInline) options.push("-fno-inline");
-  if (this.noRTTI) options.push("-fno-rtti");
-  if (this.noExceptions) options.push("-fno-exceptions");
-
-  var optionsString = encodeURIComponent(options.join(" "));
+  var optionsString = encodeURIComponent(this.gatherOptions().join(" "));
   self.sourceEditor.getSession().clearAnnotations();
   self.sendRequest("input=" + inputString + "&action=" + actionString + "&options=" + optionsString, function () {
     var wast = this.responseText;
@@ -298,7 +354,7 @@ p.compile = function compile() {
   }, "Compiling C/C++ to Wast");
 
   if (this.showLLVM) {
-    var actionString = this.selectedDialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2x86" : "c2x86";
+    var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2x86" : "c2x86";
     self.sendRequest("input=" + inputString + "&action=" + actionString + "&options=" + optionsString, function () {
       var x86 = this.responseText;
       self.llvmAssemblyEditor.setValue(x86, -1);
@@ -348,19 +404,24 @@ p.fileBug = function () {
 p.getShareUrl = function () {
   var self = this;
   var url = location.protocol + '//' + location.host + location.pathname;
+  var options = {};
+  booleanOptionNames.forEach(function (name) {
+    options[name] = self[name];
+  });
+  stringOptionNames.forEach(function (name) {
+    options[name] = self[name];
+  });
+  var source = self.sourceEditor.getValue();
+  var wast = self.wastEditor.getValue();
   var state = {
-    source: self.sourceEditor.getValue(),
-    wast: self.wastEditor.getValue(),
-    options: {
-      selectedExample: self.selectedExample,
-      selectedDialect: self.selectedDialect,
-      selectedOptimizationLevel: self.selectedOptimizationLevel,
-      fastMath: self.fastMath,
-      noInline: self.noInline,
-      noRTTI: self.noRTTI,
-      noExceptions: self.noExceptions
-    }
+    options: options
   };
+  if (source) {
+    // If we have C/C++ don't include the wast because it's usually too big.
+    state.source = source;
+  } else {
+    state.wast = wast;
+  }
   url += "?state=" + encodeURIComponent(JSON.stringify(state));
   return url;
 };
@@ -519,11 +580,6 @@ function setDefaultEditorSettings(editor, options) {
   editor.getSession().setUseSoftTabs(true);
   editor.getSession().setTabSize(2);
   editor.setShowPrintMargin(false);
-  editor.setOptions({
-    enableBasicAutocompletion: true,
-    enableSnippets: true,
-    enableLiveAutocompletion: true
-  });
   if (options) {
     editor.setOptions(options);
   }
@@ -611,7 +667,12 @@ p.createSourceEditor = function() {
   var self = this;
   this.sourceEditor = ace.edit("sourceCodeContainer");
   this.sourceEditor.getSession().setMode("ace/mode/c_cpp");
-  setDefaultEditorSettings(this.sourceEditor, {wrap: true});
+  setDefaultEditorSettings(this.sourceEditor, {
+    wrap: true, 
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+  });
   this.sourceEditor.commands.addCommand({
     name: 'compileCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
@@ -626,7 +687,12 @@ p.createSourceEditor = function() {
 p.createWastEditor = function() {
   var self = this;
   this.wastEditor = ace.edit("wastCodeContainer");
-  setDefaultEditorSettings(this.wastEditor, {wrap: true});
+  setDefaultEditorSettings(this.wastEditor, {
+    wrap: true, 
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+  });
   this.wastEditor.commands.addCommand({
     name: 'assembleCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
@@ -757,10 +823,7 @@ p.createConsoleEditor = function() {
   this.consoleEditor = ace.edit("consoleContainer");
   // this.consoleEditor.getSession().setMode("ace/mode/assembly_x86");
   setDefaultEditorSettings(this.consoleEditor, {
-    wrap: false, 
-    enableBasicAutocompletion: false,
-    enableSnippets: false,
-    enableLiveAutocompletion: false
+    wrap: false
   });
 }
 p.appendConsole = function(s) {

@@ -21,16 +21,16 @@
       <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear>
       <div>
         <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
-        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleMenu()" hide-gt-md>
+        <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="vm.toggleOptions()">
         <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
         </md-button>
         <span style="font-weight: bold;">WebAssembly Explorer</span>
         <span flex></span>
-        <span>v2.3</span>
+        <span>v2.4</span>
         </md-toolbar>
       </div>
       <div layout="row" flex>
-        <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" style="max-width: 240px; background-color: #F5F5F5;"">
+        <md-sidenav flex class="md-sidenav-left md-whiteframe-z2" md-component-id="left" style="max-width: 300px; background-color: #F5F5F5;" md-is-locked-open="vm.showOptions">
         <md-toolbar style="background-color: #757575">
         <div class="md-toolbar-tools">
           <h2>
@@ -40,51 +40,50 @@
         </md-toolbar>
         <md-content layout-padding style="background-color: #F5F5F5;">
         <form name="userForm">
-          <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile" ng-change="vm.changeAutoCompile()">
+          <md-switch class="md-primary" md-no-ink aria-label="Auto Compile" ng-model="vm.autoCompile" ng-change="vm.optionChanged()">
           <md-tooltip md-direction="top">
           Automatically compiles when an option is changed
           </md-tooltip>
           Auto Compile
           </md-switch>
 
-          <md-switch class="md-primary" md-no-ink aria-label="Show LLVM" ng-model="vm.showLLVM" ng-change="vm.changeShowLLVM()">
+          <md-switch class="md-primary" md-no-ink aria-label="Show LLVM" ng-model="vm.showLLVM" ng-change="vm.optionChanged()">
           <md-tooltip md-direction="top">
           Shoe LLVM x86 assembly generated from C/C++ directly.
           </md-tooltip>
           LLVM x86 Assembly
           </md-switch>
 
-          <label>Examples</label>
           <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()" ng-change="vm.changeExample()">
           <md-optgroup label="Examples">
           <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
           </md-optgroup>
           </md-select>
-          <label>Language</label>
-          <md-select ng-model="vm.selectedDialect" md-selected-text="vm.getSelectedDialectText()" ng-change="vm.changeDialect()">
+          
+          <md-select ng-model="vm.dialect" md-selected-text="vm.getSelectedDialectText()" ng-change="vm.optionChanged()">
           <md-optgroup label="Languages">
           <md-option ng-value="item" ng-repeat="item in vm.dialects">{{item}}</md-option>
           </md-optgroup>
           </md-select>
           <label>Optimization Level</label>
-          <md-select ng-model="vm.selectedOptimizationLevel" md-selected-text="vm.getSelectedOptimizationLevelText()" ng-change="vm.changeOptimizationLevel()">
+          <md-select ng-model="vm.optimizationLevel" md-selected-text="vm.getSelectedOptimizationLevelText()" ng-change="vm.optionChanged()">
           <md-optgroup label="Optimization Level">
           <md-option ng-value="item" ng-repeat="item in vm.optimizationLevels">{{item}}</md-option>
           </md-optgroup>
           </md-select>
-          <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-chfage="vm.changeCompilerOption()">
+          <md-checkbox ng-model="vm.fastMath" aria-label="Fast Math" ng-change="vm.optionChanged()">
           <md-tooltip md-direction="top">
           Lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.
           </md-tooltip>
           Fast Math
           </md-checkbox><br>
-          <md-checkbox ng-model="vm.noInline" aria-label="No Inline" ng-change="vm.changeCompilerOption()">
+          <md-checkbox ng-model="vm.noInline" aria-label="No Inline" ng-change="vm.optionChanged()">
           No Inline
           </md-checkbox><br>
-          <md-checkbox ng-model="vm.noRTTI" aria-label="No RTTI" ng-change="vm.changeCompilerOption()">
+          <md-checkbox ng-model="vm.noRTTI" aria-label="No RTTI" ng-change="vm.optionChanged()">
           No RTTI
           </md-checkbox><br>
-          <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.changeCompilerOption()">
+          <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.optionChanged()">
           No Exceptions
           </md-checkbox><br>
           
@@ -101,10 +100,10 @@
           </md-input-container>
           
           <label>Editor Options</label>
-          <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.changeEditor()">
+          <md-switch class="md-primary" md-no-ink aria-label="Dark Mode" ng-model="vm.darkMode" ng-change="vm.optionChanged(true)">
           Dark Mode
           </md-switch>
-          <md-switch class="md-primary" md-no-ink aria-label="Show Gutter" ng-model="vm.showGutter" ng-change="vm.changeEditor()">
+          <md-switch class="md-primary" md-no-ink aria-label="Show Gutter" ng-model="vm.showGutter" ng-change="vm.optionChanged(true)">
           Show Gutter
           </md-switch>
         </form>
@@ -116,13 +115,15 @@
             <div flex layout="column">
               <md-toolbar style="background-color: #e74c3c">
               <div class="md-toolbar-tools">
-                <span>{{vm.selectedDialect}}</span>
+                <span>{{vm.dialect}} -O{{vm.optimizationLevel}}</span>
                 <span flex></span>
                 <md-button ng-click="vm.compile($event)" class="md-raised">
                 <md-tooltip md-direction="top">
                 Compile C/C++ to Wast (Ctrl / Cmd + Enter)
                 </md-tooltip>
                 Compile</md-button>
+                <md-button ng-click="vm.execute($event)" class="md-raised">
+                Execute</md-button>
               </div>
               </md-toolbar>
               <div flex id="sourceCodeContainer"></div>
