@@ -138,7 +138,7 @@ p.loadOptionDefaults = function() {
   }
   set("showGutter", true);
   set("showConsole", true);
-  set("showOptions", false);
+  set("showOptions", true);
   set("autoCompile", true);
   set("showLLVM", false);
   set("darkMode", true);
