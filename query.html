@@ -61,7 +61,7 @@
         </div>
       </div>
 
-      <div layout="column">
+      <div flex layout="column">
           <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 34px;">
           <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
           <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
@@ -72,7 +72,7 @@
           <span flex></span>
           <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
           </md-toolbar>
-          <div style="height: 400px" id="consoleContainer" ng-show="vm.showConsole"></div>
+          <div flex id="consoleContainer" ng-show="vm.showConsole"></div>
         </div>
       </div>
 

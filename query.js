@@ -8,47 +8,51 @@ if (typeof assert === 'undefined') {
 }
 
 // Element list or string.
-function Element(str, dollared, quoted, code) {
-	this.list = null;
-	this.str = str === undefined ? null : str;
-	this.dollared = !!dollared;
-	this.quoted = !!quoted;
-	this.code = !!code;
+function Element(parent) {
+	this.parent = parent;
+	this.value = null;
+	this.dollared = false;
+	this.quoted = false;
+	this.code = false;
+	this.length = -1; // A length of 0 means an empty list, -1 is no list at all.
 }
 
+Element.prototype.push = function(child) {
+	if (this.length < 0) {
+		this.length = 0;
+	}
+	this[this.length++] = child;
+};
+
 Element.prototype.isSymbol = function() {
-	return this.str !== null;
+	return this.value !== null;
 };
 
 Element.prototype.isList = function() {
-	return this.str === null;
-};
-
-Element.prototype.isCode = function() {
-	return this.code;
+	return this.value === null;
 };
 
 Element.prototype.toString = function() {
-	if (this.str !== null) {
+	if (this.value !== null) {
 		if (this.dollared) {
-			return "$" + this.str;
+			return "$" + this.value;
 		}
 		if (this.quoted) {
-			return `"${this.str}"`;
+			return `"${this.value}"`;
 		}
 		if (this.code) {
-			return `"{${this.str}}"`;
+			return `"{${this.value}}"`;
 		}
-		return this.str;
+		return this.value;
 	}
-	return `(${this.list.map(x => x.toString()).join(" ")})`;
+	return `(${Array.prototype.map.call(this, x => x.toString()).join(" ")})`;
 };
 
 Element.prototype.visit = function(visitor) {
 	if (visitor(this)) {
-		if (this.list) {
-			for (var i = 0; i < this.list.length; i++) {
-				this.list[i].visit(visitor, i);
+		if (this.length > 0) {
+			for (var i = 0; i < this.length; i++) {
+				this[i].visit(visitor, i);
 			}
 		}
 	}
@@ -56,7 +60,6 @@ Element.prototype.visit = function(visitor) {
 
 function parseSExpression(text) {
 	var input = 0;
-
 	var commentDepth = 0;
 
 	function skipBlockComment() {
@@ -76,7 +79,7 @@ function parseSExpression(text) {
 		}
 	}
 
-	function parseInnerList() {
+	function parseInnerList(parent) {
 		if (text[input] === ';') {
 			// Parse comment.
 			input++;
@@ -93,16 +96,13 @@ function parseSExpression(text) {
 		}
 
 		var start = input;
-		var ret = new Element();
+		var element = new Element(parent);
 		while (true) {
-			var curr = parse();
-			if (!curr) {
-				return ret;
+			var child = parse(element);
+			if (!child) {
+				return element;
 			}
-			if (!ret.list) {
-				ret.list = [];
-			}
-			ret.list.push(curr);
+			element.push(child);
 		}
 	}
 
@@ -135,7 +135,7 @@ function parseSExpression(text) {
 		}
 	}
 
-	function parseString() {
+	function parseString(parent) {
 		var dollared = false;
 		var quoted = false;
 		if (text[input] === '$') {
@@ -161,7 +161,11 @@ function parseSExpression(text) {
 				input++;
 			}
 			input++;
-			return new Element(str, dollared, quoted);
+			var element = new Element(parent);
+			element.value = str;
+			element.dollared = dollared;
+			element.quoted = quoted;
+			return element;
 		} else if (text[input] === '{') {
 			var str = "";
 			input++;
@@ -172,7 +176,10 @@ function parseSExpression(text) {
 				}
 				str += text[input++];
 			}
-			return new Element(str, false, false, true);
+			var element = new Element(parent);
+			element.value = str;
+			element.code = true;
+			return element;
 		}
 		while (text.length > input &&
 			!isSpace(text[input]) &&
@@ -180,11 +187,13 @@ function parseSExpression(text) {
 			text[input] != '(') {
 			input++;
 		}
-
-		return new Element(text.substring(start, input), dollared);
+		var element = new Element(parent);
+		element.value = text.substring(start, input);
+		element.dollared = dollared;
+		return element;
 	}
 
-	function parse() {
+	function parse(parent) {
 		skipWhitespace();
 
 		if (text.length === input || text[input] === ')')
@@ -192,44 +201,50 @@ function parseSExpression(text) {
 
 		if (text[input] === '(') {
 			input++;
-			var ret = parseInnerList();
+			var child = parseInnerList(parent);
 			skipWhitespace();
 			assert(text[input] === ')', 'inner list ends with a )');
 			input++;
-			return ret;
+			return child;
 		}
 
-		return parseString();
+		return parseString(parent);
 	}
 
 	var root = null;
 	while (!root) { // Keep parsing until we pass an initial comment.
-		root = parseInnerList();
+		root = parseInnerList(null);
 	}
 	return root;
 }
 
 function compile(ref, node, i) {
 	if (node.isList()) {
-		return `${ref}.isList() && (${compileList(ref, node.list)})`;
-	} else if (node.str === "*") {
+		return `${ref}.isList() && (${compileList(ref, node)})`;
+	} else if (node.value === "*") {
 		return `true`;
-	} else if (node.isCode()) {
-		return node.str.replace(/\$/g, function () {
-			return `(${ref}.list[${i}].str)`;
+	} else if (node.code) {
+		if (node.value[0] == "/") {
+			return node.value + `.test((${ref}[${i}]).value)`;
+			// `(${ref}[${i}]).value`
+			// return true;
+		}
+		return node.value.replace(/\$/g, function () {
+			return `(${ref}[${i}])`;
 		}); 
 	} else if (i === undefined) {
-		return `${ref}.str === "${node.str}"`;
+		return `${ref}.value === "${node.value}"`;
 	} else {
-		return `${ref}.list[${i}].str === "${node.str}"`;
+		return `${ref}[${i}].value === "${node.value}"`;
 	}
 }
+
 function compileList(ref, list) {
-	return list.map(function (node, i) {
-		if (node.isList()) {
-			var child = ref + "$";
-			return `(${child} = ${ref}.list[${i}], ${compile(child, node, i)})`;
+	return Array.prototype.map.call(list, function (child, i) {
+		if (child.isList()) {
+			var childRef = ref + "$";
+			return `(${childRef} = ${ref}[${i}], ${compile(childRef, child, i)})`;
 		}
-		return compile(ref, node, i);
+		return compile(ref, child, i);
 	}).join(" && ");
 }

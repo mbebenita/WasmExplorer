@@ -911,6 +911,8 @@ p.createSourceEditor = function() {
     )
     (i32.const 6)
   )
+  (set_local $a (get_local $a))
+  (set_local $a (get_local $b))
 )`, -1);
 };
 p.getSelectedExampleText = function() {
@@ -942,7 +944,14 @@ p.createQueryEditor = function() {
 
 ;; Match all (i32.add) s-expressions where the right hand side is a
 ;; constant larger than 4.
-(i32.add * (i32.const {$>4}))
+;; (i32.add * (i32.const {$>4}))
+
+;; Match using regular expressions.
+;; ({/i32/})
+
+;; Match copy local.
+(set_local * (get_local {$.parent.parent[1].value == $.value}))
+
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
@@ -957,7 +966,7 @@ p.createConsoleEditor = function() {
   this.consoleEditor = ace.edit("consoleContainer");
   setDefaultEditorSettings(this.consoleEditor, {
     wrap: false
-  });
+  }); 
   this.consoleEditor.setFontSize(12);
 }
 p.appendConsole = function(s) {
@@ -966,7 +975,8 @@ p.appendConsole = function(s) {
 p.run = function () {
   var self = this;
   var queryText = this.queryEditor.getValue();
-  var query = parseSExpression(queryText).list[0];
+  var queryAst = parseSExpression(queryText);
+  var query = queryAst[0];
   if (!query) {
     return;
   }
@@ -982,7 +992,7 @@ p.run = function () {
     xhr.addEventListener("load", function () {
       go(this.responseText);
     });
-    xhr.open("GET", this.selectedExample, false);
+    xhr.open("GET", this.selectedExample, true);
     xhr.send();
   } else {
     go(this.wastEditor.getValue());
