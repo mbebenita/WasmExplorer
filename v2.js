@@ -993,7 +993,6 @@ p.run = function () {
     var ast = parseSExpression(source);
     var max = 16;
     var count = 0;
-    start = performance.now();
     ast.visit(function (node) {
       if (queryFn(node)) {
         if (count < max) {
