@@ -935,23 +935,27 @@ p.createQueryEditor = function() {
 ;; Match all (i32.add) s-expressions.
 ;; (i32.add)
 
-;; Match all (i32.add) s-expressions where the left hand
-;; side is an  (i32.add) expression.
+;; Match all (i32.add) s-expressions where the left hand side is an (i32.add) expression.
 ;; (i32.add (i32.add) *)
 
 ;; Match copy local.
 ;; (set_local * (get_local *))
 
-;; Match all (i32.add) s-expressions where the right hand side is a
-;; constant larger than 4.
-;; (i32.add * (i32.const {$>4}))
+;; Match all (i32.add) s-expressions where the right hand side is a constant larger than 4. 
+;; The $ sigil refers to the current expression. You can access the |value| property to
+;; refer to its text value.
+;; (i32.add * (i32.const {$.value>4}))
+
+;; Match all (set_local) where the value of the first child of the right hand side is "get_local". 
+;; There are easier way to do this but this shows how you can access child nodes using [].
+;; (set_local * {$[0].value == "get_local"})
 
 ;; Match using regular expressions.
 ;; ({/i32/})
 
-;; Match copy local.
+;; Match copy local. The |parent| property can be used to refer to expressions up the tree.
+;; Here we're matching get_local's right hand side to set_local's left hand side.
 (set_local * (get_local {$.parent.parent[1].value == $.value}))
-
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
