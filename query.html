@@ -32,28 +32,24 @@
       </div>
 
       <div flex layout="row">
-        <div flex layout="column">
+        <div flex layout="column" style="background-color: #272822">
           <md-toolbar style="background-color: #e74c3c">
           <div class="md-toolbar-tools">
-            Wast Source
-            <span></span>
-            <span flex></span>
-
+            <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()">
+            <md-optgroup label="Examples">
+            <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
+            </md-optgroup>
+            </md-select>
           </div>
           </md-toolbar>
-          <div flex id="wastContainer"></div>
+          <div flex id="wastContainer" ng-show='vm.selectedExample ==="Wast Source"'></div>
         </div>
         <div flex layout="column">
           <md-toolbar style="background-color: #e74c3c">
           <div class="md-toolbar-tools">
             <span></span>
             <span flex></span>
-            <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()">
-            <md-optgroup label="Examples">
-            <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
-            </md-optgroup>
-            </md-select>
-
+            
             <md-button ng-click="vm.run($event)" class="md-raised">
             <md-tooltip md-direction="top">
             Run Query

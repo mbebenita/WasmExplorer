@@ -9,7 +9,7 @@ if (typeof assert === 'undefined') {
 
 // Element list or string.
 function Element(str, dollared, quoted, code) {
-	this.list = [];
+	this.list = null;
 	this.str = str === undefined ? null : str;
 	this.dollared = !!dollared;
 	this.quoted = !!quoted;
@@ -46,17 +46,13 @@ Element.prototype.toString = function() {
 
 Element.prototype.visit = function(visitor) {
 	if (visitor(this)) {
-		if (this.list.length) {
+		if (this.list) {
 			for (var i = 0; i < this.list.length; i++) {
 				this.list[i].visit(visitor, i);
 			}
 		}
 	}
 };
-
-var countLines = function() {
-	return -1;
-}
 
 function parseSExpression(text) {
 	var input = 0;
@@ -101,8 +97,10 @@ function parseSExpression(text) {
 		while (true) {
 			var curr = parse();
 			if (!curr) {
-				ret.lineno = countLines(text, input);
 				return ret;
+			}
+			if (!ret.list) {
+				ret.list = [];
 			}
 			ret.list.push(curr);
 		}

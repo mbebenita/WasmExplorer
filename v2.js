@@ -885,8 +885,8 @@ function WasmExplorerQueryAppCtrl($scope) {
   this.createQueryEditor();
   this.createConsoleEditor();
   this.setTheme();
-  this.examples = ["Source", "ab.wast", "bb.wast"];
-  this.selectedExample = "Source";
+  this.examples = ["Wast Source", "ab.wast", "bb.wast"];
+  this.selectedExample = "Wast Source";
 };
 
 var p = WasmExplorerQueryAppCtrl.prototype;
@@ -970,11 +970,10 @@ p.run = function () {
   var queryFn = new Function("$", "  return " + queryExpression + ";");
 
   this.appendConsole("Running Query: " + query + " on " + this.selectedExample);
-  this.appendConsole("Compiled Query: " + queryFn);
+  this.appendConsole("Compiled Query: " + queryExpression);
   this.appendConsole("");
 
-  
-  if (this.selectedExample !== "Source") {
+  if (this.selectedExample !== "Wast Source") {
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function () {
       go(this.responseText);
@@ -984,17 +983,18 @@ p.run = function () {
   } else {
     go(this.wastEditor.getValue());
   }
-
   
   function go(source) {
+    var start = performance.now();
     var ast = parseSExpression(source);
-
+    var max = 16;
     var count = 0;
+    start = performance.now();
     ast.visit(function (node) {
       if (queryFn(node)) {
-        if (count < 10) {
+        if (count < max) {
           self.appendConsole(String(count) + ": " + node);
-        } else if (count === 10){
+        } else if (count === max) {
           self.appendConsole("...");
         }
         count++;
@@ -1002,6 +1002,6 @@ p.run = function () {
       return true;
     });
     self.appendConsole("");
-    self.appendConsole("" + count + " expressions found\n");
+    self.appendConsole("" + count + " expressions found in " + (performance.now() - start).toFixed(2) + "ms\n");
   }
 };
