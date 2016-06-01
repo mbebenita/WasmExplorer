@@ -873,3 +873,135 @@ function shortenUrl(url, done) {
     done(url);
   });
 }
+
+
+
+angular.module('WasmExplorerQueryApp', ['ngMaterial']).controller('WasmExplorerQueryAppCtrl', WasmExplorerQueryAppCtrl);
+
+function WasmExplorerQueryAppCtrl($scope) {
+  this.darkMode = true;
+  this.showConsole = true;
+  this.createSourceEditor();
+  this.createQueryEditor();
+  this.createConsoleEditor();
+  this.setTheme();
+  this.examples = ["Source", "ab.wast", "bb.wast"];
+  this.selectedExample = "Source";
+};
+
+var p = WasmExplorerQueryAppCtrl.prototype;
+p.setTheme = function() {
+  var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
+  this.wastEditor.setTheme(theme);
+  this.consoleEditor.setTheme(theme);
+  this.queryEditor.setTheme(theme);
+};
+p.createSourceEditor = function() {
+  var self = this;
+  this.wastEditor = ace.edit("wastContainer");
+  setDefaultEditorSettings(this.wastEditor, {
+    wrap: false
+  });
+  this.wastEditor.setFontSize(12);
+  this.wastEditor.setValue(`(set_local $0
+  (i32.add
+    (i32.add
+      (get_local $0)
+      (i32.const 2)
+    )
+    (i32.const 6)
+  )
+)`, -1);
+};
+p.getSelectedExampleText = function() {
+  if (this.selectedExample !== undefined) {
+    return this.selectedExample;
+  } else {
+    return "Examples";
+  }
+};
+p.createQueryEditor = function() {
+  var self = this;
+  this.queryEditor = ace.edit("queryContainer");
+  setDefaultEditorSettings(this.queryEditor, {
+    
+  });
+  this.queryEditor.setFontSize(12);
+  this.queryEditor.setValue(`;; Match all s-expressions.
+;; *
+
+;; Match all (i32.add) s-expressions.
+;; (i32.add)
+
+;; Match all (i32.add) s-expressions where the left hand
+;; side is an  (i32.add) expression.
+;; (i32.add (i32.add) *)
+
+;; Match all (i32.add) s-expressions where the right hand side is a
+;; constant larger than 4;
+(i32.add * (i32.const {$>4}))`, -1);
+  this.queryEditor.commands.addCommand({
+    name: 'runCommand',
+    bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
+    exec: function(editor) {
+      self.run();
+    },
+    readOnly: true
+  });
+}
+p.createConsoleEditor = function() {
+  this.consoleEditor = ace.edit("consoleContainer");
+  setDefaultEditorSettings(this.consoleEditor, {
+    wrap: false
+  });
+  this.consoleEditor.setFontSize(12);
+}
+p.appendConsole = function(s) {
+  this.consoleEditor.insert(s + "\n");
+};
+p.run = function () {
+  var self = this;
+  var queryText = this.queryEditor.getValue();
+  var query = parseSExpression(queryText).list[0];
+  if (!query) {
+    return;
+  }
+  var queryExpression = compile("$", query);
+  var queryFn = new Function("$", "  return " + queryExpression + ";");
+
+  this.appendConsole("Running Query: " + query + " on " + this.selectedExample);
+  this.appendConsole("Compiled Query: " + queryFn);
+  this.appendConsole("");
+
+  
+  if (this.selectedExample !== "Source") {
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function () {
+      go(this.responseText);
+    });
+    xhr.open("GET", this.selectedExample, false);
+    xhr.send();
+  } else {
+    go(this.wastEditor.getValue());
+  }
+
+  
+  function go(source) {
+    var ast = parseSExpression(source);
+
+    var count = 0;
+    ast.visit(function (node) {
+      if (queryFn(node)) {
+        if (count < 10) {
+          self.appendConsole(String(count) + ": " + node);
+        } else if (count === 10){
+          self.appendConsole("...");
+        }
+        count++;
+      }
+      return true;
+    });
+    self.appendConsole("");
+    self.appendConsole("" + count + " expressions found\n");
+  }
+};

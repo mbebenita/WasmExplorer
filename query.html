@@ -1,0 +1,102 @@
+<html lang="en" >
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
+    <script src="lib/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/src-min-noconflict/ext-language_tools.js"></script>
+    
+    <script src="lib/base64.js"></script>
+    <script src="x86Reference/ref.js"></script>
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    </head>
+    <body ng-app="WasmExplorerQueryApp" ng-cloak layout="column" ng-controller="WasmExplorerQueryAppCtrl as vm">
+      <style type="text/css">
+      
+      i { vertical-align: middle !important; }
+
+      .ace_tooltip {
+        font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+      }
+      </style>
+      <!-- <md-progress-linear  md-mode="{{vm.progressMode}}"></md-progress-linear> -->
+      <div>
+        <md-toolbar class="md-toolbar-tools" style="background-color: #424242;">
+        
+        <span style="font-weight: bold;">WebAssembly Query</span>
+        <span flex></span>
+        <span>v1</span>
+        </md-toolbar>
+      </div>
+
+      <div flex layout="row">
+        <div flex layout="column">
+          <md-toolbar style="background-color: #e74c3c">
+          <div class="md-toolbar-tools">
+            Wast Source
+            <span></span>
+            <span flex></span>
+
+          </div>
+          </md-toolbar>
+          <div flex id="wastContainer"></div>
+        </div>
+        <div flex layout="column">
+          <md-toolbar style="background-color: #e74c3c">
+          <div class="md-toolbar-tools">
+            <span></span>
+            <span flex></span>
+            <md-select ng-model="vm.selectedExample" md-selected-text="vm.getSelectedExampleText()">
+            <md-optgroup label="Examples">
+            <md-option ng-value="item" ng-repeat="item in vm.examples">{{item}}</md-option>
+            </md-optgroup>
+            </md-select>
+
+            <md-button ng-click="vm.run($event)" class="md-raised">
+            <md-tooltip md-direction="top">
+            Run Query
+            </md-tooltip>
+            Run</md-button>
+          </div>
+          </md-toolbar>
+          <div flex id="queryContainer"></div>
+        </div>
+      </div>
+
+      <div layout="column">
+          <md-toolbar class="md-toolbar-tools" style="background-color: #424242; min-height: 20px; height: 34px;">
+          <md-button ng-click="vm.toggleConsole($event)" class="md-icon-button">
+          <i class="material-icons">{{vm.showConsole ? "expand_more" : "expand_less"}}</i>
+          </md-button>
+          <span class="md-subhead">
+            Console
+          </span>
+          <span flex></span>
+          <span class="md-body-2">{{vm.consoleEditor.session.getLength()}}</span>
+          </md-toolbar>
+          <div style="height: 400px" id="consoleContainer" ng-show="vm.showConsole"></div>
+        </div>
+      </div>
+
+      <style type="text/css">
+      
+      </style>
+      
+      <!-- Angular Material requires Angular.js Libraries -->
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
+      <!-- Angular Material Library -->
+      <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
+      
+      <script src="v2.js"></script>
+      <script src="query.js"></script>
+      <div style="position: absolute; top: 0px; right: 0x; width: 0px; height: 0px; overflow: hidden;">
+        <a id="downloadLink" href="" download="test.wasm"></a>
+      </div>
+      
+    </body>
+  </html>
