@@ -937,9 +937,13 @@ p.createQueryEditor = function() {
 ;; side is an  (i32.add) expression.
 ;; (i32.add (i32.add) *)
 
+;; Match copy local.
+;; (set_local * (get_local *))
+
 ;; Match all (i32.add) s-expressions where the right hand side is a
-;; constant larger than 4;
-(i32.add * (i32.const {$>4}))`, -1);
+;; constant larger than 4.
+(i32.add * (i32.const {$>4}))
+`, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
