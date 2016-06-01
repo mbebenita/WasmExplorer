@@ -913,6 +913,7 @@ p.createSourceEditor = function() {
   )
   (set_local $a (get_local $a))
   (set_local $a (get_local $b))
+  (set_local $a (i32.add (get_local $a) (i32.const 0)))
 )`, -1);
 };
 p.getSelectedExampleText = function() {
@@ -953,9 +954,8 @@ p.createQueryEditor = function() {
 ;; Match using regular expressions.
 ;; ({/i32/})
 
-;; Match copy local. The |parent| property can be used to refer to expressions up the tree.
-;; Here we're matching get_local's right hand side to set_local's left hand side.
-(set_local * (get_local {$.parent.parent[1].value == $.value}))
+;; Match increment local. The |parent| property can be used to refer to expressions up the tree.
+(set_local * (i32.add (get_local {$.parent.parent.parent[1].value == $.value}) (i32.const *)))
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
