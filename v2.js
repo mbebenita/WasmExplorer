@@ -18,6 +18,22 @@ function match(re, text, group) {
   }
 }
 
+function padRight(s, n, c) {
+  s = String(s);
+  while (s.length < n) {
+    s = s + c;
+  }
+  return s;
+}
+
+function padLeft(s, n, c) {
+  s = String(s);
+  while (s.length < n) {
+    s = c + s;
+  }
+  return s;
+}
+
 var x86JumpInstructions = [
   "jmp", "ja", "jae", "jb", "jbe", "jc", "je", "jg", "jge", "jl", "jle", "jna", "jnae", 
   "jnb", "jnbe", "jnc", "jne", "jng", "jnge", "jnl", "jnle", "jno", "jnp", "jns", "jnz", 
@@ -513,20 +529,6 @@ p.assemble = function assemble() {
       self.buildDownload();
     }, "Compiling .wast to x86");
 
-    function padRight(s, n, c) {
-      while (s.length < n) {
-        s = s + c;
-      }
-      return s;
-    }
-
-    function padLeft(s, n, c) {
-      while (s.length < n) {
-        s = c + s;
-      }
-      return s;
-    }
-
     function toBytes(a) {
       return a.map(function (x) { return padLeft(Number(x).toString(16), 2, "0"); }).join(" ");
     }
@@ -903,6 +905,7 @@ p.createSourceEditor = function() {
     wrap: false
   });
   this.wastEditor.setFontSize(12);
+  this.wastEditor.$blockScrolling = Infinity;
   this.wastEditor.setValue(`(set_local $0
   (i32.add
     (i32.add
@@ -911,10 +914,12 @@ p.createSourceEditor = function() {
     )
     (i32.const 6)
   )
-  (set_local $a (get_local $a))
-  (set_local $a (get_local $b))
-  (set_local $a (i32.add (get_local $a) (i32.const 0)))
-)`, -1);
+)
+(set_local $a (get_local $a))
+(set_local $a (get_local $b))
+(set_local $a (i32.add (get_local $a) (i32.const 0)))
+(set_local $a (i32.add (get_local $a) (i32.const 0)))
+`, -1);
 };
 p.getSelectedExampleText = function() {
   if (this.selectedExample !== undefined) {
@@ -930,32 +935,39 @@ p.createQueryEditor = function() {
     
   });
   this.queryEditor.setFontSize(12);
+  this.queryEditor.$blockScrolling = Infinity;
   this.queryEditor.setValue(`;; Match all s-expressions.
-;; *
+*
 
 ;; Match all (i32.add) s-expressions.
-;; (i32.add)
+(i32.add)
 
 ;; Match all (i32.add) s-expressions where the left hand side is an (i32.add) expression.
-;; (i32.add (i32.add) *)
+(i32.add (i32.add) *)
 
 ;; Match copy local.
-;; (set_local * (get_local *))
+(set_local * (get_local *))
 
 ;; Match all (i32.add) s-expressions where the right hand side is a constant larger than 4. 
 ;; The $ sigil refers to the current expression. You can access the |value| property to
 ;; refer to its text value.
-;; (i32.add * (i32.const {$.value>4}))
+(i32.add * (i32.const {$.value>4}))
 
 ;; Match all (set_local) where the value of the first child of the right hand side is "get_local". 
 ;; There are easier way to do this but this shows how you can access child nodes using [].
-;; (set_local * {$[0].value == "get_local"})
+(set_local * {$[0].value == "get_local"})
 
 ;; Match using regular expressions.
-;; ({/i32/})
+({/i32/})
 
 ;; Match increment local. The |parent| property can be used to refer to expressions up the tree.
 (set_local * (i32.add (get_local {$.parent.parent.parent[1].value == $.value}) (i32.const *)))
+
+;; Compute a histogram of all i32.constants using the |histogram| helper function.
+(i32.const {histogram("A", parseInt($.value))})
+
+;; Histogram of all i32.XXX operations.
+({/i32/} {histogram("i32.xxx", $.parent[0])})
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
@@ -972,25 +984,81 @@ p.createConsoleEditor = function() {
     wrap: false
   }); 
   this.consoleEditor.setFontSize(12);
+  this.consoleEditor.$blockScrolling = Infinity;
 }
 p.appendConsole = function(s) {
   this.consoleEditor.insert(s + "\n");
+  this.consoleEditor.gotoLine(Infinity); 
+
+  // this.consoleEditor.selection.moveTo(Infinity, Infinity);
 };
+
+var histograms = {};
+function histogram(name, value) {
+  if (!histograms[name]) {
+    histograms[name] = {};
+  }
+  if (!histograms[name].hasOwnProperty(value)) {
+    histograms[name][value] = 0;
+  }
+  histograms[name][value] ++;
+  return true;
+}
+
+function printHistograms() {
+  var names = Object.getOwnPropertyNames(histograms);
+  names.forEach(name => {
+    var histogramText = "Histogram " + name;
+    print(histogramText);
+    print("-".repeat(histogramText.length))
+    var histogram = histograms[name];
+    var keyValuePairs = [];
+    var maxKeyLength = 4;
+    var maxValueLength = 0;
+    var sum = 0;
+    var ignore = 0;
+    var ignoreSum = 0;
+    var ignoreThreshold = 0.001;
+    for (var key in histogram) {
+      sum += histogram[key];
+    }
+    for (var key in histogram) {
+      var percent = histogram[key] / sum;
+      if (percent < ignoreThreshold) {
+        ignore ++;
+        ignoreSum += histogram[key];
+        continue;
+      }
+      keyValuePairs.push([key, histogram[key]]);
+      maxKeyLength = Math.max(maxKeyLength, key.length);
+      maxValueLength = Math.max(maxValueLength, String(histogram[key]).length);
+    }
+    maxValueLength = Math.max(maxValueLength, String(ignore).length);
+    var sortedKeyValuePairs = keyValuePairs.sort(function (a, b) {
+      return b[1] - a[1];
+    });
+    sortedKeyValuePairs.forEach(pair => {
+      var percent = pair[1] / sum;
+      if (percent > ignoreThreshold) {
+        print(padLeft(pair[0], maxKeyLength, " ") + " " + padRight(pair[1], maxValueLength, " ") + " " + (percent * 100).toFixed(2) + "%");
+      }
+    });
+    if (ignore) {
+      print(padLeft("< " + (ignoreThreshold * 100).toFixed(2) + "%", maxKeyLength, " ")  + " " + padRight(ignore, maxValueLength, " ") + " " + (ignoreSum / sum * 100).toFixed(2) + "%");
+    }
+  });
+}
+
 p.run = function () {
   var self = this;
+  window.print = function (message) {
+    self.appendConsole(message);
+  };
+
+  window.histogram = histogram; 
   var queryText = this.queryEditor.getValue();
   var queryAst = parseSExpression(queryText);
-  var query = queryAst[0];
-  if (!query) {
-    return;
-  }
-  var queryExpression = compile("$", query);
-  var queryFn = new Function("$", "  return " + queryExpression + ";");
-
-  this.appendConsole("Running Query: " + query + " on " + this.selectedExample);
-  this.appendConsole("Compiled Query: " + queryExpression);
-  this.appendConsole("");
-
+  
   if (this.selectedExample !== "Wast Source") {
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function () {
@@ -998,27 +1066,67 @@ p.run = function () {
     });
     xhr.open("GET", this.selectedExample, true);
     xhr.send();
+    self.appendConsole("Downloading " + this.selectedExample + ", this may take a while ...");
   } else {
     go(this.wastEditor.getValue());
   }
   
+  function dotify(text, length) {
+    if (text.length > length) {
+      return text.substring(0, length - 4) + " ...";
+    }
+    return text;
+  }
   function go(source) {
-    var start = performance.now();
     var ast = parseSExpression(source);
-    var max = 16;
-    var count = 0;
-    ast.visit(function (node) {
-      if (queryFn(node)) {
-        if (count < max) {
-          self.appendConsole(String(count) + ": " + node);
-        } else if (count === max) {
-          self.appendConsole("...");
+    self.appendConsole("Parsing AST, please wait ...");
+    setTimeout(function () {
+      ast = parseSExpression(source);
+      runQueries();
+    }, 1);
+    
+    var i = 0; 
+    function runQueries() {
+      var queries = Array.prototype.map.call(queryAst, x => x);
+      function next() {
+        var query = queries.shift();
+        if (!query) {
+          return;
         }
-        count++;
+        i++;
+        histograms = {};
+        var queryExpression = compile("$", query);
+        try {
+          var queryFn = new Function("$", "  return " + queryExpression + ";");
+          var queryMessage = `Executing Query ${i}: ` + dotify(String(query), 128);
+        } catch (x) {
+          self.appendConsole(x);
+          setTimeout(next, 1);
+          return;
+        }
+        self.appendConsole(queryMessage);
+        self.appendConsole("-".repeat(queryMessage.length));
+
+        var start = performance.now();
+        var max = 16;
+        var count = 0;
+        ast.visit(function (node) {
+          if (queryFn(node)) {
+            if (count < max) {
+              self.appendConsole(String(count) + ": " + node);
+            } else if (count === max) {
+              self.appendConsole("...");
+            }
+            count++;
+          }
+          return true;
+        });
+        self.appendConsole("-".repeat(queryMessage.length));
+        self.appendConsole(count + " expressions found in " + (performance.now() - start).toFixed(2) + "ms\n");
+        printHistograms();
+        setTimeout(next, 1);
       }
-      return true;
-    });
-    self.appendConsole("");
-    self.appendConsole("" + count + " expressions found in " + (performance.now() - start).toFixed(2) + "ms\n");
+      next();
+    }
   }
 };

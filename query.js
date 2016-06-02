@@ -226,10 +226,11 @@ function compile(ref, node, i) {
 	} else if (node.code) {
 		if (node.value[0] == "/") {
 			return node.value + `.test((${ref}[${i}]).value)`;
-			// `(${ref}[${i}]).value`
-			// return true;
 		}
 		return node.value.replace(/\$/g, function () {
+			if (i === undefined) {
+				return `(${ref})`;	
+			}
 			return `(${ref}[${i}])`;
 		}); 
 	} else if (i === undefined) {
