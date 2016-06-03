@@ -889,6 +889,7 @@ function WasmExplorerQueryAppCtrl($scope) {
   this.setTheme();
   this.examples = ["Wast Source", "ab.wast", "bb.wast"];
   this.selectedExample = "Wast Source";
+  this.selectedExampleAST = {};
 };
 
 var p = WasmExplorerQueryAppCtrl.prototype;
@@ -1060,15 +1061,30 @@ p.run = function () {
   var queryAst = parseSExpression(queryText);
   
   if (this.selectedExample !== "Wast Source") {
-    var xhr = new XMLHttpRequest();
-    xhr.addEventListener("load", function () {
-      go(this.responseText);
-    });
-    xhr.open("GET", this.selectedExample, true);
-    xhr.send();
-    self.appendConsole("Downloading " + this.selectedExample + ", this may take a while ...");
+    var ast = this.selectedExampleAST[this.selectedExample];
+    if (ast) {
+      go(ast)
+    } else {
+      var xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", function () {
+        var source = this.responseText;
+        self.appendConsole("Parsing AST, please wait ...");
+        setTimeout(function () {
+          ast = parseSExpression(source);  
+          self.selectedExampleAST[self.selectedExample] = ast;
+          go(ast);
+        }, 1);
+      });
+      xhr.open("GET", this.selectedExample, true);
+      xhr.send();
+      self.appendConsole("Downloading " + this.selectedExample + ", this may take a while ...");  
+    }
+    
   } else {
-    go(this.wastEditor.getValue());
+    setTimeout(function () {
+      var ast = parseSExpression(self.wastEditor.getValue());  
+      go(ast);
+    }, 1);
   }
   
   function dotify(text, length) {
@@ -1077,23 +1093,16 @@ p.run = function () {
     }
     return text;
   }
-  function go(source) {
-    var ast = parseSExpression(source);
-    self.appendConsole("Parsing AST, please wait ...");
-    setTimeout(function () {
-      ast = parseSExpression(source);
-      runQueries();
-    }, 1);
-    
-    var i = 0; 
+  function go(ast) {
+    runQueries();
     function runQueries() {
+      var i = 0; 
       var queries = Array.prototype.map.call(queryAst, x => x);
       function next() {
         var query = queries.shift();
         if (!query) {
           return;
         }
-        i++;
         histograms = {};
         var queryExpression = compile("$", query);
         try {
@@ -1104,6 +1113,7 @@ p.run = function () {
           setTimeout(next, 1);
           return;
         }
+        i++;
         self.appendConsole(queryMessage);
         self.appendConsole("-".repeat(queryMessage.length));
 
