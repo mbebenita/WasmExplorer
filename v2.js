@@ -979,6 +979,10 @@ p.createQueryEditor = function() {
 ;; to "function" then print that ancestor's second expression. This effectively prints out the
 ;; name of the function where the expression appears.
 (f32.add { print(findAncestor($, "func", 0)[1]) })
+
+;; You could also combine this with a histogram.
+(f32.add { histogram("A", findAncestor($, "func", 0)[1]) })
+
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
