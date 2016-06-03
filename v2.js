@@ -907,20 +907,25 @@ p.createSourceEditor = function() {
   });
   this.wastEditor.setFontSize(12);
   this.wastEditor.$blockScrolling = Infinity;
-  this.wastEditor.setValue(`(set_local $0
-  (i32.add
+  this.wastEditor.setValue(`(function foo
+  (set_local $0
     (i32.add
-      (get_local $0)
-      (i32.const 2)
+      (i32.add
+        (get_local $0)
+        (i32.const 2)
+      )
+      (i32.const 6)
     )
-    (i32.const 6)
   )
+  (set_local $a (get_local $a))
+  (set_local $a (get_local $b))
+  (set_local $a (i32.add (get_local $a) (i32.const 0)))
+  (set_local $a (i32.add (get_local $a) (i32.const 0)))
+  (f32.add $a (get_local $a))
 )
-(set_local $a (get_local $a))
-(set_local $a (get_local $b))
-(set_local $a (i32.add (get_local $a) (i32.const 0)))
-(set_local $a (i32.add (get_local $a) (i32.const 0)))
-`, -1);
+(function bar
+  (f32.add $a (get_local $a))
+)`, -1);
 };
 p.getSelectedExampleText = function() {
   if (this.selectedExample !== undefined) {
@@ -969,6 +974,11 @@ p.createQueryEditor = function() {
 
 ;; Histogram of all i32.XXX operations.
 ({/i32/} {histogram("i32.xxx", $.parent[0])})
+
+;; Match all (f32.add) expressions and find the first ancestor whose first expression is equal 
+;; to "function" then print that ancestor's second expression. This effectively prints out the
+;; name of the function where the expression appears.
+(f32.add { print(findAncestor($, "function", 0)[1]) })
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
@@ -1050,6 +1060,17 @@ function printHistograms() {
   });
 }
 
+function findAncestor(node, value, index) {
+  index = index === undefined ? 0 : index;
+  while (node) {
+    if (node[index] == value) {
+      return node;
+    }
+    node = node.parent;
+  }
+  return;
+}
+
 p.run = function () {
   var self = this;
   window.print = function (message) {
@@ -1068,7 +1089,7 @@ p.run = function () {
       var xhr = new XMLHttpRequest();
       xhr.addEventListener("load", function () {
         var source = this.responseText;
-        self.appendConsole("Parsing AST, please wait ...");
+        self.appendConsole("Parsing and Caching AST, please wait ...");
         setTimeout(function () {
           ast = parseSExpression(source);  
           self.selectedExampleAST[self.selectedExample] = ast;
