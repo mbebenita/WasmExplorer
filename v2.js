@@ -907,7 +907,7 @@ p.createSourceEditor = function() {
   });
   this.wastEditor.setFontSize(12);
   this.wastEditor.$blockScrolling = Infinity;
-  this.wastEditor.setValue(`(function foo
+  this.wastEditor.setValue(`(func foo
   (set_local $0
     (i32.add
       (i32.add
@@ -923,7 +923,7 @@ p.createSourceEditor = function() {
   (set_local $a (i32.add (get_local $a) (i32.const 0)))
   (f32.add $a (get_local $a))
 )
-(function bar
+(func bar
   (f32.add $a (get_local $a))
 )`, -1);
 };
@@ -978,7 +978,7 @@ p.createQueryEditor = function() {
 ;; Match all (f32.add) expressions and find the first ancestor whose first expression is equal 
 ;; to "function" then print that ancestor's second expression. This effectively prints out the
 ;; name of the function where the expression appears.
-(f32.add { print(findAncestor($, "function", 0)[1]) })
+(f32.add { print(findAncestor($, "func", 0)[1]) })
 `, -1);
   this.queryEditor.commands.addCommand({
     name: 'runCommand',
