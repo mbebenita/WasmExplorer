@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 var output;
 var cppEditor = null;
 var wastEditor = null;
@@ -234,7 +238,7 @@ function sendRequest(command, cb, message) {
     document.getElementById("spinner").style.visibility = "hidden";
     cb.call(this);
   });
-  xhr.open("POST", "//areweflashyet.com/tmp/wasm/service.php", true);
+  xhr.open("POST", WasmExplorerServiceBaseUrl + "service.php", true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
   xhr.send(command);
   if (message) {

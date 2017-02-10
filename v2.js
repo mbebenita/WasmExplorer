@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * You must include the dependency on 'ngMaterial' 
  */
@@ -48,7 +52,9 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this._scope = $scope;
   this._timeout = $timeout;
   this._mdSidenav = $mdSidenav;
-  
+
+  this.appVersion = WasmExplorerVersion;
+
   this.sourceEditor = null;
   this.wastEditor = null;
   this.assemblyEditor = null;
@@ -85,6 +91,8 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
 
   this.optionChanged();
 
+  this.requestServiceVersion();
+ 
   this.examples = Object.getOwnPropertyNames(cppExamples);
   this.selectedExample;
 
@@ -574,7 +582,7 @@ p.sendRequest = function sendRequest(command, cb, message) {
     self._scope.$apply();
     cb.call(this);
   });
-  xhr.open("POST", "//areweflashyet.com/tmp/wasm/service.php", true);
+  xhr.open("POST", WasmExplorerServiceBaseUrl + "service.php", true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
   xhr.send(command);
   self.showProgress(message);
@@ -844,6 +852,17 @@ For bugs, comments and suggestions see: http://mbebenita.github.io/WasmExplorer
 Built with Clang/LLVM, AngularJS, Ace Editor, Emscripten, SpiderMonkey, Binaryen and Capstone.js.
 
 `);
+};
+
+p.requestServiceVersion = function () {
+  var xhr = new XMLHttpRequest();
+  var self = this;
+  xhr.addEventListener("load", function () {
+    var info = JSON.parse(this.responseText);
+    self.appendConsole(`Service version ${info.version} (js: ${info.js}; clang: ${info.clang}; binaryen: ${info.binaryen})`);
+  });
+  xhr.open("GET", WasmExplorerServiceBaseUrl + "version.php", true);
+  xhr.send();
 };
 
 // URL Shortening
