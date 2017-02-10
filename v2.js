@@ -125,7 +125,7 @@ var p = WasmExplorerAppCtrl.prototype;
 
 var booleanOptionNames = [
   'showGutter', 'showConsole', 'showOptions', 'autoCompile', 'showLLVM', 'darkMode',
-  'fastMath', 'noInline', 'noRTTI', 'noExceptions', 'cleanWast'
+  'fastMath', 'noInline', 'noRTTI', 'noExceptions', 'cleanWast', 'wasmBaseline'
 ];
 
 var stringOptionNames = [
@@ -172,6 +172,7 @@ p.loadOptionDefaults = function() {
   set("noRTTI", false);
   set("noExceptions", false);
   set("cleanWast", false);
+  set("wasmBaseline", false);
 
   set("dialect", "C++11");
   set("optimizationLevel", "s");
@@ -220,6 +221,7 @@ p.loadUrlParameters = function () {
     this.noRTTI = state.options.noRTTI;
     this.noExceptions = state.options.noExceptions;
     this.cleanWast = state.options.cleanWast;
+    this.wasmBaseline = state.options.wasmBaseline;
   }
 };
 p.optionChanged = function (uiOnlyOption) {
@@ -477,7 +479,10 @@ p.assemble = function assemble() {
     self.wastEditor.getSession().clearAnnotations();
     var inputString = encodeURIComponent(wast).replace('%20', '+');
     var actionString = "wast2assembly";
-    self.sendRequest("input=" + inputString + "&action=" + actionString, function () {
+    var options = self.wasmBaseline ? "--wasm-always-baseline" : "";
+    var optionsString = encodeURIComponent(options).replace('%20', '+');
+    self.sendRequest("input=" + inputString + "&action=" + actionString +
+                     "&options=" + optionsString, function () {
       var json = JSON.parse(this.responseText);
       if (typeof json === "string") {
         var parseError = "wasm text error: parsing wasm text at ";

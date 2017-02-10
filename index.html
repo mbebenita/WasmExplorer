@@ -96,6 +96,10 @@
           <md-checkbox ng-model="vm.cleanWast" aria-label="Clean WAST" ng-change="vm.optionChanged()">
           Clean WAST
           </md-checkbox><br>
+          <md-checkbox ng-model="vm.wasmBaseline" aria-label="Baseline JIT" ng-change="vm.optionChanged()">
+          Baseline JIT
+          </md-checkbox><br>
+
           
           <md-button ng-click="vm.fileBug($event)" class="md-raised" style="margin-left: -3px; width: 100%">File Bugzilla Bug
           <md-tooltip md-direction="top">
