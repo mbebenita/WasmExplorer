@@ -117,7 +117,7 @@ var p = WasmExplorerAppCtrl.prototype;
 
 var booleanOptionNames = [
   'showGutter', 'showConsole', 'showOptions', 'autoCompile', 'showLLVM', 'darkMode',
-  'fastMath', 'noInline', 'noRTTI', 'noExceptions'
+  'fastMath', 'noInline', 'noRTTI', 'noExceptions', 'cleanWast'
 ];
 
 var stringOptionNames = [
@@ -163,6 +163,7 @@ p.loadOptionDefaults = function() {
   set("noInline", false);
   set("noRTTI", false);
   set("noExceptions", false);
+  set("cleanWast", false);
 
   set("dialect", "C++11");
   set("optimizationLevel", "s");
@@ -210,6 +211,7 @@ p.loadUrlParameters = function () {
     this.noInline = state.options.noInline;
     this.noRTTI = state.options.noRTTI;
     this.noExceptions = state.options.noExceptions;
+    this.cleanWast = state.options.cleanWast;
   }
 };
 p.optionChanged = function (uiOnlyOption) {
@@ -323,6 +325,7 @@ p.gatherOptions = function() {
   if (this.noInline) options.push("-fno-inline");
   if (this.noRTTI) options.push("-fno-rtti");
   if (this.noExceptions) options.push("-fno-exceptions");
+  if (this.cleanWast) options.push("--clean");
   return options;
 };
 

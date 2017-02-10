@@ -29,7 +29,7 @@
         </md-button>
         <span style="font-weight: bold;">WebAssembly Explorer</span>
         <span flex></span>
-        <span>v2.4</span>
+        <span>v2.5</span>
         </md-toolbar>
       </div>
       <div layout="row" flex>
@@ -88,6 +88,9 @@
           </md-checkbox><br>
           <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.optionChanged()">
           No Exceptions
+          </md-checkbox><br>
+          <md-checkbox ng-model="vm.cleanWast" aria-label="Clean WAST" ng-change="vm.optionChanged()">
+          Clean WAST
           </md-checkbox><br>
           
           <md-button ng-click="vm.fileBug($event)" class="md-raised" style="margin-left: -3px; width: 100%">File Bugzilla Bug
