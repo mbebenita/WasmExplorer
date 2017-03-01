@@ -310,8 +310,8 @@ function assemble() {
     document.getElementById('downloadLink').href = '';
     return;
   }
-  if (typeof capstone === "undefined") {
-    lazyLoad("lib/capstone.x86.min.js", go);
+  if (typeof MCapstone === "undefined") {
+    lazyLoad(CapstoneLibraryPath, go);
   } else {
     go();
   }
@@ -343,7 +343,8 @@ function assemble() {
         return;
       }
       var s = "";
-      var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+      var capstone = window.cs;
+      var cs = new capstone.Capstone(capstone.ARCH_X86, capstone.MODE_64);
       for (var i = 0; i < json.regions.length; i++) {
         var region = json.regions[i];
         s += region.name + ":\n\n";
@@ -356,7 +357,7 @@ function assemble() {
         s += "\n";
       }
       x86Editor.getSession().setValue(s, 1);
-      cs.delete();
+      cs.close();
 
       buildDownload();
     }, "Assembling Wast to x86");

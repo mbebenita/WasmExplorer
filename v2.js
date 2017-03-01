@@ -54,6 +54,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this._mdSidenav = $mdSidenav;
 
   this.appVersion = WasmExplorerVersion;
+  this.x86ReferencePath = X86DocsPath;
 
   this.sourceEditor = null;
   this.wastEditor = null;
@@ -470,8 +471,8 @@ p.assemble = function assemble() {
     document.getElementById('downloadLink').href = '';
     return;
   }
-  if (typeof capstone === "undefined") {
-    self.lazyLoad("lib/capstone.x86.min.js", go);
+  if (typeof MCapstone === "undefined") {
+    self.lazyLoad(CapstoneLibraryPath, go);
   } else {
     go();
   }
@@ -503,7 +504,8 @@ p.assemble = function assemble() {
         return;
       }
       var s = "";
-      var cs = new capstone.Cs(capstone.ARCH_X86, capstone.MODE_64);
+      var capstone = window.cs;
+      var cs = new capstone.Capstone(capstone.ARCH_X86, capstone.MODE_64);
       var annotations = [];
 
       self.assemblyInstructionsByAddress = Object.create(null);
@@ -541,7 +543,7 @@ p.assemble = function assemble() {
       }
       self.assemblyEditor.getSession().setValue(s, 1);
       self.assemblyEditor.getSession().setAnnotations(annotations);
-      cs.delete();
+      cs.close();
       self.buildDownload();
     }, "Compiling .wast to x86");
 

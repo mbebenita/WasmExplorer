@@ -178,7 +178,7 @@
               <div flex id="assemblyCodeContainer"></div>
               <div style="background-color: #2980b9; color: #FAFAFA; height: 22x; padding: 6px; font-size: 14px;">
                 <i class="material-icons" style="font-size: 18px;">help</i>
-                <a href="x86Reference/{{vm.instructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.instructionDescription.description}}</a>
+                <a href="{{vm.x86ReferencePath}}{{vm.instructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.instructionDescription.description}}</a>
               </div>
             </div>
             <div flex flex layout="column" ng-show="vm.showLLVM">
@@ -192,7 +192,7 @@
               <div flex id="llvmAssemblyCodeContainer"></div>
               <div style="background-color: #3E2723; color: #FAFAFA; height: 22x; padding: 6px; font-size: 14px;">
                 <i class="material-icons" style="font-size: 18px;">help</i>
-                <a href="x86Reference/{{vm.llvmInstructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.llvmInstructionDescription.description}}</a>
+                <a href="{{vm.x86ReferencePath}}{{vm.llvmInstructionDescription.path}}.html" target="x86Reference" style="color: #FAFAFA;">{{vm.llvmInstructionDescription.description}}</a>
               </div>
             </div>
           </div>
