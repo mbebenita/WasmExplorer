@@ -472,7 +472,11 @@ p.assemble = function assemble() {
     return;
   }
   if (typeof MCapstone === "undefined") {
-    self.lazyLoad(CapstoneLibraryPath, go);
+    self.lazyLoad(CapstoneLibraryPath, function () {
+      var capstone = window.cs;
+      self._capstoneInstance = new capstone.Capstone(capstone.ARCH_X86, capstone.MODE_64);
+      go();
+    });
   } else {
     go();
   }
@@ -504,8 +508,7 @@ p.assemble = function assemble() {
         return;
       }
       var s = "";
-      var capstone = window.cs;
-      var cs = new capstone.Capstone(capstone.ARCH_X86, capstone.MODE_64);
+      var cs = self._capstoneInstance;
       var annotations = [];
 
       self.assemblyInstructionsByAddress = Object.create(null);
@@ -543,7 +546,6 @@ p.assemble = function assemble() {
       }
       self.assemblyEditor.getSession().setValue(s, 1);
       self.assemblyEditor.getSession().setAnnotations(annotations);
-      cs.close();
       self.buildDownload();
     }, "Compiling .wast to x86");
 
