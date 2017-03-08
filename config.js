@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var WasmExplorerVersion = "v2.11";
+var WasmExplorerVersion = "v2.12";
 
-var WasmExplorerServiceBaseUrl = "//areweflashyet.com/tmp/wasm/";
+var WasmExplorerServiceBaseUrl = "https://wasmexplorer-service.herokuapp.com/";
 
 var CapstoneLibraryPath = "//npmcdn.com/wasdk-capstone-x86/lib/capstone-x86.min.js";
 
