@@ -595,6 +595,10 @@ p.sendRequest = function sendRequest(command, cb, message) {
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
   xhr.send(command);
   self.showProgress(message);
+
+  var evt = document.createEvent('CustomEvent');
+  evt.initCustomEvent('serviceevent', false, false, { 'label': message });
+  window.dispatchEvent(evt);
 };
 
 function setDefaultEditorSettings(editor, options) {
