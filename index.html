@@ -101,6 +101,12 @@
           </md-checkbox><br>
 
           
+          <md-button ng-click="vm.openInFiddle($event)" class="md-raised" style="margin-left: -3px; width: 100%">Open in WasmFiddle
+          <md-tooltip md-direction="top">
+          Opens C/C++ file in WasmFiddle
+          </md-tooltip>
+          </md-button><br>
+
           <md-button ng-click="vm.fileBug($event)" class="md-raised" style="margin-left: -3px; width: 100%">File Bugzilla Bug
           <md-tooltip md-direction="top">
           File a bug with the highlighted text.
@@ -108,7 +114,7 @@
           </md-button><br>
           <md-button ng-click="vm.collaborate($event)" class="md-raised" style="margin-left: -3px; width: 100%">Collaborate</md-button><br>
           <md-button ng-click="vm.share($event)" class="md-raised" style="margin-left: -3px; width: 100%">Create a Persistant Link</md-button>
-          <md-button ng-href="query.html" class="md-raised" style="margin-left: -3px; width: 100%">Query</md-button>          
+
           <md-input-container class="md-block">
           <label>Sharing Link</label>
           <input name="clientName" ng-model="vm.sharingLink">

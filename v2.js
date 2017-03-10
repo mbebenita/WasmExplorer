@@ -122,6 +122,12 @@ function getMobileOperatingSystem() {
   }
 }
 
+var RunnerCode =
+  "WebAssembly.instantiate(wasmCode, {/* imports */}).then(({instance}) => {\n" +
+  "  var memory = instance.exports.memory;\n" +
+  "  // call any exported function, e.g. instance.exports.main()\n" +
+  "  log(Object.keys(instance.exports));\n});";
+
 var p = WasmExplorerAppCtrl.prototype;
 
 var booleanOptionNames = [
@@ -393,6 +399,32 @@ p.compile = function compile() {
 };
 p.collaborate = function collaborate() {
   TogetherJS(this);
+};
+p.openInFiddle = function () {
+  var cppCode = this.sourceEditor.getValue();
+  if (!cppCode) {
+    window.open(WasmFiddleUrl, '_self');
+    return;
+  }
+  var options = "-O" + this.optimizationLevel
+  " -std=" + this.dialect.toLowerCase();
+  var json = JSON.stringify({
+    "editors": {
+      "main": cppCode,
+      "harness": RunnerCode
+    },
+    "compilerOptions": options
+  });
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener("load", function () {
+    var uri = JSON.parse(this.response).uri;
+    var id = uri.substring(uri.lastIndexOf("/") + 1);
+    window.open(WasmFiddleUrl + '?' + id, '_self');
+  });
+  xhr.open("POST", "//api.myjson.com/bins", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(json);
+
 };
 p.fileBug = function () {
   function getSelectedText(editor) {
