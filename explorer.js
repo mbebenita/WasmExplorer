@@ -4,7 +4,7 @@
 
 var output;
 var cppEditor = null;
-var wastEditor = null;
+var watEditor = null;
 var x86Editor = null;
 
 function createBanner() {
@@ -103,10 +103,10 @@ function createCppEditor() {
 
 }
 
-function createWastEditor() {
-  wastEditor = ace.edit("wastCodeContainer");
-  setDefaultEditorSettings(wastEditor);
-  wastEditor.commands.addCommand({
+function createWatEditor() {
+  watEditor = ace.edit("watCodeContainer");
+  setDefaultEditorSettings(watEditor);
+  watEditor.commands.addCommand({
     name: 'assembleCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
     exec: function(editor) {
@@ -128,7 +128,7 @@ function begin() {
 
   ace.require("ace/ext/language_tools");
   createCppEditor();
-  createWastEditor();
+  createWatEditor();
   createX86Editor();
 
   createExamples();
@@ -138,7 +138,7 @@ function begin() {
 
 document.getElementById('toggleSettings').onclick = toggleSettings;
 document.getElementById('shareCpp').onclick = share.bind(null, "cpp");
-document.getElementById('shareWast').onclick = share.bind(null, "wast");
+document.getElementById('shareWat').onclick = share.bind(null, "wat");
 document.getElementById('compileC').onclick = compile.bind(null, "c");
 document.getElementById('compile').onclick = compile.bind(null, "cpp");
 document.getElementById('assemble').onclick = assemble;
@@ -180,16 +180,16 @@ function beautify() {
       Binaryen = Binaryen();
       isBinaryenInstantiated = true;
     }
-    var wast = wastEditor.getValue();
+    var wat = watEditor.getValue();
     var module = new Binaryen.Module();
-    var parser = new Binaryen.SExpressionParser(wast);
+    var parser = new Binaryen.SExpressionParser(wat);
     var s_module = parser.get_root().getChild(0);
     var builder = new Binaryen.SExpressionWasmBuilder(module, s_module);
 
-    wast = captureOutput(function() {
+    wat = captureOutput(function() {
       Binaryen.WasmPrinter.prototype.printModule(module);
     });
-    wastEditor.setValue(wast, 1);
+    watEditor.setValue(wat, 1);
     var interface_ = new Binaryen.ShellExternalInterface();
     var instance = new Binaryen.ModuleInstance(module, interface_);
   }
@@ -222,7 +222,7 @@ function share(type) {
   if (type == "cpp") {
     url = url + "?cpp=" + encodeURIComponent(cppEditor.getValue());  
   } else {
-    url = url + "?wast=" + encodeURIComponent(wastEditor.getValue());  
+    url = url + "?wat=" + encodeURIComponent(watEditor.getValue());  
   }
   url += "&settings=" + encodeURIComponent(JSON.stringify(gui.getSaveObject()))
   $('#shareURL').fadeTo(500,1);
@@ -248,7 +248,7 @@ function sendRequest(command, cb, message) {
 }
 
 function compile(language) {
-  var action = language === "c" ? "c2wast" : "cpp2wast";
+  var action = language === "c" ? "c2wat" : "cpp2wat";
   var options = ["-O" + cppOptions['Optimization Level']];
 
   llvmTransformPasses.forEach(x => {
@@ -260,13 +260,13 @@ function compile(language) {
   var cpp = cppEditor.getValue();
   cppEditor.getSession().clearAnnotations();
   sendRequest("input=" + encodeURIComponent(cpp).replace('%20', '+') + "&action=" + action + "&options=" + encodeURIComponent(options.join(" ")), function () {
-    var wast = this.responseText;
+    var wat = this.responseText;
 
     // Parse and annotate errors if compilation fails.
-    if (wast.indexOf("(module") !== 0) {
+    if (wat.indexOf("(module") !== 0) {
       var re = /^.*?:(\d+?):(\d+?):(.*)$/gm; 
       var m;
-      while ((m = re.exec(wast)) !== null) {
+      while ((m = re.exec(wat)) !== null) {
         if (m.index === re.lastIndex) {
             re.lastIndex++;
         }
@@ -282,30 +282,30 @@ function compile(language) {
       }
     }
     
-    wastEditor.setValue(wast, 1);
+    watEditor.setValue(wat, 1);
     assemble();
-  }, "Compiling C/C++ to Wast");
+  }, "Compiling C/C++ to Wat");
 }
 
 function buildDownload() {
   document.getElementById('downloadLink').href = '';
-  var wast = wastEditor.getValue();
-  if (!/^\s*\(module\b/.test(wast)) {
+  var wat = watEditor.getValue();
+  if (!/^\s*\(module\b/.test(wat)) {
     return; // Sanity check
   }
-  sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2wasm", function () {
+  sendRequest("input=" + encodeURIComponent(wat).replace('%20', '+') + "&action=wat2wasm", function () {
     var wasm = this.responseText;
     if (wasm.indexOf("WASM binary data") < 0) {
       console.log('Error during WASM compilation: ' + wasm);
       return;
     }
     document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
-  }, "Compiling Wast to Wasm");
+  }, "Compiling Wat to Wasm");
 }
 
 function assemble() {
-  var wast = wastEditor.getValue();
-  if (wast.indexOf("module") < 0) {
+  var wat = watEditor.getValue();
+  if (wat.indexOf("module") < 0) {
     x86Editor.getSession().setValue("; Doesn't look like a wasm module.", 1);
     document.getElementById('downloadLink').href = '';
     return;
@@ -316,8 +316,8 @@ function assemble() {
     go();
   }
   function go() {
-    wastEditor.getSession().clearAnnotations();
-    sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2assembly", function () {
+    watEditor.getSession().clearAnnotations();
+    sendRequest("input=" + encodeURIComponent(wat).replace('%20', '+') + "&action=wat2assembly", function () {
       var json = JSON.parse(this.responseText);
       if (typeof json === "string") {
         var parseError = "wasm text error: parsing wasm text at ";
@@ -326,9 +326,9 @@ function assemble() {
           var line = Number(location[0]) - 1;
           var column = Number(location[1]) - 1;
           var Range = ace.require('ace/range').Range;
-          var mark = wastEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
+          var mark = watEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
 
-          wastEditor.getSession().setAnnotations([{
+          watEditor.getSession().setAnnotations([{
             row: line,
             column: column,
             text: json,
@@ -336,7 +336,7 @@ function assemble() {
           }]);
 
           setTimeout(function() {
-            wastEditor.session.removeMarker(mark);
+            watEditor.session.removeMarker(mark);
           }, 5000);
         }
         x86Editor.getSession().setValue("; " + json, 1);
@@ -360,7 +360,7 @@ function assemble() {
       cs.close();
 
       buildDownload();
-    }, "Assembling Wast to x86");
+    }, "Assembling Wat to x86");
   }
 
   function padRight(s, n, c) {
@@ -399,19 +399,19 @@ $(".divider").draggable({
   drag: function(e, ui) {
     if (ui.helper[0].id === "divider-1") {
       $("#x86Container").css("flex", "0 1 " + $("#x86Container").width() + "px"); 
-      $("#wastContainer").css("flex", "1");
+      $("#watContainer").css("flex", "1");
       $("#cppContainer").css("flex", "0 1 " + (ui.offset.left - 20) + "px");
     } else if (ui.helper[0].id === "divider-2") {
       $("#cppContainer").css("flex", "0 1 " + $("#cppContainer").width() + "px");
       $("#x86Container").css("flex", "1");
-      $("#wastContainer").css("flex", "0 1 " + (divider2storage + ui.position.left) + "px");
+      $("#watContainer").css("flex", "0 1 " + (divider2storage + ui.position.left) + "px");
     }
   },
   stop: function(e, ui) {
     if (ui.helper[0].id === "divider-2") {
       divider2storage = divider2storage + ui.position.left;
     } else {
-      divider2storage = $("#wastContainer").width();
+      divider2storage = $("#watContainer").width();
     }
   }
 });
@@ -530,8 +530,8 @@ function createExamples() {
   if (urlParameters["cpp"]) {
     cppEditor.setValue(urlParameters["cpp"], 1);
     compile();
-  } else if (urlParameters["wast"]) {
-    wastEditor.setValue(urlParameters["wast"], 1);
+  } else if (urlParameters["wat"]) {
+    watEditor.setValue(urlParameters["wat"], 1);
     assemble();
   } else {
     cppEditor.setValue(cppExamples["popcnt"], 1);
