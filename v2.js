@@ -57,7 +57,7 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
   this.x86ReferencePath = X86DocsPath;
 
   this.sourceEditor = null;
-  this.wastEditor = null;
+  this.watEditor = null;
   this.assemblyEditor = null;
   this.assemblyEditorMarkers = [];
   this.assemblyInstructionsByAddress = {};
@@ -69,14 +69,14 @@ function WasmExplorerAppCtrl($scope, $timeout, $mdSidenav) {
 
   
   this.createSourceEditor();
-  this.createWastEditor();
+  this.createWatEditor();
   this.createAssemblyEditor();
   this.createLLVMAssemblyEditor();
   this.createConsoleEditor();
 
   this.editors = [
     this.sourceEditor,
-    this.wastEditor,
+    this.watEditor,
     this.assemblyEditor,
     this.llvmAssemblyEditor,
     this.consoleEditor
@@ -132,7 +132,7 @@ var p = WasmExplorerAppCtrl.prototype;
 
 var booleanOptionNames = [
   'showGutter', 'showConsole', 'showOptions', 'autoCompile', 'showLLVM', 'darkMode',
-  'fastMath', 'noInline', 'noRTTI', 'noExceptions', 'cleanWast', 'wasmBaseline'
+  'fastMath', 'noInline', 'noRTTI', 'noExceptions', 'cleanWat', 'wasmBaseline'
 ];
 
 var stringOptionNames = [
@@ -178,7 +178,7 @@ p.loadOptionDefaults = function() {
   set("noInline", false);
   set("noRTTI", false);
   set("noExceptions", false);
-  set("cleanWast", false);
+  set("cleanWat", false);
   set("wasmBaseline", false);
 
   set("dialect", "C++11");
@@ -218,8 +218,8 @@ p.loadUrlParameters = function () {
     if (state.source) {
       this.sourceEditor.setValue(state.source, -1);
     }
-    if (state.wast) {
-      this.wastEditor.setValue(state.wast, -1);
+    if (state.wat) {
+      this.watEditor.setValue(state.wat, -1);
     }
     this.dialect = state.options.dialect;
     this.optimizationLevel = state.options.optimizationLevel;
@@ -227,7 +227,7 @@ p.loadUrlParameters = function () {
     this.noInline = state.options.noInline;
     this.noRTTI = state.options.noRTTI;
     this.noExceptions = state.options.noExceptions;
-    this.cleanWast = state.options.cleanWast;
+    this.cleanWat = state.options.cleanWat;
     this.wasmBaseline = state.options.wasmBaseline;
   }
 };
@@ -236,7 +236,7 @@ p.optionChanged = function (uiOnlyOption) {
 
   var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
   this.sourceEditor.setTheme(theme);
-  this.wastEditor.setTheme(theme);
+  this.watEditor.setTheme(theme);
   this.assemblyEditor.setTheme(theme);
   this.llvmAssemblyEditor.setTheme(theme);
 
@@ -311,7 +311,7 @@ p.toggleConsole = function toggleConsole() {
 p.execute = function execute() {
   var self = this;
   var options = [];
-  var source = this.wastEditor.getValue();
+  var source = this.watEditor.getValue();
   if (source.trim() == "") {
     return;
   }
@@ -330,7 +330,7 @@ p.execute = function execute() {
   // var source = source.split("\n").map(function(s) {
   //   return "\"" + s + "\\n\"";
   // }).join("\n");
-  this.wastEditor.setValue(source);
+  this.watEditor.setValue(source);
 };
 
 p.gatherOptions = function() {
@@ -342,7 +342,7 @@ p.gatherOptions = function() {
   if (this.noInline) options.push("-fno-inline");
   if (this.noRTTI) options.push("-fno-rtti");
   if (this.noExceptions) options.push("-fno-exceptions");
-  if (this.cleanWast) options.push("--clean");
+  if (this.cleanWat) options.push("--clean");
   return options;
 };
 
@@ -354,19 +354,19 @@ p.compile = function compile() {
     return;
   }
   var inputString = encodeURIComponent(source).replace('%20', '+');
-  var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wast" : "c2wast";
+  var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2wat" : "c2wat";
 
   var optionsString = encodeURIComponent(this.gatherOptions().join(" "));
   self.sourceEditor.getSession().clearAnnotations();
   self.sendRequest("input=" + inputString + "&action=" + actionString + "&options=" + optionsString, function () {
-    var wast = this.responseText;
+    var wat = this.responseText;
 
     // Parse and annotate errors if compilation fails.
-    if (wast.indexOf("(module") !== 0) {
+    if (wat.indexOf("(module") !== 0) {
       var re = /^.*?:(\d+?):(\d+?):(.*)$/gm; 
       var m;
       var annotations = [];
-      while ((m = re.exec(wast)) !== null) {
+      while ((m = re.exec(wat)) !== null) {
         if (m.index === re.lastIndex) {
             re.lastIndex++;
         }
@@ -381,13 +381,13 @@ p.compile = function compile() {
         });
       }
       self.sourceEditor.getSession().setAnnotations(annotations);
-      self.appendConsole(wast);
+      self.appendConsole(wat);
       return;
     }
 
-    self.wastEditor.setValue(wast, -1);
+    self.watEditor.setValue(wat, -1);
     self.assemble();
-  }, "Compiling C/C++ to Wast");
+  }, "Compiling C/C++ to Wat");
 
   if (this.showLLVM) {
     var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2x86" : "c2x86";
@@ -445,9 +445,9 @@ p.fileBug = function () {
     comment += getSelectedText(self.sourceEditor);
 
     if (!self.showLLVM) {
-      comment += "\n\nWast:\n";
+      comment += "\n\nWat:\n";
       comment += "===============================\n";
-      comment += getSelectedText(self.wastEditor);
+      comment += getSelectedText(self.watEditor);
     }
 
     comment += "\n\nFirefox:\n";
@@ -474,15 +474,15 @@ p.getShareUrl = function () {
     options[name] = self[name];
   });
   var source = self.sourceEditor.getValue();
-  var wast = self.wastEditor.getValue();
+  var wat = self.watEditor.getValue();
   var state = {
     options: options
   };
   if (source) {
-    // If we have C/C++ don't include the wast because it's usually too big.
+    // If we have C/C++ don't include the wat because it's usually too big.
     state.source = source;
   } else {
-    state.wast = wast;
+    state.wat = wat;
   }
   url += "?state=" + encodeURIComponent(JSON.stringify(state));
   return url;
@@ -497,8 +497,8 @@ p.share = function share() {
 };
 p.assemble = function assemble() {
   var self = this;
-  var wast = self.wastEditor.getValue();
-  if (wast.indexOf("module") < 0) {
+  var wat = self.watEditor.getValue();
+  if (wat.indexOf("module") < 0) {
     self.appendConsole("Doesn't look like a wasm module.");
     document.getElementById('downloadLink').href = '';
     return;
@@ -513,9 +513,9 @@ p.assemble = function assemble() {
     go();
   }
   function go() {
-    self.wastEditor.getSession().clearAnnotations();
-    var inputString = encodeURIComponent(wast).replace('%20', '+');
-    var actionString = "wast2assembly";
+    self.watEditor.getSession().clearAnnotations();
+    var inputString = encodeURIComponent(wat).replace('%20', '+');
+    var actionString = "wat2assembly";
     var options = self.wasmBaseline ? "--wasm-always-baseline" : "";
     var optionsString = encodeURIComponent(options).replace('%20', '+');
     self.sendRequest("input=" + inputString + "&action=" + actionString +
@@ -528,8 +528,8 @@ p.assemble = function assemble() {
           var line = Number(location[0]) - 1;
           var column = Number(location[1]) - 1;
           var Range = ace.require('ace/range').Range;
-          var mark = self.wastEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
-          self.wastEditor.getSession().setAnnotations([{
+          var mark = self.watEditor.getSession().addMarker(new Range(line, column, line, column + 1), "marked", "text", false);
+          self.watEditor.getSession().setAnnotations([{
             row: line,
             column: column,
             text: json,
@@ -579,7 +579,7 @@ p.assemble = function assemble() {
       self.assemblyEditor.getSession().setValue(s, 1);
       self.assemblyEditor.getSession().setAnnotations(annotations);
       self.buildDownload();
-    }, "Compiling .wast to x86");
+    }, "Compiling .wat to x86");
 
     function toBytes(a) {
       return a.map(function (x) { return padLeft(Number(x).toString(16), 2, "0"); }).join(" ");
@@ -588,18 +588,18 @@ p.assemble = function assemble() {
 }
 p.buildDownload = function() {
   document.getElementById('downloadLink').href = '';
-  var wast = this.wastEditor.getValue();
-  if (!/^\s*\(module\b/.test(wast)) {
+  var wat = this.watEditor.getValue();
+  if (!/^\s*\(module\b/.test(wat)) {
     return; // Sanity check
   }
-  this.sendRequest("input=" + encodeURIComponent(wast).replace('%20', '+') + "&action=wast2wasm", function () {
+  this.sendRequest("input=" + encodeURIComponent(wat).replace('%20', '+') + "&action=wat2wasm", function () {
     var wasm = this.responseText;
     if (wasm.indexOf("WASM binary data") < 0) {
       console.log('Error during WASM compilation: ' + wasm);
       return;
     }
     document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
-  }, "Compiling .wast to .wasm");
+  }, "Compiling .wat to .wasm");
 }
 p.download = function() {
   if (document.getElementById('downloadLink').href != document.location) {
@@ -695,7 +695,7 @@ p.resizeEditors = function() {
   });
   // var show = this.showGutter || window.innerWidth > 600;
   // this.sourceEditor.renderer.setShowGutter(show);
-  // this.wastEditor.renderer.setShowGutter(show);
+  // this.watEditor.renderer.setShowGutter(show);
   // this.assemblyEditor.renderer.setShowGutter(show);
 };
 
@@ -742,16 +742,16 @@ p.createSourceEditor = function() {
   });
 }
 
-p.createWastEditor = function() {
+p.createWatEditor = function() {
   var self = this;
-  this.wastEditor = ace.edit("wastCodeContainer");
-  setDefaultEditorSettings(this.wastEditor, {
+  this.watEditor = ace.edit("watCodeContainer");
+  setDefaultEditorSettings(this.watEditor, {
     wrap: true, 
     enableBasicAutocompletion: true,
     enableSnippets: true,
     enableLiveAutocompletion: true
   });
-  this.wastEditor.commands.addCommand({
+  this.watEditor.commands.addCommand({
     name: 'assembleCommand',
     bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
     exec: function(editor) {
@@ -954,27 +954,27 @@ function WasmExplorerQueryAppCtrl($scope) {
   this.createQueryEditor();
   this.createConsoleEditor();
   this.setTheme();
-  this.examples = ["Wast Source", "ab.wast", "bb.wast"];
-  this.selectedExample = "Wast Source";
+  this.examples = ["Wat Source", "ab.wat", "bb.wat"];
+  this.selectedExample = "Wat Source";
   this.selectedExampleAST = {};
 };
 
 var p = WasmExplorerQueryAppCtrl.prototype;
 p.setTheme = function() {
   var theme = this.darkMode ? "ace/theme/monokai" : "ace/theme/github";
-  this.wastEditor.setTheme(theme);
+  this.watEditor.setTheme(theme);
   this.consoleEditor.setTheme(theme);
   this.queryEditor.setTheme(theme);
 };
 p.createSourceEditor = function() {
   var self = this;
-  this.wastEditor = ace.edit("wastContainer");
-  setDefaultEditorSettings(this.wastEditor, {
+  this.watEditor = ace.edit("watContainer");
+  setDefaultEditorSettings(this.watEditor, {
     wrap: false
   });
-  this.wastEditor.setFontSize(12);
-  this.wastEditor.$blockScrolling = Infinity;
-  this.wastEditor.setValue(`(func foo
+  this.watEditor.setFontSize(12);
+  this.watEditor.$blockScrolling = Infinity;
+  this.watEditor.setValue(`(func foo
   (set_local $0
     (i32.add
       (i32.add
@@ -1152,7 +1152,7 @@ p.run = function () {
   var queryText = this.queryEditor.getValue();
   var queryAst = parseSExpression(queryText);
   
-  if (this.selectedExample !== "Wast Source") {
+  if (this.selectedExample !== "Wat Source") {
     var ast = this.selectedExampleAST[this.selectedExample];
     if (ast) {
       go(ast)
@@ -1174,7 +1174,7 @@ p.run = function () {
     
   } else {
     setTimeout(function () {
-      var ast = parseSExpression(self.wastEditor.getValue());  
+      var ast = parseSExpression(self.watEditor.getValue());  
       go(ast);
     }, 1);
   }
