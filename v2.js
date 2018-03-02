@@ -387,7 +387,7 @@ p.compile = function compile() {
 
     self.wastEditor.setValue(wast, -1);
     self.assemble();
-  }, "Compiling C/C++ to Wast");
+  }, "Compiling C/C++ to Wat");
 
   if (this.showLLVM) {
     var actionString = this.dialect.toLowerCase().indexOf("c++") >= 0 ? "cpp2x86" : "c2x86";
@@ -479,7 +479,7 @@ p.getShareUrl = function () {
     options: options
   };
   if (source) {
-    // If we have C/C++ don't include the wast because it's usually too big.
+    // If we have C/C++ don't include the wat because it's usually too big.
     state.source = source;
   } else {
     state.wast = wast;
@@ -579,7 +579,7 @@ p.assemble = function assemble() {
       self.assemblyEditor.getSession().setValue(s, 1);
       self.assemblyEditor.getSession().setAnnotations(annotations);
       self.buildDownload();
-    }, "Compiling .wast to x86");
+    }, "Compiling .wat to x86");
 
     function toBytes(a) {
       return a.map(function (x) { return padLeft(Number(x).toString(16), 2, "0"); }).join(" ");
@@ -599,7 +599,7 @@ p.buildDownload = function() {
       return;
     }
     document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
-  }, "Compiling .wast to .wasm");
+  }, "Compiling .wat to .wasm");
 }
 p.download = function() {
   if (document.getElementById('downloadLink').href != document.location) {
@@ -954,8 +954,8 @@ function WasmExplorerQueryAppCtrl($scope) {
   this.createQueryEditor();
   this.createConsoleEditor();
   this.setTheme();
-  this.examples = ["Wast Source", "ab.wast", "bb.wast"];
-  this.selectedExample = "Wast Source";
+  this.examples = ["Wat Source", "ab.wat", "bb.wat"];
+  this.selectedExample = "Wat Source";
   this.selectedExampleAST = {};
 };
 
@@ -1152,7 +1152,7 @@ p.run = function () {
   var queryText = this.queryEditor.getValue();
   var queryAst = parseSExpression(queryText);
   
-  if (this.selectedExample !== "Wast Source") {
+  if (this.selectedExample !== "Wat Source") {
     var ast = this.selectedExampleAST[this.selectedExample];
     if (ast) {
       go(ast)

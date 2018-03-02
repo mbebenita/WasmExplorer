@@ -93,8 +93,8 @@
           <md-checkbox ng-model="vm.noExceptions" aria-label="No Exceptions" ng-change="vm.optionChanged()">
           No Exceptions
           </md-checkbox><br>
-          <md-checkbox ng-model="vm.cleanWast" aria-label="Clean WAST" ng-change="vm.optionChanged()">
-          Clean WAST
+          <md-checkbox ng-model="vm.cleanWast" aria-label="Clean WAT" ng-change="vm.optionChanged()">
+          Clean WAT
           </md-checkbox><br>
           <md-checkbox ng-model="vm.wasmBaseline" aria-label="Baseline JIT" ng-change="vm.optionChanged()">
           Baseline JIT
@@ -140,7 +140,7 @@
                 <span flex></span>
                 <md-button ng-click="vm.compile($event)" class="md-raised">
                 <md-tooltip md-direction="top">
-                Compile C/C++ to Wast (Ctrl / Cmd + Enter)
+                Compile C/C++ to Wat (Ctrl / Cmd + Enter)
                 </md-tooltip>
                 Compile</md-button>
                 <!-- <md-button ng-click="vm.execute($event)" class="md-raised">
@@ -152,16 +152,16 @@
             <div flex layout="column" ng-show="!vm.showLLVM">
               <md-toolbar style="background-color: #9b59b6">
               <div class="md-toolbar-tools">
-                <span>Wast</span>
+                <span>Wat</span>
                 <span flex></span>
                 <md-button ng-click="vm.assemble($event)" class="md-raised">
                 <md-tooltip md-direction="top">
-                Compile/Assemble .wast using SpiderMonkey (Ctrl / Cmd + Enter)
+                Compile/Assemble .wat using SpiderMonkey (Ctrl / Cmd + Enter)
                 </md-tooltip>
                 Assemble</md-button>
                 <md-button ng-click="vm.download($event)" class="md-raised">
                 <md-tooltip md-direction="top">
-                Convert .wast to .wasm and download
+                Convert .wat to .wasm and download
                 </md-tooltip>
                 Download</md-button>
               </div>

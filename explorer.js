@@ -222,7 +222,7 @@ function share(type) {
   if (type == "cpp") {
     url = url + "?cpp=" + encodeURIComponent(cppEditor.getValue());  
   } else {
-    url = url + "?wast=" + encodeURIComponent(wastEditor.getValue());  
+    url = url + "?wat=" + encodeURIComponent(wastEditor.getValue());  
   }
   url += "&settings=" + encodeURIComponent(JSON.stringify(gui.getSaveObject()))
   $('#shareURL').fadeTo(500,1);
@@ -284,7 +284,7 @@ function compile(language) {
     
     wastEditor.setValue(wast, 1);
     assemble();
-  }, "Compiling C/C++ to Wast");
+  }, "Compiling C/C++ to Wat");
 }
 
 function buildDownload() {
@@ -300,7 +300,7 @@ function buildDownload() {
       return;
     }
     document.getElementById('downloadLink').href = "data:;base64," + wasm.split('\n')[1];
-  }, "Compiling Wast to Wasm");
+  }, "Compiling Wat to Wasm");
 }
 
 function assemble() {
@@ -360,7 +360,7 @@ function assemble() {
       cs.close();
 
       buildDownload();
-    }, "Assembling Wast to x86");
+    }, "Assembling Wat to x86");
   }
 
   function padRight(s, n, c) {
@@ -530,8 +530,8 @@ function createExamples() {
   if (urlParameters["cpp"]) {
     cppEditor.setValue(urlParameters["cpp"], 1);
     compile();
-  } else if (urlParameters["wast"]) {
-    wastEditor.setValue(urlParameters["wast"], 1);
+  } else if (urlParameters["wat"] || urlParameters["wast"]) {
+    wastEditor.setValue(urlParameters["wat"] || urlParameters["wast"], 1);
     assemble();
   } else {
     cppEditor.setValue(cppExamples["popcnt"], 1);
